@@ -1,0 +1,54 @@
+/* FLUX design tokens at 1920x1080 (1 FLUX unit = 8 px, 1 FLUX text point = 1 px).
+   Values and sources: extract/ui/spec/flux.md section 0. */
+:root {
+  --u: 8px;
+
+  --font-ui: 'SamsungOneUI', system-ui, sans-serif;
+  --fw-normal: 500;
+  --fw-label: 600;
+  --fw-label-focused: 700;
+
+  /* colour roles (dark theme) */
+  --text: #ffffff;
+  --text-focused: #000000;
+  --text-sub: rgba(255, 255, 255, 0.8);
+  --text-sub-focused: rgba(0, 0, 0, 0.8);
+  --text-selected: #33adff;
+  --text-selected-focused: #0099ff;
+  --text-disabled: rgba(255, 255, 255, 0.2);
+  --plate-button: rgba(0, 0, 0, 0.5);
+  --plate-button-stroke: rgba(255, 255, 255, 0.1);
+  --plate-focused: #e8e8e8;
+  --plate-tile: rgba(0, 0, 0, 0.2);
+  --accent: #33adff;
+  --accent-focused: #0099ff;
+
+  /* Smart Hub home chips (HomeCustom_ColorTable.json) */
+  --tv-bg: #0b1214;          /* CC_HomeBG_Dim_Home: covers CC_HomeBG_Main_Home #10171A */
+  --home-banner: #003652;
+  --home-sidebar: #0e171b;   /* CC_HomeBG_Side_Home */
+  --home-tile-line: #304652; /* CC_Point11100, unfocused tile inner line */
+
+  /* radii */
+  --r-1: 8px;
+  --r-2: 16px;
+  --r-4: 32px;
+
+  /* focus */
+  --focus-ring-width: 4px;
+  --focus-ring-color: #ffffff;
+  --focus-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+
+  /* motion */
+  --ease-elastic: cubic-bezier(0.21, 1.5, 0.54, 1);
+  --ease-out: cubic-bezier(0.15, 1, 0.35, 1);
+  --ease-basic: cubic-bezier(0.3, 0, 0.15, 1);
+  --ease-scroll: cubic-bezier(0.14, 0.8, 0.34, 1);
+  --ease-push: cubic-bezier(0.14, 1, 0.34, 1);
+  --dur-focus: 500ms;
+  --dur-fade: 300ms;
+  --dur-fade-short: 200ms;
+  --dur-press: 150ms;
+  --dur-scroll: 1000ms;
+  --dur-sidebar: 500ms;
+}

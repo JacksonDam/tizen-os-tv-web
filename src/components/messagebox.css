@@ -1,0 +1,70 @@
+/* FLUX popup (PopupPresetBase + i_img_popup_bg.9.webp), spec/flux.md 5.12. */
+.msgbox { position: absolute; inset: 0; z-index: 100; }
+.msgbox__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5); /* DimType 1 -> CC_Dim50 (inferred) */
+  animation: msgbox-fade 200ms var(--ease-basic);
+}
+
+.msgbox__area {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 712px;
+  translate: -50% -50%;
+  padding: 40px 48px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  animation:
+    msgbox-fade 200ms var(--ease-basic),
+    msgbox-scale 500ms var(--ease-elastic);
+}
+.msgbox--leaving .msgbox__dim,
+.msgbox--leaving .msgbox__area {
+  opacity: 0;
+  transition: opacity 200ms var(--ease-basic), scale 500ms var(--ease-out);
+}
+.msgbox--leaving .msgbox__area { scale: 0.95; }
+@keyframes msgbox-fade { from { opacity: 0; } }
+@keyframes msgbox-scale { from { scale: 0.95; } }
+
+.msgbox__title {
+  width: 100%;
+  height: 72px;
+  line-height: 72px;
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.msgbox__message {
+  width: 100%;
+  min-height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8); /* CC_Basic180 */
+}
+.msgbox__buttons { display: flex; gap: 8px; margin-top: 8px; }
+/* C_ButtonBasicText_02 with CP_Plane_PopupBTN_FS: black plate, 15% white stroke, T24 label, 30 x 7 u. */
+.msgbox__button {
+  position: relative;
+  width: 240px;
+  height: 56px;
+  font-size: 24px;
+  background: #000;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+}

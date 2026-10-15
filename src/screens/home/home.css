@@ -1,0 +1,244 @@
+/* Smart Hub home (com.samsung.tv.coba.newhome), "terms not agreed / not signed in" variant.
+   Geometry and motion: extract/ui/spec/home.md; tokens: spec/flux.md. */
+.home {
+  position: absolute;
+  inset: 0;
+  background: var(--tv-bg);
+  overflow: hidden;
+}
+
+/* Page content: slides +240 px (30 u) with the sidebar; fades out 100-450 ms when a system page
+   opens and comes back without animation. */
+.home__page {
+  position: absolute;
+  inset: 0;
+  transition: transform var(--dur-sidebar) var(--ease-basic);
+}
+.home--sidebar .home__page { transform: translateX(240px); }
+.home--system .home__page { opacity: 0; transition: transform var(--dur-sidebar) var(--ease-basic), opacity 350ms linear 100ms; }
+
+/* System page layer (Connected Devices): +352 px next to the open sidebar, 0 when entered. */
+.home__system {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  transition: transform var(--dur-sidebar) var(--ease-basic);
+  pointer-events: none;
+}
+.home--sidebar .home__system { transform: translateX(352px); }
+
+.home__list {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  transition: transform var(--dur-scroll) var(--ease-scroll);
+}
+
+.hrow { position: absolute; left: 0; width: 1920px; transition: transform var(--dur-scroll) var(--ease-push); }
+.hrow--banner { top: 0; height: 344px; }
+.hrow--tab { top: 344px; height: 184px; }
+.hrow--nowplaying { top: 528px; height: 328px; }
+.hrow--signin { top: 856px; height: 224px; }
+.hrow--options { top: 1080px; height: 336px; }
+.hrow--bottom { top: 1416px; height: 152px; }
+
+/* Shared list-item focus motion (NList): scale in 300 ms basic, out 500 ms out-curve. */
+.np-card,
+.signin,
+.option {
+  transition: scale 500ms var(--ease-out);
+}
+.np-card.is-focused,
+.signin.is-focused,
+.option.is-focused {
+  transition: scale 300ms var(--ease-basic);
+}
+
+/* Group titles ("Now Playing", "Media Options"): T32 in a 56 px band; 0.8x, 70% white, 500 when the
+   row is unfocused (pivot bottom-left); 1.0x, white, 700 when focused. */
+.group-title {
+  position: absolute;
+  left: 184px;
+  top: 0;
+  height: 56px;
+  line-height: 56px;
+  font-size: 32px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  transform-origin: 0 100%;
+  scale: 0.8;
+  transition: scale 300ms var(--ease-basic), translate 500ms var(--ease-basic);
+}
+.group-title.is-focused { scale: 1; color: #fff; font-weight: 700; }
+
+/* ---- Row 1: banner ---- */
+.banner__art { position: absolute; left: 0; top: 0; width: 1920px; height: 528px; }
+.banner__title {
+  position: absolute;
+  left: 176px;
+  top: 88px;              /* 64 px line at the bottom of the 128 px title box (y 24-152) */
+  font-size: 44px;
+  line-height: 64px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.banner__subtitle {
+  position: absolute;
+  left: 176px;
+  top: 167px;             /* subtitle box y 168, 48 px line */
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+.banner__guide {
+  position: absolute;
+  left: 1288px;
+  top: 336px;
+  width: 496px;
+  font-size: 12px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--text-sub);
+}
+.banner__setup { left: 176px; top: 296px; width: 344px; height: 72px; }
+
+/* ---- Row 2: Discover tab ---- */
+.tab__fade { position: absolute; left: 0; top: 0; width: 1920px; height: 184px; }
+.tab__backplate { position: absolute; left: 920px; top: 80px; width: 192px; height: 64px; }
+.home-tab {
+  position: absolute;
+  left: 924px;
+  top: 84px;
+  width: 184px;
+  height: 56px;
+  border-radius: 28px;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 56px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+/* Selected (current tab, focus elsewhere): home_i_bg_tab_selected.webp, a 30% white pill. */
+.home-tab.is-selected {
+  background: url('/tv/com.samsung.tv.coba.newhome/home_i_bg_tab_selected.webp') center / 100% 100%;
+  color: #fff;
+}
+.home-tab::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: #fff;
+  opacity: 0;
+  transition: opacity 200ms var(--ease-basic);
+}
+.home-tab span { position: relative; }
+.home-tab.is-focused { color: #000; }
+.home-tab.is-focused::before { opacity: 1; transition-duration: 500ms; }
+
+/* ---- Row 3: Now Playing ---- */
+.hrow--nowplaying.is-current .group-title { scale: 1; translate: 0 -13px; }
+.np-card {
+  position: absolute;
+  left: 184px;
+  top: 56px;
+  width: 456px;
+  height: 256px;
+  border-radius: 32px;
+  overflow: hidden;
+  background: #000;
+}
+.np-card img { display: block; width: 100%; height: 100%; }
+.hrow--nowplaying.is-current .np-card { scale: 1.1; }
+.np-card.is-focused { box-shadow: var(--focus-shadow); }
+
+/* ---- Row 4: sign-in banner ---- */
+.signin {
+  position: absolute;
+  left: 184px;
+  top: 28px;
+  width: 1048px;
+  height: 104px;
+  transform-origin: 0 50%;   /* push-back list: grows from its left edge */
+}
+.signin img { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 16px; }
+.signin.is-focused { scale: 1.2; }
+.signin__text {
+  position: absolute;
+  left: 464px;               /* bgLayout padding-left 58 u */
+  top: 20px;
+  width: 560px;              /* 70 x 8 u */
+  height: 64px;
+  line-height: 64px;
+  font-size: 20px;           /* T20 */
+  font-weight: 600;
+  white-space: nowrap;
+}
+.signin__disclaimer {
+  position: absolute;
+  left: 16px;                /* 127 u box centred under the 131 u banner */
+  top: 115px;                /* banner bottom + 1 u */
+  width: 1016px;
+  font-size: 16px;           /* T16 */
+  line-height: 28px;
+  font-weight: 400;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* ---- Row 5: Media Options ---- */
+.option {
+  position: absolute;
+  left: 184px;
+  top: 88px;
+  width: 176px;
+  height: 160px;
+}
+.option.is-focused { scale: 1.188; }
+.option__plate {
+  position: absolute;
+  left: 56px;
+  top: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);    /* CP_Plane110 */
+}
+.option.is-focused .option__plate { background: #fff; box-shadow: var(--focus-shadow); }
+.option__icon { position: absolute; inset: 0; }
+.option__title,
+.option__subtitle {
+  position: absolute;
+  left: 0;
+  width: 176px;
+  text-align: center;
+  white-space: nowrap;
+}
+.option__title { top: 96px; height: 40px; line-height: 40px; font-size: 24px; font-weight: 600; }
+.option__subtitle { top: 136px; height: 32px; line-height: 32px; font-size: 20px; font-weight: 700; color: rgba(255, 255, 255, 0.7); }
+
+/* ---- Row 6: Move to top (C_ButtonBasicIcon_01, 72 px circle, centred right of the sidebar) ---- */
+.gototop { left: 980px; top: 40px; width: 72px; height: 72px; padding: 0; border-radius: 50%; }
+.gototop.is-focused { scale: 1; }   /* NoScale */
+.gototop__icon {
+  width: 40px;
+  height: 40px;
+  background: currentColor;
+  mask: url('/tv/newhome-app/i_icon_function_gototop.svg') center / contain no-repeat;
+  -webkit-mask: url('/tv/newhome-app/i_icon_function_gototop.svg') center / contain no-repeat;
+}
+
+/* Knox logo: 216x40 at the bottom right, 50% white baked into the SVG. */
+.knox {
+  position: absolute;
+  left: 1656px;
+  top: 1016px;
+  width: 216px;
+  height: 40px;
+  opacity: 0;
+}
+.knox.is-shown { opacity: 1; transition: opacity 200ms linear 800ms; }

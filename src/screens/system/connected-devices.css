@@ -1,0 +1,60 @@
+/* Connected Devices panel (QLPanelView -> ConnectedDevicesLayout -> VPSourceGridLayout).
+   Positioned inside the system layer, which sits at +352 px while the sidebar is open. */
+.cd {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+.cd--shown {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 500ms var(--ease-basic);
+}
+
+/* 52x49 u panel anchored bottom-left: padding-left 10 u, padding-bottom 15 u. */
+.cd__panel {
+  position: absolute;
+  left: 80px;
+  top: 568px;
+  width: 416px;
+  height: 392px;
+  border-radius: 32px;
+  /* BlurView medium dim over a blur of the page; QEMU's software GL draws it flat #0F0F0F. */
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  outline: 2px solid rgba(128, 128, 128, 0.4);   /* centred on the edge */
+  outline-offset: -1px;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* C_Card_01, 22x19 u, r16. Unfocused CP_Plane110 (white 10%); focused white, scale 1.08 (instant). */
+.cd__card {
+  position: absolute;
+  width: 176px;
+  height: 152px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.cd__card.is-focused {
+  background: #fff;
+  scale: 1.08;
+  box-shadow: var(--focus-shadow);
+}
+.cd__icon { position: absolute; left: 16px; top: 16px; width: 56px; height: 56px; }
+.cd__title,
+.cd__subtitle {
+  position: absolute;
+  left: 16px;
+  width: 144px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* baselines at card+100 (24 px title) and card+134 (16 px subtitle), measured */
+.cd__title { top: 74px; height: 32px; line-height: 32px; font-size: 24px; color: #fff; }
+.cd__subtitle { top: 117px; height: 24px; line-height: 24px; font-size: 16px; color: rgba(255, 255, 255, 0.7); }
+.cd__card.is-focused .cd__title { color: #000; }
+.cd__card.is-focused .cd__subtitle { color: rgba(0, 0, 0, 0.7); }

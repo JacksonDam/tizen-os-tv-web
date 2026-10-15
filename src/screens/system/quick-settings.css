@@ -1,0 +1,328 @@
+/* QLPanel Quick Settings (spec/settings.md 3). Positions are inside the system layer, which sits at
+   +352 px while the sidebar is open (preview) and at 0 when the panel has focus. */
+.qs {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+.qs--shown {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 500ms var(--ease-basic);
+}
+
+/* BlurView(Dynamic, Medium) 52x70 u, r 32; grows to 52x80 u (upward) in edit mode over 300 ms. */
+.qs__panel {
+  position: absolute;
+  left: 80px;
+  top: 400px;
+  width: 416px;
+  height: 560px;
+  border-radius: 32px;
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  outline: 2px solid rgba(128, 128, 128, 0.4);
+  outline-offset: -1px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transition: top 300ms linear, height 300ms linear;
+}
+.qs--editing .qs__panel { top: 320px; height: 640px; }
+
+/* ---- Notification button: C_ButtonBasicText_02 Capsule2, 29x8 u, r 24, 2 u above the panel ---- */
+.qs__noti {
+  left: 80px;
+  top: 320px;
+  width: 232px;
+  height: 64px;
+  padding: 0 8px;
+  gap: 8px;
+  border-radius: 24px;
+  font-size: 24px;
+  font-weight: 500;
+  transition: opacity 500ms linear 83ms;
+}
+.qs__noti.is-focused { font-weight: 600; scale: 1.05; transition: none; }
+.qs__noti.is-hidden { opacity: 0; transition: opacity 500ms linear; }
+.qs__noti-icon {
+  width: 32px;
+  height: 32px;
+  background: currentColor;
+  mask: url('/tv/qlpanel/assets/home_i_icon_notification.svg') center / contain no-repeat;
+  -webkit-mask: url('/tv/qlpanel/assets/home_i_icon_notification.svg') center / contain no-repeat;
+}
+
+/* ---- Level 1 ---- */
+.qs__l1 {
+  position: absolute;
+  inset: 0;
+  transition: opacity 500ms linear, transform 500ms linear;
+}
+.qs__l1.is-away { opacity: 0; }
+.qs__l1.is-current { animation: qs-level-in 500ms linear 83ms both; }
+@keyframes qs-level-in { from { opacity: 0; transform: translateX(-40px); } }
+
+/* Grid 50x66 u, bottom-centred: (8, 32, 400, 528); cells 200x168, column-major, 6 per page. */
+.qs__viewport { position: absolute; left: 8px; top: 32px; width: 400px; height: 528px; overflow: hidden; }
+.qs__pages { position: absolute; inset: 0; transition: transform 1000ms var(--ease-push); }
+
+.qs-tile { position: absolute; width: 200px; height: 168px; }
+.qs-tile__plate {
+  position: absolute;
+  left: 60px;
+  top: 4px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);       /* CP_Plane110 */
+}
+.qs-tile.is-focused .qs-tile__plate { background: #fff; }
+.qs-tile.is-moving .qs-tile__plate { box-shadow: 0 0 0 4px var(--accent); }
+.qs-tile__icon { position: absolute; left: 8px; top: 8px; width: 64px; height: 64px; opacity: 0.9; }
+.qs-tile__icon--dots { left: 12px; top: 8px; width: 56px; height: 56px; }
+.qs-tile.is-off .qs-tile__icon,
+.qs-tile.is-off .qs-tile__dots { opacity: 0.4; }
+/* The focus overlay draws the glyph black (CC_Basic2100), except for coloured icons. */
+.qs-tile.is-focused .qs-tile__icon { filter: brightness(0); opacity: 1; }
+.qs-tile.is-focused.qs-tile--coloured .qs-tile__icon { filter: none; }
+.qs-tile__dots {
+  position: absolute;
+  left: 12px;
+  top: 64px;
+  width: 56px;
+  height: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.qs-tile__dots span { width: 8px; height: 8px; display: flex; align-items: center; justify-content: center; }
+.qs-tile__dots span::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); }
+.qs-tile__dots span.is-current::before { width: 6px; height: 6px; background: rgba(255, 255, 255, 0.9); }
+.qs-tile.is-focused .qs-tile__dots span::before { background: rgba(0, 0, 0, 0.4); }
+.qs-tile.is-focused .qs-tile__dots span.is-current::before { background: #000; }
+
+.qs-tile__title,
+.qs-tile__subtitle {
+  position: absolute;
+  left: 16px;
+  width: 168px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+.qs-tile__title { top: 92px; height: 40px; line-height: 40px; font-size: 24px; color: rgba(255, 255, 255, 0.9); }
+.qs-tile__subtitle { top: 132px; height: 32px; line-height: 32px; font-size: 20px; color: rgba(255, 255, 255, 0.5); opacity: 0; }
+.qs-tile.is-focused .qs-tile__subtitle { opacity: 1; }
+
+/* Page indicator (C_Pagination_01 dots) below the 3 rows, only with more than 6 tiles. */
+.qs__pagination {
+  position: absolute;
+  left: 8px;
+  top: 536px;
+  width: 400px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.qs__pagination span { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; }
+.qs__pagination span::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); }
+.qs__pagination span.is-current::before { width: 7px; height: 7px; background: #fff; }
+
+/* Edit mode: Done row (50x10 u) under the grid, fades in over 833 ms; toast to the right. */
+.qs__done-row {
+  position: absolute;
+  left: 8px;
+  top: 560px;
+  width: 400px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: qs-fade-in 833ms linear;
+}
+@keyframes qs-fade-in { from { opacity: 0; } }
+.qs__done { position: relative; width: 208px; height: 56px; font-size: 24px; }
+.qs__toast {
+  position: absolute;
+  left: 512px;
+  top: 400px;
+  max-width: 416px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #000;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  animation:
+    msgbox-fade 200ms var(--ease-basic),
+    msgbox-scale 500ms var(--ease-elastic);
+}
+
+/* ---- Level 2 list and the Brightness gadget ---- */
+.qs-l2,
+.qs-gadget {
+  position: absolute;
+  inset: 0;
+  animation: qs-l2-in 500ms linear 83ms both;
+}
+@keyframes qs-l2-in { from { opacity: 0; transform: translateX(40px); } }
+
+.qs-l2__top,
+.qs-gadget__top {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 416px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+.qs-l2__title,
+.qs-gadget__title {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  font-size: 26px;
+  font-weight: 500;
+}
+.qs-gadget__title { font-size: 28px; font-weight: 600; }
+
+/* C_ButtonBasicIcon_01 48x48 with the CP_Plane200 plate (transparent, white when focused). */
+.qs-back {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.qs-back.is-focused { background: #fff; color: #000; }
+.qs-back__icon {
+  width: 40px;
+  height: 40px;
+  background: currentColor;
+  mask: url('/tv/qlpanel/res/setting_icon_top_arrow_reverse.svg') center / contain no-repeat;
+  -webkit-mask: url('/tv/qlpanel/res/setting_icon_top_arrow_reverse.svg') center / contain no-repeat;
+}
+
+.qs-l2__list,
+.qs-gadget__list {
+  position: absolute;
+  left: 28px;
+  top: 96px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.qs-gadget__viewport { position: absolute; left: 0; top: 96px; width: 416px; height: 456px; overflow: hidden; }
+.qs-gadget__list { top: 0; padding: 8px 8px 0; transition: transform 1000ms var(--ease-push); }
+.qs-gadget__list .qs-row + .qs-row { margin-top: 8px; }
+/* group background CC_Setting_BG_ListGroup (white 8%), r 16 */
+.qs-l2__group {
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 8px 8px 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Row: C_TextTileComplex_01 344x80, r 16, 26 px 600 / 700 focused; focused plate #E8E8E8, scale 1.05. */
+.qs-row {
+  position: relative;
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+  font-size: 26px;
+  font-weight: 600;
+}
+.qs-row + .qs-row::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: -1px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.qs-row.is-focused {
+  background: var(--plate-focused);
+  color: #000;
+  font-weight: 700;
+  scale: 1.05;
+  box-shadow: var(--focus-shadow);
+  z-index: 1;
+}
+.qs-row.is-focused::before,
+.qs-row.is-focused + .qs-row::before { display: none; }
+.qs-row__text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.qs-row__check { width: 24px; height: 24px; }  /* VD_ICONS/i_icon_info_check.svg: blue disc, white tick */
+
+/* Brightness rows: 344x104, title then [value 23 px] [slider 296x40]. */
+.qs-row--slider {
+  height: 104px;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0;
+}
+.qs-row--slider .qs-row__text { flex: none; line-height: 40px; }
+.qs-slider { display: flex; align-items: center; height: 40px; gap: 8px; }
+.qs-slider__value { width: 48px; font-size: 23px; font-weight: 600; color: rgba(255, 255, 255, 0.7); }
+.qs-row.is-focused .qs-slider__value { color: rgba(0, 0, 0, 0.6); }
+.qs-slider__track { position: relative; flex: 1; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.qs-row.is-focused .qs-slider__track { background: rgba(0, 0, 0, 0.2); }
+.qs-slider__fill { position: absolute; left: 0; top: 0; bottom: 0; background: #33adff; }
+.qs-row.is-focused .qs-slider__fill { background: #0099ff; }
+.qs-slider__handle {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: linear-gradient(#fff, #e5e5e5 50%, #cbcbcb);
+  transition: width 483ms var(--ease-elastic), height 483ms var(--ease-elastic);
+}
+.qs-row.is-focused .qs-slider__handle {
+  width: 32px;
+  height: 32px;
+  box-shadow: 0 0 0 3px #0099ff;
+}
+
+/* FLUX switch (C_Switch_01), 64x36 track. */
+.flux-switch {
+  position: relative;
+  flex: none;
+  width: 64px;
+  height: 36px;
+  border-radius: 18px;
+  background: #99999f;
+  transition: background 200ms;
+}
+.flux-switch::after {
+  content: '';
+  position: absolute;
+  top: 3.5px;
+  left: 3.5px;
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  background: #fcfcff;
+  transition: transform 417ms var(--ease-basic);
+}
+.flux-switch.is-on { background: linear-gradient(#0099ff, #167fec 50%, #2c65d9); }
+.flux-switch.is-on::after { transform: translateX(28px); }

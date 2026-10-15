@@ -1,0 +1,121 @@
+/* Smart Hub sidebar (csfs FullView/HomeController; spec/nav-search-sources.md section 1).
+   Folded: 112 px column with a gradient image and a half-height ray. Open: 352 px panel #0E171B. */
+.sb {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Panel + ray strip: sits at x -240..112 and slides +240 px when opening. */
+.sb__strip {
+  position: absolute;
+  left: -240px;
+  top: 0;
+  width: 360px;
+  height: 1080px;
+  transition: transform var(--dur-sidebar) var(--ease-basic);
+}
+.sb--open .sb__strip { transform: translateX(240px); }
+.sb__panel {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 352px;
+  height: 1080px;
+  background: var(--home-sidebar);
+  opacity: 0;
+  transition: opacity 200ms var(--ease-basic) 300ms; /* close: 300-500 ms */
+}
+.sb--open .sb__panel { opacity: 1; transition: opacity 100ms linear; }
+
+/* "Mode lighting" ray: home_i_modelighting_media.svg as CSS (2 of its 8 px are drawn). */
+.sb__ray {
+  position: absolute;
+  left: 352px;
+  top: 0;
+  width: 2px;
+  height: 1080px;
+  opacity: 0.65;
+  background: linear-gradient(to bottom,
+    rgba(15, 65, 86, 0.25) 0%, #239acb 14.7%, #3291dd 27.7%, #40eaf0 42.9%,
+    rgba(15, 65, 86, 0.25) 80.8%, rgba(15, 65, 86, 0.25) 100%);
+  transform: scaleY(0.5);
+  transition: transform var(--dur-sidebar) var(--ease-basic);
+}
+.sb--open .sb__ray { transform: scaleY(1); }
+
+.sb__fold {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 112px;
+  height: 1080px;
+  transition: opacity 100ms linear;
+}
+.sb--open .sb__fold { opacity: 0; }
+
+/* ---- tiles ---- */
+.sb__tile { position: absolute; left: 0; width: 352px; }
+.sb__tile--category { height: 80px; }
+.sb__tile--system { height: 72px; }
+.sb__tile.is-focused { background: #fff; }
+
+.sb__tile-body { position: absolute; inset: 0; }
+.sb__icon { position: absolute; display: block; }
+.sb__tile--category .sb__icon { left: 16px; top: 0; width: 80px; height: 80px; }
+.sb__tile--system .sb__icon { left: 36px; top: 16px; width: 40px; height: 40px; }
+.sb__icon--mask { mask-size: 100% 100%; -webkit-mask-size: 100% 100%; background: #fff; }
+.sb__tile--system .sb__icon--mask { background: #6f9e9f; }      /* CP_Home_Icon_Home, also when focused */
+.sb__tile--category.is-focused .sb__icon--mask { background: #000; }
+
+.sb__label {
+  position: absolute;
+  left: 120px;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-160px);
+  transition:
+    transform var(--dur-sidebar) var(--ease-basic),
+    opacity 100ms linear;
+}
+.sb--open .sb__label {
+  opacity: 1;
+  transform: none;
+  transition:
+    transform var(--dur-sidebar) var(--ease-basic),
+    opacity 150ms linear 150ms;
+}
+.sb__tile--category .sb__label { top: 16px; height: 48px; line-height: 48px; font-size: 28px; font-weight: 700; color: #fff; }
+.sb__tile--system .sb__label {
+  top: 16px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 22px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+.sb__tile.is-focused .sb__label { color: #000; }
+.sb__tile--system.is-focused .sb__label { font-weight: 700; }
+
+/* System tiles only exist while open: fade in over 200 ms and rise 40 px over 500 ms. */
+.sb__tile--system { opacity: 0; visibility: hidden; transition: opacity 100ms linear, visibility 0s 100ms; }
+.sb__tile--system .sb__tile-body { transform: translateY(40px); transition: transform var(--dur-sidebar) var(--ease-basic); }
+.sb--open .sb__tile--system { opacity: 1; visibility: visible; transition: opacity 200ms linear; }
+.sb--open .sb__tile--system .sb__tile-body { transform: none; transition: transform var(--dur-sidebar) linear; }
+
+/* Folded gear (CompositeTileView): 40x40 at (36,864), tinted #6F9E9F; switches instantly. */
+.sb__gear {
+  position: absolute;
+  left: 36px;
+  top: 864px;
+  width: 40px;
+  height: 40px;
+  background: #6f9e9f;
+  mask-size: 100% 100%;
+  -webkit-mask-size: 100% 100%;
+}
+.sb--open .sb__gear { opacity: 0; }
+
+/* Entering a system page: the sidebar root fades out over 200-450 ms (it returns without animation). */
+.sb--hidden { opacity: 0; transition: opacity 250ms linear 200ms; }

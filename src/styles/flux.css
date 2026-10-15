@@ -1,0 +1,57 @@
+/* Shared FLUX component styles (spec/flux.md sections 5.3-5.4). */
+
+/* ButtonBasicText: plate rgba(0,0,0,.5) + 2 px 10% white stroke, r16, T28 600 -> focused #E8E8E8, 700,
+   focus glow and the FocusIn_01 scale (1.08, 500 ms elastic; out 500 ms). */
+.flux-btn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 24px;
+  border-radius: var(--r-2);
+  background: var(--plate-button);
+  box-shadow: inset 0 0 0 2px var(--plate-button-stroke);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  transition: scale var(--dur-focus) var(--ease-out);
+}
+.flux-btn.is-focused {
+  background: var(--plate-focused);
+  color: var(--text-focused);
+  font-weight: 700;
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;
+  transition-timing-function: var(--ease-elastic);
+}
+/* ButtonFocusImage (i_focus_strokeglow_btn_bg_*): 2 px inner rim, white fading top to bottom. */
+.flux-btn.is-focused::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #fff, rgba(255, 255, 255, 0));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Tile/card focus ring (i_focus_stroke_tile_*px.9.webp): 4 px white inside the edge plus a 5 px inner shadow. */
+.flux-focus-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 4px #fff,
+    inset 0 0 0 5px rgba(0, 0, 0, 0.125),
+    inset 0 0 0 6px rgba(0, 0, 0, 0.101),
+    inset 0 0 0 7px rgba(0, 0, 0, 0.063),
+    inset 0 0 0 8px rgba(0, 0, 0, 0.035),
+    inset 0 0 0 9px rgba(0, 0, 0, 0.016);
+}
+.is-focused > .flux-focus-ring { opacity: 1; }

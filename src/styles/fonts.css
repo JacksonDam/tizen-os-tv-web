@@ -1,0 +1,7 @@
+/* SamsungOne UI, the TV's system font (/usr/share/fonts/SamsungOneUI-*.ttf). */
+@font-face { font-family: 'SamsungOneUI'; font-weight: 200; src: url('/tv/fonts/SamsungOneUI-200.ttf'); }
+@font-face { font-family: 'SamsungOneUI'; font-weight: 300; src: url('/tv/fonts/SamsungOneUI-300.ttf'); }
+@font-face { font-family: 'SamsungOneUI'; font-weight: 400; src: url('/tv/fonts/SamsungOneUI-400.ttf'); }
+@font-face { font-family: 'SamsungOneUI'; font-weight: 500; src: url('/tv/fonts/SamsungOneUI-500.ttf'); }
+@font-face { font-family: 'SamsungOneUI'; font-weight: 600; src: url('/tv/fonts/SamsungOneUI-600.ttf'); }
+@font-face { font-family: 'SamsungOneUI'; font-weight: 700; src: url('/tv/fonts/SamsungOneUI-700.ttf'); }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192px" height="192px" viewBox="0 0 192 192" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>home_i_icon_mode_search</title>
+    <g id="home_i_icon_mode_search" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Search" transform="translate(65.000000, 64.000000)" stroke="#FFFFFF" stroke-width="5.016">
+            <path d="M50.1679375,25.0319812 C50.1679375,38.85705 38.93775,50.0639625 25.0839687,50.0639625 C11.2311927,50.0639625 0,38.85705 0,25.0319812 C0,11.2069125 11.2311927,0 25.0839687,0 C38.93775,0 50.1679375,11.2069125 50.1679375,25.0319812 Z" id="Stroke-1"></path>
+            <line x1="62.560749" y1="63.4418381" x2="42.1781396" y2="43.3442288" id="Stroke-3" stroke-linecap="round"></line>
+        </g>
+    </g>
+</svg>
