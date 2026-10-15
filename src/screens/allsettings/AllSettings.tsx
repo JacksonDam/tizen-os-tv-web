@@ -1,8 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useRemote } from '../../input/remote'
-import { MAIN_MENU, type MenuItem } from './menuData'
+import { useRemote, isNavKey } from '../../input/remote'
+import type { MenuItem } from './menuData'
+import { MENU } from './menu'
+import { GADGETS, POPUPS, type SettingsHost } from './extensions'
 import './all-settings.css'
 import { TV } from '../../assets'
+import { setSetting, useTv } from '../../tv/store'
+import { playFeedback, useMoveSound } from '../../tv/sound'
 
 // All Settings (org.tizen.menu): one blurred 520x696 card at the bottom-left over live TV; sub-pages
 // replace its contents (spec/settings.md sections 4, 5.3, 6.6).
@@ -13,25 +17,30 @@ const VD = `${TV}/VD_ICONS`
 type Props = {
   target?: string        // open directly on a category page (e.g. 'support', 'connection')
   onClose: () => void
+  onLaunchApp: (app: string, args?: Record<string, string>, from?: string) => void
 }
 
 type Page = { item: MenuItem | null; focus: number } // item null = root page
 
-export function AllSettings({ target, onClose }: Props) {
+export function AllSettings({ target, onClose, onLaunchApp }: Props) {
   const initial = useMemo<Page[]>(() => {
     const root: Page = { item: null, focus: 1 } // default focus: the Search field
-    const t = target && MAIN_MENU.find(m => m.id === target)
-    return t ? [{ ...root, focus: 2 + MAIN_MENU.indexOf(t) }, { item: t, focus: 0 }] : [root]
+    const t = target && MENU.find(m => m.id === target)
+    return t ? [{ ...root, focus: 2 + MENU.indexOf(t) }, { item: t, focus: 0 }] : [root]
   }, [target])
   const [stack, setStack] = useState<Page[]>(initial)
   const [dir, setDir] = useState<'in' | 'out'>('in')
-  const [values, setValues] = useState<Record<string, string | number>>({})
+  const values = useTv(s => s.settings)
   const [picker, setPicker] = useState<{ item: MenuItem; focus: number; rowTop: number } | null>(null)
   const [toast, setToast] = useState<string | null>(null)
+  const [gadget, setGadget] = useState<MenuItem | null>(null)
+  const [popup, setPopup] = useState<MenuItem | null>(null)
 
   const page = stack[stack.length - 1]
+  useMoveSound(`${stack.length}:${page.focus}`)
+  useMoveSound(picker?.focus, !!picker)
   const valueOf = (m: MenuItem) => values[m.id] ?? m.value
-  const setValue = (m: MenuItem, v: string | number) => setValues(s => ({ ...s, [m.id]: v }))
+  const setValue = (m: MenuItem, v: string | number) => setSetting(m.id, v)
 
   useEffect(() => {
     if (!toast) return
@@ -49,19 +58,33 @@ export function AllSettings({ target, onClose }: Props) {
   }
   const pop = () => {
     if (stack.length === 1) return onClose()
+    playFeedback('back')
     setDir('out')
     setStack(s => s.slice(0, -1))
   }
 
   // Rows of the current page, flattened (root: account, search, categories).
-  const rows: MenuItem[] = page.item ? (page.item.groups ?? []).flat() : MAIN_MENU
+  const rows: MenuItem[] = page.item ? (page.item.groups ?? []).flat() : MENU
 
   useRemote(key => {
+    if (!isNavKey(key)) return false // TV keys go on to tv-viewer
+    // a gadget or popup above takes the keys; anything it passes down stops here (Home closes Settings)
+    if (gadget || popup) {
+      if (key === 'Home' || key === 'Exit') {
+        onClose()
+        return false
+      }
+      return true
+    }
     if (toast && key !== 'Back') setToast(null)
     if (picker) {
       const opts = picker.item.options ?? []
-      if (key === 'Up') setPicker({ ...picker, focus: Math.max(0, picker.focus - 1) })
-      else if (key === 'Down') setPicker({ ...picker, focus: Math.min(opts.length - 1, picker.focus + 1) })
+      if (key === 'Up' || key === 'Down') {
+        const f = key === 'Up' ? Math.max(0, picker.focus - 1) : Math.min(opts.length - 1, picker.focus + 1)
+        setPicker({ ...picker, focus: f })
+        // Sound Feedback applies the level as focus moves in its picker
+        if (picker.item.id === 'sound-feedback') setValue(picker.item, opts[f].value)
+      }
       else if (key === 'Enter') {
         setValue(picker.item, opts[picker.focus].value)
         setPicker(null)
@@ -78,10 +101,10 @@ export function AllSettings({ target, onClose }: Props) {
     }
     if (!page.item) {
       // root: 0 = account card, 1 = search field, 2.. = categories
-      const last = 1 + MAIN_MENU.length
+      const last = 1 + MENU.length
       if (key === 'Up') setFocus(Math.max(0, page.focus - 1))
       else if (key === 'Down') setFocus(Math.min(last, page.focus + 1))
-      else if (key === 'Enter' && page.focus >= 2) push(MAIN_MENU[page.focus - 2])
+      else if (key === 'Enter' && page.focus >= 2) push(MENU[page.focus - 2])
       return true
     }
     // sub-page: -1 = back button
@@ -95,7 +118,10 @@ export function AllSettings({ target, onClose }: Props) {
     else if (key === 'Down') setFocus(Math.min(rows.length - 1, page.focus + 1))
     else if ((key === 'Left' || key === 'Right') && row.style === 'title.slider.value') {
       const v = Number(valueOf(row) ?? 0) + (key === 'Left' ? -1 : 1) * (row.step ?? 1)
-      if (v >= (row.min ?? 0) && v <= (row.max ?? 100)) setValue(row, v)
+      if (v >= (row.min ?? 0) && v <= (row.max ?? 100)) {
+        setValue(row, v)
+        playFeedback('move')
+      }
     } else if (key === 'Enter') {
       if (row.disabled) setToast(row.disabledReason ?? "This function isn't available.")
       else if (row.style === 'title.switch') setValue(row, Number(valueOf(row) ?? 0) ? 0 : 1)
@@ -106,7 +132,11 @@ export function AllSettings({ target, onClose }: Props) {
       } else if (row.picker && row.options?.length) {
         const cur = row.options.findIndex(o => o.value === valueOf(row))
         setPicker({ item: row, focus: Math.max(0, cur), rowTop: rowTops[page.focus] - scroll })
-      } else if (row.groups?.length) push(row)
+      } else if (row.launch) {
+        onLaunchApp(row.launch.app, row.launch.args, stack[1]?.item?.id)
+      } else if (row.popup && POPUPS[row.popup]) setPopup(row)
+      else if (row.gadget && GADGETS[row.gadget]) setGadget(row)
+      else if (row.groups?.length) push(row)
     }
     return true
   })
@@ -118,9 +148,18 @@ export function AllSettings({ target, onClose }: Props) {
 
   const optionPageValue = page.item ? valueOf(page.item) : undefined
 
+  const host: SettingsHost = { launchApp: (app, args) => onLaunchApp(app, args, stack[1]?.item?.id), close: onClose }
+  const G = gadget ? GADGETS[gadget.gadget!] : null
+  const P = popup ? POPUPS[popup.popup!] : null
+
   return (
     <div className="as">
-      <div className="as__panel">
+      <div className="as__panel" style={{ width: G ? G.width : 520 }}>
+        {G && gadget ? (
+          <div key={`gadget-${gadget.id}`} className="as__page as__page--in">
+            <G.component host={host} item={gadget} active={!popup} onClose={() => setGadget(null)} />
+          </div>
+        ) : (
         <div key={stack.length + (page.item?.id ?? 'root')} className={`as__page as__page--${dir}`}>
           {!page.item ? (
             <RootPage focus={page.focus} />
@@ -153,8 +192,11 @@ export function AllSettings({ target, onClose }: Props) {
             </>
           )}
         </div>
+        )}
         {picker && <Picker picker={picker} value={valueOf(picker.item)} />}
+        {P && <div className="as__dim" />}
       </div>
+      {P && popup && <P host={host} item={popup} onClose={() => setPopup(null)} />}
       {toast && <div className="as__toast">{toast}</div>}
     </div>
   )
@@ -180,7 +222,7 @@ function RootPage({ focus }: { focus: number }) {
           <span className="as-search__icon" />
           <span className="as-search__hint">Search</span>
         </div>
-        {MAIN_MENU.map((c, i) => {
+        {MENU.map((c, i) => {
           const focused = focus === i + 2
           // the focused category previews the first item of its first two groups
           const preview = (c.groups ?? [])

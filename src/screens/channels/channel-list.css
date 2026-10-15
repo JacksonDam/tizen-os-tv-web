@@ -1,0 +1,282 @@
+/* Channel list (spec2/channels.md 3.2-3.8, CHLIST 3.10). Panel x 840-1920 (Aligns.TopRight); live TV
+   stays visible and undimmed at x 0-840. Coordinates below are panel-relative (x - 840). */
+.cl { position: absolute; left: 840px; top: 0; width: 1080px; height: 1080px; z-index: 50; }
+
+/* ---- category column: 45 x 135 u, CC_CHLISTBG180 ---- */
+.cl-cats { position: absolute; left: 0; top: 0; width: 360px; height: 1080px; background: rgba(9, 15, 22, 0.8); }
+
+/* antenna/sort bar: 45 x 11 u, CC_CHLISTBG280 */
+.cl-bar { position: absolute; left: 0; top: 0; width: 360px; height: 88px; background: rgba(3, 65, 86, 0.8); }
+/* C_ButtonDropdown_01 29 x 8 u: CP_PlaneDropdown, label T28, divider + arrow; disabled with one antenna */
+.cl-dropdown {
+  position: absolute;
+  left: 16px;
+  top: 12px;
+  width: 232px;
+  height: 64px;
+  border-radius: 16px;
+  background: #0d2542;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px 0 16px;
+  font-size: 28px;
+  font-weight: 600;
+}
+.cl-dropdown.is-disabled { opacity: 0.4; }
+.cl-dropdown__label { flex: 1; white-space: nowrap; }
+.cl-dropdown__divider { width: 2px; height: 40px; background: rgba(255, 255, 255, 0.1); }
+.cl-dropdown__arrow {
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.5);
+  clip-path: polygon(10% 30%, 90% 30%, 50% 75%);
+}
+/* sort: C_ButtonBasicIcon_01, 64 px circle, CP_Plane230, 40 px icon */
+.cl-sort {
+  position: absolute;
+  left: 280px;
+  top: 12px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  transition: scale 500ms var(--ease-out);
+}
+.cl-sort.is-focused { background: #fff; color: #000; box-shadow: var(--focus-shadow); scale: 1.08; transition-timing-function: var(--ease-elastic); }
+.cl-sort__icon { width: 40px; height: 40px; background: currentColor; mask: center / contain no-repeat; -webkit-mask: center / contain no-repeat; }
+
+/* "Channels" header: 45 x 4 u, CC_CHLISTBG260, T20 600 CC_Basic170 from x 880 */
+.cl-header {
+  position: absolute;
+  left: 0;
+  top: 88px;
+  width: 360px;
+  height: 32px;
+  padding-left: 40px;
+  background: rgba(44, 98, 116, 0.6);
+  font-size: 20px;
+  line-height: 32px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* category list: 400 px frame from y 120, tiles 39 x 11 u (312 x 88) at x 864, first at y 128 */
+.cl-catlist { position: absolute; left: 0; top: 120px; width: 360px; height: 400px; }
+.cl-cat {
+  position: absolute;
+  left: 24px;
+  width: 312px;
+  height: 88px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;                  /* item gap 1 u; icon gap 2 u */
+  padding: 0 8px 0 16px;
+  transition: scale 500ms var(--ease-out);
+}
+.cl-cat.has-divider::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: -1px;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.05) 50%);
+}
+.cl-cat.is-focused::before,
+.cl-cat.is-focused + .cl-cat::before { display: none; }
+.cl-cat__icon { width: 48px; height: 48px; flex: none; margin-right: 8px; }
+.cl-cat__check { position: absolute; left: 40px; top: 16px; width: 24px; height: 24px; }
+.cl-cat__text { flex: 1; min-width: 0; }
+.cl-cat__title { font-size: 28px; line-height: 40px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-cat__sub { font-size: 20px; line-height: 32px; font-weight: 400; color: rgba(255, 255, 255, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-cat__arrow { width: 40px; height: 40px; flex: none; margin-left: -8px;   /* divider at the arrow's left edge */
+  background: currentColor; mask: center / contain no-repeat; -webkit-mask: center / contain no-repeat; }
+.cl-cat.is-selected { background: rgba(0, 0, 0, 0.2); color: #33adff; }
+.cl-cat.is-selected .cl-cat__sub { color: rgba(51, 173, 255, 0.9); }
+.cl-cat.is-focused {
+  z-index: 1;
+  background: #fff;
+  color: #000;
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;
+  transition: scale 300ms var(--ease-basic);
+}
+.cl-cat.is-focused .cl-cat__title { font-weight: 700; }
+.cl-cat.is-focused .cl-cat__sub { color: rgba(0, 0, 0, 0.8); font-weight: 600; }
+.cl-cat.is-focused.is-selected { color: #0099ff; }
+.cl-cat.is-focused.is-selected .cl-cat__sub { color: rgba(0, 153, 255, 0.9); }
+
+/* Edit Channels: C_ButtonBasicText_01 33 x 9 u at x 888, y 976; CP_Plane220, stroke CC_Basic210 */
+.cl-edit {
+  left: 48px;
+  top: 976px;
+  width: 264px;
+  height: 72px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+.cl-edit.is-focused { background: #fff; }
+
+/* ---- channel column: 90 x 135 u, CC_CHLISTBG190; rows 82 x 15 u (656 x 120) from x 1240, y 24 ---- */
+.cl-chans { position: absolute; left: 360px; top: 0; width: 720px; height: 1080px; background: rgba(9, 15, 22, 0.9); overflow: hidden; }
+.cl-rows { position: absolute; left: 0; top: 0; width: 720px; }
+.cl-rows.is-animated { transition: transform 300ms var(--ease-basic); }   /* Scroll_01 */
+
+.cl-row {
+  position: absolute;
+  left: 40px;
+  width: 656px;
+  height: 120px;
+  border-radius: 16px;
+  transition: scale 500ms var(--ease-out), background-color 300ms var(--ease-basic);
+}
+/* item divider: CC_Basic120, 2 px */
+.cl-row.has-divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -1px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+/* default logo: #72929C circle (ch_icon_default_channel.svg) with the number, T24 600 */
+.cl-row__logo {
+  position: absolute;
+  left: 40px;
+  top: 24px;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #72929c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+}
+.cl-row__check { position: absolute; left: 88px; top: 16px; width: 24px; height: 24px; }
+.cl-row__text {
+  position: absolute;
+  left: 152px;
+  top: 20px;
+  width: 480px;
+  display: flex;
+  flex-direction: column;
+}
+.cl-row__line1 { height: 48px; font-size: 28px; line-height: 48px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-row__line2 { display: flex; gap: 8px; height: 32px; font-size: 20px; line-height: 32px; font-weight: 400; color: rgba(255, 255, 255, 0.8); }
+.cl-row__line2 .cl-row__num { flex: 0 0 88px; overflow: hidden; }
+.cl-row__line2 .cl-row__name { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-row__text--single { top: 36px; flex-direction: row; gap: 8px; height: 48px; font-size: 28px; line-height: 48px; font-weight: 600; }
+.cl-row__text--single .cl-row__num { flex: 0 0 112px; }
+.cl-row__text--single .cl-row__name { flex: 1; color: rgba(255, 255, 255, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.cl-row.is-selected { background: rgba(0, 0, 0, 0.2); }
+.cl-row.is-selected .cl-row__line1,
+.cl-row.is-selected .cl-row__text--single { color: #33adff; }
+.cl-row.is-selected .cl-row__line2,
+.cl-row.is-selected .cl-row__text--single .cl-row__name { color: rgba(51, 173, 255, 0.9); }
+.cl-row.is-focused {
+  z-index: 1;
+  background: #fff;
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;
+  transition: scale 300ms var(--ease-basic), background-color 300ms var(--ease-basic);
+}
+.cl-row.is-focused .cl-row__line1,
+.cl-row.is-focused .cl-row__text--single { color: #000; font-weight: 700; }
+.cl-row.is-focused .cl-row__line2,
+.cl-row.is-focused .cl-row__text--single .cl-row__name { color: rgba(0, 0, 0, 0.8); font-weight: 600; }
+.cl-row.is-focused.is-selected .cl-row__line1,
+.cl-row.is-focused.is-selected .cl-row__text--single { color: #0099ff; }
+.cl-row.is-focused.is-selected .cl-row__line2,
+.cl-row.is-focused.is-selected .cl-row__text--single .cl-row__name { color: rgba(0, 153, 255, 0.9); }
+
+/* key-navigation scrollbar: 1 u slot near the right edge, 4 px bar, shown for 1000 ms after a scroll */
+.cl-scrollbar {
+  position: absolute;
+  left: 706px;
+  top: 24px;
+  width: 4px;
+  height: 1032px;
+  background: rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  animation: cl-scrollbar 1000ms step-end;
+}
+@keyframes cl-scrollbar { from { opacity: 1; } }
+.cl-scrollbar__thumb { position: absolute; left: 0; top: 0; width: 4px; background: rgba(255, 255, 255, 0.5); }
+
+/* ---- no channels (3.6): 584 x 608 block centred in the column ---- */
+.cl-nochan { position: absolute; inset: 0; }
+.cl-nochan__image { position: absolute; left: 160px; top: 236px; width: 400px; height: 200px; }
+.cl-nochan__text {
+  position: absolute;
+  left: 68px;
+  top: 476px;
+  width: 584px;
+  height: 160px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 500;
+  overflow: hidden;
+}
+.cl-nochan__button { left: 204px; width: 312px; height: 72px; }
+
+/* ---- option lists (P_ListOption_02): CC_BG4100, 80 px rows, T28, 24 px check ---- */
+.cl-options {
+  position: absolute;
+  padding: 8px;
+  border-radius: 16px;
+  background: #1f3959;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 2;
+  animation: cl-options-in 200ms var(--ease-basic);
+}
+.cl-options--sort { width: 328px; }
+.cl-options--sub { width: 384px; }
+@keyframes cl-options-in { from { opacity: 0.5; } }
+.cl-options__inner { transition: transform 300ms var(--ease-basic); }
+.cl-options__row {
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  font-size: 28px;
+  font-weight: 600;
+}
+.cl-options__row span { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cl-options__row img { width: 24px; height: 24px; }
+.cl-options__row.is-focused { background: var(--plate-focused); color: #000; font-weight: 700; }
+
+/* ---- number entry (3.7): 608 x 168 at x 1312, y 456; T72 600 right-aligned, ends at x 1880 ---- */
+.cl-num {
+  position: absolute;
+  left: 472px;
+  top: 456px;
+  width: 608px;
+  height: 168px;
+  padding-right: 40px;
+  background: center / 100% 100% no-repeat;
+  text-align: right;
+  font-size: 72px;
+  line-height: 168px;
+  font-weight: 600;
+  z-index: 3;
+}

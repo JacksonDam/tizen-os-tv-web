@@ -7,6 +7,9 @@ import { MessageBox } from '../../components/MessageBox'
 import { Lottie } from '../../components/Lottie'
 import './home.css'
 import { TV } from '../../assets'
+import { useMoveSound } from '../../tv/sound'
+import { setSetting, tuneChannel, useSetting, useTv } from '../../tv/store'
+import { NowPlayingRow } from './NowPlayingRow'
 
 const NH = `${TV}/com.samsung.tv.coba.newhome`
 const CS = `${TV}/com.samsung.tv.csfs`
@@ -33,23 +36,33 @@ const ROWS: { id: RowId; scroll: number }[] = [
 // Focusing Now Playing morphs its row from 41 u to 49 u and pushes the rows below by 64 px.
 const NOWPLAYING_MORPH = 64
 const SOUND_RANGE: [number, number] = [1, 60]
+// Row 3 "On Now": up to 10 channels in service-list order (spec2/device-sources-home.md C.2).
+const ON_NOW_MAX = 10
 
 // Where keys go: the page, the sidebar, or the system page (Connected Devices).
 type Mode = 'page' | 'sidebar' | 'system'
 
 type Props = {
+  entry?: 'devices' | 'settings'                                       // opened by the Source / Settings key
   onHideHub: () => void                                                // Back in a system page: Smart Hub is lowered
   onLaunch: (target: 'allsettings' | 'support' | 'network') => void  // starts the All Settings app
 }
 
-export function Home({ onHideHub, onLaunch }: Props) {
+export function Home({ entry, onHideHub, onLaunch }: Props) {
   const [row, setRow] = useState<RowId>('tab')
-  const [mode, setMode] = useState<Mode>('page')
+  // Focus inside row 3 (0 = Now Playing, 1.. = "On Now" channels); kept when focus leaves the row.
+  const [npItem, setNpItem] = useState(0)
+  const channels = useTv(s => s.channels)
+  const onNow = channels.slice(0, ON_NOW_MAX)
+  const item = Math.min(npItem, onNow.length)
+  useMoveSound(row === 'nowplaying' ? `nowplaying:${item}` : row)
+  const [mode, setMode] = useState<Mode>(entry ? 'system' : 'page')
   const [sidebarItem, setSidebarItem] = useState<SidebarItem>('home')
   const [sidebarEntry, setSidebarEntry] = useState<SidebarItem>('home')
-  const [systemPage, setSystemPage] = useState<'devices' | 'settings'>('devices')
+  const [systemPage, setSystemPage] = useState<'devices' | 'settings'>(entry ?? 'devices')
   const [searchMsg, setSearchMsg] = useState(false)
-  const [autoplaySound, setAutoplaySound] = useState(true)
+  // Media Options > Autoplay Sound (db/home/mute_autoplay_sound), kept with the TV state.
+  const autoplaySound = useSetting<number>('home-autoplay-sound', 1) === 1
 
   // ?sub=N pins the banner subtitle (used when comparing with reference screenshots).
   const pinned = new URLSearchParams(location.search).get('sub')
@@ -66,8 +79,15 @@ export function Home({ onHideHub, onLaunch }: Props) {
     const i = ROWS.findIndex(r => r.id === row)
     switch (key) {
       case 'Left':
+        if (row === 'nowplaying' && item > 0) {
+          setNpItem(item - 1)
+          return true
+        }
         setSidebarEntry('home')
         setMode('sidebar')
+        return true
+      case 'Right':
+        if (row === 'nowplaying' && item < onNow.length) setNpItem(item + 1)
         return true
       case 'Down':
         if (i < ROWS.length - 1) setRow(ROWS[i + 1].id)
@@ -77,7 +97,11 @@ export function Home({ onHideHub, onLaunch }: Props) {
         return true
       case 'Enter':
         if (row === 'tab') setRow('nowplaying')
-        else if (row === 'options') setAutoplaySound(v => !v)
+        else if (row === 'nowplaying') {
+          // Now Playing: tv-viewer comes to the front with the current source; a channel tile tunes it.
+          if (item === 0) onHideHub()
+          else tuneChannel(item - 1)
+        } else if (row === 'options') setSetting('home-autoplay-sound', autoplaySound ? 0 : 1)
         else if (row === 'bottom') toDefaultFocus()
         return true
       case 'Back':
@@ -85,7 +109,7 @@ export function Home({ onHideHub, onLaunch }: Props) {
         toDefaultFocus()
         return true
       default:
-        return true
+        return false // TV keys (channel, Info, Source...) go on to tv-viewer
     }
   }, mode === 'page' && !searchMsg)
 
@@ -95,6 +119,9 @@ export function Home({ onHideHub, onLaunch }: Props) {
   const morph = row === 'nowplaying' ? NOWPLAYING_MORPH : 0
   const pageFocus = (id: RowId) => mode === 'page' && row === id
   const cls = (id: RowId) => (pageFocus(id) ? 'is-focused' : '')
+  // Auto-play (C.4): Now Playing plays while the Discover tab (auto_play_tab) or the tile has focus, a
+  // channel tile while focused; any focus change restarts the timeline (no GVSync on this model).
+  const playItem = mode !== 'page' || searchMsg ? -1 : row === 'tab' ? 0 : row === 'nowplaying' ? item : -1
 
   return (
     <div className={`home home--${mode}`}>
@@ -121,13 +148,17 @@ export function Home({ onHideHub, onLaunch }: Props) {
             </div>
           </section>
 
-          {/* Row 3: Now Playing (VPHomeVideoRecentView), 41 u (49 u while focused) */}
+          {/* Row 3: Now Playing (VPHomeVideoRecentView) + On Now channels, 41 u (49 u while focused) */}
           <section className={`hrow hrow--nowplaying ${row === 'nowplaying' ? 'is-current' : ''}`}>
-            <div className={`group-title ${cls('nowplaying')}`}>Now Playing</div>
-            <div className={`np-card ${cls('nowplaying')}`}>
-              <img src={`${TV}/newhome-app/home_i_icon_cover_recent_normal.webp`} alt="" />
-              <div className="flux-focus-ring" />
-            </div>
+            <NowPlayingRow
+              onNow={onNow}
+              item={item}
+              current={row === 'nowplaying'}
+              focused={pageFocus('nowplaying')}
+              playItem={playItem}
+              playKey={`${row}:${playItem}`}
+              sound={autoplaySound}
+            />
           </section>
 
           {/* Row 4: sign-in banner in place of the app list (VPLauncherAccountMessageView), 28 u */}

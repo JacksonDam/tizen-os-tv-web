@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useRemote } from '../../input/remote'
 import './sidebar.css'
 import { TV } from '../../assets'
+import { useMoveSound } from '../../tv/sound'
 
 const NH = `${TV}/com.samsung.tv.coba.newhome`
 const ST = `${TV}/com.samsung.tv.coba.setting`
@@ -30,6 +31,7 @@ export function Sidebar({ open, hidden, focusOnOpen = 'home', onClose, onFocusIt
   const [focus, setFocus] = useState<SidebarItem>(focusOnOpen)
   // The focused item's white plate and black label pop in when the 500 ms open animation ends.
   const [settled, setSettled] = useState(false)
+  useMoveSound(`${open}:${focus}`, open) // focus landing on an item when the sidebar opens also plays
 
   useEffect(() => {
     if (!open) {

@@ -140,8 +140,32 @@
 .home-tab.is-focused { color: #000; }
 .home-tab.is-focused::before { opacity: 1; transition-duration: 500ms; }
 
-/* ---- Row 3: Now Playing ---- */
-.hrow--nowplaying.is-current .group-title { scale: 1; translate: 0 -13px; }
+/* ---- Row 3: Now Playing + On Now (spec/home.md 6.3, spec2/device-sources-home.md C.2-C.5) ---- */
+/* Only the focused group's title grows to 1.0x and lifts 13 px. Titles stick at the list start (x 184):
+   "On Now" follows the list scroll until it reaches it; "Now Playing" fades out (200 ms basic) once its
+   tile has scrolled away and back in (200 ms linear after 166 ms). */
+.hrow--nowplaying .group-title.is-current { scale: 1; translate: 0 -13px; }
+.np-gtitle {
+  transition: scale 300ms var(--ease-basic), translate 500ms var(--ease-basic),
+    left var(--dur-scroll) var(--ease-scroll), opacity 200ms linear 166ms;
+}
+.np-gtitle.is-away {
+  opacity: 0;
+  transition: scale 300ms var(--ease-basic), translate 500ms var(--ease-basic),
+    left var(--dur-scroll) var(--ease-scroll), opacity 200ms var(--ease-basic);
+}
+
+/* The list clips only at its own left edge, x 112 (layer padding 14 u); 1.1x tiles are not clipped. */
+.np-clip { position: absolute; left: 112px; right: 0; top: -72px; bottom: -72px; overflow: hidden; }
+.np-track {
+  position: absolute;
+  left: -112px;
+  top: 72px;
+  width: 1920px;
+  height: 328px;
+  transition: transform var(--dur-scroll) var(--ease-scroll);
+}
+
 .np-card {
   position: absolute;
   left: 184px;
@@ -153,8 +177,120 @@
   background: #000;
 }
 .np-card img { display: block; width: 100%; height: 100%; }
-.hrow--nowplaying.is-current .np-card { scale: 1.1; }
+.np-card.is-current { scale: 1.1; }
 .np-card.is-focused { box-shadow: var(--focus-shadow); }
+/* A playing channel preview widens 448 -> 456 px and pushes the following tiles 8 px (300 ms basic);
+   stopping snaps back. */
+.np-track.is-morphing .np-card {
+  transition: scale 500ms var(--ease-out), left 300ms var(--ease-basic), width 300ms var(--ease-basic);
+}
+.np-track.is-morphing .np-card.is-focused {
+  transition: scale 300ms var(--ease-basic), left 300ms var(--ease-basic), width 300ms var(--ease-basic);
+}
+
+/* Preview: the video sits under the cover; Now Playing fades the cover 500-1000 ms after "signal ok",
+   a channel tile 0-400 ms. Stopping restores the cover instantly. */
+.pig__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.np-card .pig__cover { position: absolute; inset: 0; }
+.pig__cover.is-faded { opacity: 0; transition: opacity 500ms var(--ease-basic) 500ms; }
+.ch-card .pig__cover.is-faded { transition: opacity 400ms var(--ease-basic); }
+
+/* Now Playing title ("Live TV" / device): bold 28 px, bottom-right of a 424x96 box; hidden while playing. */
+.np-title {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 8px;
+  height: 96px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  text-align: right;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 700;
+  overflow: hidden;
+}
+/* No Signal / Audio Channel: T20 500, white 80%, centred, over the no-signal cover. */
+.pig__error {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 108px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Channel tile text: name T36 700 in a 416x56 box, number T28 500 white 80% in a 40 px band, centred. */
+.ch-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.ch-name { width: 416px; height: 56px; line-height: 56px; font-size: 36px; font-weight: 700; text-align: center; }
+.ch-num {
+  max-width: 416px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 28px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Info layer of a playing channel tile, shown once the 300 ms morph is done: dim band (bottom 120 px,
+   home_i_bg_thumbnail_dim_gradient), remaining time T16 600 right-aligned at y 184-216, 4 px progress bar. */
+.pig__info { position: absolute; inset: 0; animation: pig-appear 0s 300ms both; }
+@keyframes pig-appear { from { opacity: 0; } to { opacity: 1; } }
+.pig__dim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 120px;
+  background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.67) 87.5%, rgba(0, 0, 0, 0.7));
+}
+.pig__left {
+  position: absolute;
+  right: 16px;
+  top: 184px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.pig__bar { position: absolute; left: 0; right: 0; top: 218px; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.pig__bar > div { height: 100%; background: var(--accent); }
+
+/* Description line under the row (LandScapeSingleDescription24): T24 500 at y 868-908, 200 ms after focus. */
+.np-desc {
+  position: absolute;
+  left: 184px;
+  top: 340px;
+  width: 1688px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 24px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+}
+.np-desc.is-shown { opacity: 1; transition: opacity 200ms linear 200ms; }
 
 /* ---- Row 4: sign-in banner ---- */
 .signin {
@@ -242,3 +378,7 @@
   opacity: 0;
 }
 .knox.is-shown { opacity: 1; transition: opacity 200ms linear 800ms; }
+
+/* Entering a system page leaves full-screen home ("partial_menu"): live TV shows behind the panel. */
+.home { transition: background-color 350ms linear 100ms; }
+.home--system { background-color: transparent; }

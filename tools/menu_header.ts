@@ -48,4 +48,8 @@ export type MenuItem = {
   help?: string              // English help text (the side card), if any
   icon?: string              // category icon file name, for category rows only (public/tv/menu/menu_icon/)
   groups?: MenuItem[][]      // sub-page content: array of groups (each group is drawn as one rounded block)
+  // web rebuild hooks (see src/screens/allsettings/extensions.ts):
+  gadget?: string            // OK opens an in-panel page component (e.g. About TV)
+  popup?: string             // OK opens a popup component drawn over the panel (e.g. the Auto Tuning confirmation)
+  launch?: { app: string; args?: Record<string, string>; exitMenu?: boolean }  // OK starts a full-screen app
 }

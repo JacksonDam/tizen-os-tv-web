@@ -12,7 +12,8 @@
   transition: opacity 500ms var(--ease-basic);
 }
 
-/* 52x49 u panel anchored bottom-left: padding-left 10 u, padding-bottom 15 u. */
+/* 52x49 u panel (52x70 u = 416x560 from 5 items: top/height set inline) anchored bottom-left:
+   padding-left 10 u, padding-bottom 15 u. */
 .cd__panel {
   position: absolute;
   left: 80px;
@@ -42,7 +43,10 @@
   scale: 1.08;
   box-shadow: var(--focus-shadow);
 }
+/* Top row (FlexH, gap -1 u): 56 px icon at +16; the 24 px current-source check (i_icon_info_check.svg)
+   at (+64, +16), overlapping the icon's corner (spec2/device-sources-home.md B.6). */
 .cd__icon { position: absolute; left: 16px; top: 16px; width: 56px; height: 56px; }
+.cd__check { position: absolute; left: 64px; top: 16px; width: 24px; height: 24px; }
 .cd__title,
 .cd__subtitle {
   position: absolute;
@@ -58,3 +62,6 @@
 .cd__subtitle { top: 117px; height: 24px; line-height: 24px; font-size: 16px; color: rgba(255, 255, 255, 0.7); }
 .cd__card.is-focused .cd__title { color: #000; }
 .cd__card.is-focused .cd__subtitle { color: rgba(0, 0, 0, 0.7); }
+/* No subtitle (input cards): the empty 4 u subtitle box takes the first line of the wrapping bottom row
+   and the title drops 32 px, baseline card+132 (B.4). */
+.cd__card--title-only .cd__title { top: 106px; }

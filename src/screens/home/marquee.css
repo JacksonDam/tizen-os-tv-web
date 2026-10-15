@@ -1,0 +1,10 @@
+/* Single-line FLUX text: ellipsis at rest, auto-scroll while focused (Marquee.tsx). */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.marquee__copy { display: none; }
+.marquee.is-scrolling { text-overflow: clip; }
+.marquee.is-scrolling .marquee__track { display: inline-block; }
+.marquee.is-scrolling .marquee__copy { display: inline; padding-left: 50px; }

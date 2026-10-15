@@ -15,7 +15,10 @@
   outline-offset: 0;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  transition: width 500ms var(--ease-basic);   /* gadgets widen the panel (Large 744, XLarge 920) */
 }
+/* while a popup is open: rgba(19,29,34,.4) over the panel, same radius */
+.as__dim { position: absolute; inset: 0; border-radius: 32px; background: rgba(19, 29, 34, 0.4); z-index: 6; }
 
 /* Page switch: deeper = old page gone at 83 ms, new page from +40 px (Basic) and fading in 83-583 ms;
    back = new page from -40 px. */

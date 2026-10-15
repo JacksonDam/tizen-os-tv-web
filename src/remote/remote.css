@@ -1,0 +1,103 @@
+/* On-screen remote, docked to the right of the TV (outside the 1920x1080 stage). */
+.rc {
+  flex: none;
+  width: 196px;
+  height: 100%;
+  overflow-y: auto;
+  background: #141518;
+  border-left: 1px solid #26282d;
+  color: #d8dade;
+  font: 500 12px/1.2 system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0 16px;
+  gap: 10px;
+}
+.rc-body {
+  width: 164px;
+  padding: 16px 12px 20px;
+  border-radius: 36px;
+  background: linear-gradient(#2c2e33, #1f2125);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 16px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.rc button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: none;
+}
+.rc-hide,
+.rc-show {
+  font: 500 12px system-ui, sans-serif;
+  color: #c8cad0;
+  background: #26282d;
+  border: 1px solid #34363c;
+  border-radius: 14px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+.rc-show { position: fixed; right: 12px; bottom: 12px; z-index: 10; }
+.rc-row { display: flex; justify-content: space-between; gap: 6px; }
+.rc-btn {
+  flex: 1;
+  min-height: 30px;
+  border-radius: 15px;
+  background: #3a3d44;
+  padding: 0 4px;
+}
+.rc-btn:hover, .rc-rocker button:hover, .rc-dpad button:hover { background: #4b4f58; }
+.rc-btn:active, .rc-rocker button:active, .rc-dpad button:active { background: #5d626d; }
+.rc-btn--power { color: #ff6b6b; }
+.rc-digits { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.rc-digits .rc-btn:last-child { grid-column: 2; }
+
+.rc-dpad {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 2px auto;
+  border-radius: 50%;
+  background: #34373e;
+}
+.rc-dpad button { position: absolute; background: transparent; border-radius: 50%; }
+.rc-dpad__ok { left: 38px; top: 38px; width: 56px; height: 56px; background: #4a4e57 !important; font-weight: 700; }
+.rc-dpad__up, .rc-dpad__down { left: 44px; width: 44px; height: 36px; }
+.rc-dpad__up { top: 2px; }
+.rc-dpad__down { bottom: 2px; }
+.rc-dpad__left, .rc-dpad__right { top: 44px; width: 36px; height: 44px; }
+.rc-dpad__left { left: 2px; }
+.rc-dpad__right { right: 2px; }
+.rc-dpad__up::after, .rc-dpad__down::after, .rc-dpad__left::after, .rc-dpad__right::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border: 6px solid transparent;
+  translate: -50% -50%;
+}
+.rc-dpad__up::after { border-bottom-color: #c8cad0; margin-top: -3px; }
+.rc-dpad__down::after { border-top-color: #c8cad0; margin-top: 3px; }
+.rc-dpad__left::after { border-right-color: #c8cad0; margin-left: -3px; }
+.rc-dpad__right::after { border-left-color: #c8cad0; margin-left: 3px; }
+
+.rc-rockers { display: flex; justify-content: space-around; }
+.rc-rocker {
+  width: 52px;
+  border-radius: 26px;
+  background: #3a3d44;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.rc-rocker button { width: 100%; height: 34px; background: transparent; font-size: 16px; }
+.rc-rocker span { font-size: 10px; color: #9a9da5; padding: 2px 0; }
+
+@media (max-width: 700px) {
+  .rc { display: none; }
+  .rc-show { display: none; }
+}

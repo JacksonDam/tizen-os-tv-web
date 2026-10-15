@@ -1,9 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { useRemote } from '../../input/remote'
+import { useRemote, isNavKey } from '../../input/remote'
 import { Lottie } from '../../components/Lottie'
 import { BRIGHTNESS_ROWS, TILES, type SecondDepthRow, type Tile } from './quickSettingsData'
 import './quick-settings.css'
 import { TV } from '../../assets'
+import { useMoveSound } from '../../tv/sound'
 
 // QLPanel Quick Settings (spec/settings.md sections 3, 5.1, 6.2-6.5): a blurred 416x560 card with a
 // 2x3 tile grid per page, level-2 lists, the Brightness gadget and edit mode.
@@ -31,6 +32,7 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
   const [focus, setFocus] = useState<number | 'noti'>(0)
   const [level, setLevel] = useState<Level>('l1')
   const [openTile, setOpenTile] = useState<Tile | null>(null)
+  useMoveSound(`${level}:${focus}`, active && level === 'l1')
 
   // edit mode: `moving` is the tile picked up with OK; `focus === 'done'` is the Done button
   const [editing, setEditing] = useState(false)
@@ -106,6 +108,7 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
   }
 
   useRemote(key => {
+    if (!isNavKey(key)) return false // TV keys go on to tv-viewer
     if (level === 'l1' && !editing) {
       if (focus === 'noti') {
         if (key === 'Down') setFocus(index)
@@ -290,9 +293,11 @@ function SecondDepth({
     flat.findIndex(r => r.kind === 'switch' || (r.kind === 'option' && r.selected)),
   )
   const [focus, setFocus] = useState<number | 'back'>(initial)
+  useMoveSound(focus, active)
   const busy = useRef(false)
 
   useRemote(key => {
+    if (!isNavKey(key)) return false // TV keys go on to tv-viewer
     if (busy.current) return true
     if (key === 'Back') onBack()
     else if (key === 'Home') onHome()
@@ -359,6 +364,8 @@ function BrightnessGadget({
 }) {
   const [vals, setVals] = useState(BRIGHTNESS_ROWS.map(r => r.value))
   const [focus, setFocus] = useState<number | 'back'>(0)
+  useMoveSound(focus, active)
+  useMoveSound(vals.join(), active) // each slider step
   // The 5 rows are taller than the 456 px viewport: keep the focused row (plus 8 px) visible.
   const list = useRef<HTMLDivElement>(null)
   const [scroll, setScroll] = useState(0)
@@ -376,6 +383,7 @@ function BrightnessGadget({
   }, [focus])
 
   useRemote(key => {
+    if (!isNavKey(key)) return false // TV keys go on to tv-viewer
     if (key === 'Back') onBack()
     else if (key === 'Home') onHome()
     else if (focus === 'back') {

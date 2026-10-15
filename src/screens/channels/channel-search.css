@@ -1,0 +1,131 @@
+/* channel-search pages (spec2/channels.md 2.3, SCAN_LAYOUT 2.10). Stackup template, 219 u column:
+   TOP y 0-104 (empty), NECK 104-480 (titles from y 144, progress bar), BODY 480-944 (list),
+   BUTTONS 944-1080. Page background: FLUX default (#090F16 + i_img_bg_tile gradient, flux.md 6.4). */
+.cs {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  background: linear-gradient(#182638 0%, #131f2d 33%, #0f1924 58%, #0c141c 83%, #0a1016 100%);
+}
+
+/* ---- title block: 208 u (1664 px) boxes, centred (inferred) ---- */
+.cs-titles {
+  position: absolute;
+  left: 128px;
+  top: 144px;
+  width: 1664px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.cs-titles > div { display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.cs-titles__title { height: 144px; font-size: 60px; line-height: 80px; font-weight: 700; }
+.cs-titles__sub { font-size: 32px; line-height: 44px; font-weight: 400; }
+.cs-titles__help { height: 80px; font-size: 24px; line-height: 32px; font-weight: 400; color: rgba(255, 255, 255, 0.6); }
+.cs-titles--options .cs-titles__sub { height: 96px; }    /* type 1: 40 u = 18 + 12 + 10 */
+.cs-titles--progress .cs-titles__sub { height: 88px; }   /* type 4: 29 u = 18 + 11 */
+.cs-titles--result .cs-titles__sub { height: 112px; }    /* type 0: 32 u = 18 + 14 */
+
+/* ---- progress bar: 84 x 6 u under the titles; text1 (480 px) left, text2 percent right, T24 ---- */
+.cs-progress {
+  position: absolute;
+  left: 624px;
+  top: 376px;
+  width: 672px;
+  height: 48px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);   /* CP_Info150 */
+}
+.cs-progress.is-highlight { color: #33adff; }   /* CP_Point3100 for 0.5 s on a found service */
+.cs-progress__text1 { position: absolute; left: 0; top: 0; width: 480px; white-space: pre; overflow: hidden; }
+.cs-progress__text2 { position: absolute; right: 0; top: 0; }
+.cs-progress__track { position: absolute; left: 0; right: 0; top: 40px; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.cs-progress__fill { display: block; height: 100%; background: #33adff; }
+
+/* ---- BODY list: 115 u (920 px) at x 500, 4.5 u padding, C_TextTile_SingleLine_03 rows 80 px ---- */
+.cs-list { position: absolute; left: 500px; top: 516px; width: 920px; }
+/* the scrolling list clips vertically only: the viewport is widened so a focused row's 1.08 scale shows */
+.cs-list--scroll { left: 440px; top: 480px; width: 1040px; height: 464px; padding: 36px 60px 0; overflow: hidden; }
+.cs-list__inner { position: relative; transition: transform 300ms var(--ease-basic); }
+.cs-row {
+  position: relative;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  border-radius: 16px;
+  transition: scale 500ms var(--ease-out);
+}
+.cs-row.has-divider::before {
+  content: '';
+  position: absolute;
+  left: 24px;
+  right: 24px;
+  top: -1px;
+  height: 2px;
+  background: linear-gradient(to bottom, transparent 50%, rgba(255, 255, 255, 0.05) 50%);
+}
+.cs-row__main { flex: 1; font-size: 28px; font-weight: 600; white-space: pre; overflow: hidden; text-overflow: ellipsis; }
+.cs-row__sub { font-size: 28px; font-weight: 400; color: rgba(255, 255, 255, 0.8); white-space: nowrap; }
+.cs-row.is-focused {
+  z-index: 1;
+  background: var(--plate-focused);
+  color: #000;
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;
+  transition: scale 500ms var(--ease-elastic);
+}
+.cs-row.is-focused::before,
+.cs-row.is-focused + .cs-row::before { display: none; }
+.cs-row.is-focused .cs-row__main { font-weight: 700; }
+.cs-row.is-focused .cs-row__sub { color: rgba(0, 0, 0, 0.8); font-weight: 600; }
+
+/* ---- BUTTONS strip: 29-48 x 9 u buttons, 1 u apart, centred (inferred) ---- */
+.cs-buttons {
+  position: absolute;
+  left: 84px;
+  top: 944px;
+  width: 1752px;
+  height: 136px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.cs-button { position: relative; min-width: 232px; max-width: 384px; height: 72px; }
+.cs-button.is-disabled { opacity: 0.4; }
+
+/* 20 % mask while a drop-down list is open (elm,action,dim20,mask,show) */
+.cs-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.2); }
+
+.cs-picker {
+  position: absolute;
+  left: 1036px;
+  width: 360px;
+  padding: 32px 0;
+  border-radius: 16px;
+  background: #323232;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: cs-picker-in 200ms var(--ease-basic);
+}
+@keyframes cs-picker-in { from { opacity: 0.5; } }
+.cs-picker__row {
+  flex: none;
+  height: 72px;
+  margin: 0 16px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 28px;
+  font-weight: 600;
+}
+.cs-picker__row span:first-child { flex: 1; }
+.cs-picker__row.is-focused { background: var(--plate-focused); color: #000; font-weight: 700; }
+.cs-picker__check { width: 32px; height: 32px; }

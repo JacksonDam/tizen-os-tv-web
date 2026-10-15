@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useRemote } from '../input/remote'
 import './messagebox.css'
+import { useMoveSound } from '../tv/sound'
 
 // FLUX MessageBox on the P_PopupSmallBottom_01 frame (spec/flux.md 5.12): optional title, T28 message,
 // a row of 240x56 buttons. Appears with a 200 ms fade and a 0.95 -> 1 elastic scale.
@@ -13,6 +14,7 @@ type Props = {
 
 export function MessageBox({ title, message, buttons, onClose }: Props) {
   const [focus, setFocus] = useState(0)
+  useMoveSound(focus)
   const [leaving, setLeaving] = useState<number | null | undefined>(undefined)
 
   useEffect(() => {

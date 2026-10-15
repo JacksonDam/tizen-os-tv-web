@@ -1,0 +1,55 @@
+/* Update Now searching window (FluxFullWnd + FluxSearchWnd, spec2/device-sources-home.md A.3.3):
+   opaque FLUX background, centred column. */
+.swu {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background-color: #090f16;
+  background-size: 40px 100%;
+  background-repeat: repeat-x;
+  animation: swu-fade 200ms var(--ease-basic);
+}
+@keyframes swu-fade { from { opacity: 0; } }
+.swu__column {
+  position: absolute;
+  inset: 0;
+  padding: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* title: 208x18 u, size 3 = 60 px, SamsungOneUI_700, CC_Basic1100 */
+.swu__title {
+  width: 1664px;
+  min-height: 144px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 60px;
+  line-height: 88px;
+  font-weight: 700;
+}
+/* main text: 150 u wide, size 8 = 40 px, 400, white; layout padding top 4 u */
+.swu__text {
+  width: 1200px;
+  min-height: 112px;
+  margin-top: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 40px;
+  line-height: 56px;
+  font-weight: 400;
+}
+/* C_Progresscircle (i_img_progresscircle_01_s) in a 10x10 u box */
+.swu__spinner { width: 80px; height: 80px; margin-top: 24px; }
+/* linear progress 100x6 u: 4 px bar + "<<A>>%" text2 */
+.swu__progress { width: 800px; height: 48px; margin-top: 24px; display: flex; align-items: center; gap: 16px; }
+.swu__track { position: relative; flex: 1; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.swu__fill { position: absolute; left: 0; top: 0; bottom: 0; background: #33adff; transition: width 100ms linear; }
+.swu__percent { width: 80px; text-align: right; font-size: 28px; line-height: 48px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+/* buttons 49x9 u */
+.swu__button { position: relative; width: 392px; height: 72px; margin-top: 96px; }

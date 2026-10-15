@@ -1,0 +1,236 @@
+/* About TV gadget (spec2/device-sources-home.md A.2.2). Coordinates are relative to the 744x696 panel
+   at (80, 256). */
+.atv { position: absolute; inset: 0; }
+
+/* C_ButtonBasicIcon_01, CP_Plane200 plate: same look as the All Settings back button */
+.atv__back {
+  position: absolute;
+  left: 8px;
+  top: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  transition: scale 300ms var(--ease-basic);
+}
+.atv__back.is-focused { background: #fff; color: rgba(0, 0, 0, 0.6); scale: 1.04; }
+.atv__back-icon {
+  width: 40px;
+  height: 40px;
+  background: currentColor;
+  mask-position: center;
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+}
+.atv__title {
+  position: absolute;
+  left: 72px;
+  top: 16px;
+  width: 648px;
+  height: 64px;
+  line-height: 64px;
+  font-size: 32px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* device-name row: T28 600 name + Edit Name */
+.atv__name {
+  position: absolute;
+  left: 32px;
+  top: 96px;
+  width: 448px;
+  height: 48px;
+  line-height: 48px;
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* C_ButtonBasicText_01 28x7 u, label T24 */
+.atv__btn { width: 224px; height: 56px; padding: 0 24px; font-size: 24px; }
+.atv-label { display: block; width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-align: center; }
+.atv-label.is-marquee { text-overflow: clip; text-align: left; }
+.atv-label__run { display: inline-flex; gap: 50px; }
+.atv__btn--edit { left: 488px; top: 92px; }
+.atv__btn--osl { left: 492px; top: 544px; }
+.atv__btn--qr { left: 492px; top: 616px; }
+
+/* info text box: CC_Setting_BG_ListGroup layout + C_TextArea_02 (CP_Plane200: white when focused) */
+.atv-text {
+  position: absolute;
+  left: 32px;
+  top: 168px;
+  width: 424px;
+  height: 504px;
+  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8); /* CP_Info180 */
+}
+.atv-text.is-focused { background: #fff; color: rgba(0, 0, 0, 0.8); }
+.atv-scroll__clip { position: absolute; overflow: hidden; }
+.atv-scroll__body { position: absolute; left: 16px; top: 16px; font-weight: 500; overflow-wrap: anywhere; transition: transform 300ms var(--ease-basic); }
+.atv-scroll__shadow { position: absolute; left: 0; right: 0; height: 16px; pointer-events: none; }
+.atv-scroll__shadow--top { top: 0; background: linear-gradient(to bottom, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0) 8px); }
+.atv-scroll__shadow--bottom { bottom: 0; background: linear-gradient(to top, rgba(0, 0, 0, 0.16), rgba(0, 0, 0, 0) 8px); }
+/* C_ScrollBarV_01: 1 u slot, 4 px thumb in CP_Info1100 (track colour cleared) */
+.atv-scroll__bar { position: absolute; width: 8px; opacity: 0; }
+.atv-scroll__bar.is-shown { opacity: 1; }
+.atv-scroll__thumb {
+  position: absolute;
+  left: 2px;
+  top: 0;
+  width: 4px;
+  background: #fff;
+  transition: transform 300ms var(--ease-basic), height 300ms var(--ease-basic);
+}
+.atv-text .atv-scroll__clip { left: 2px; top: 2px; width: 412px; height: 500px; border-radius: 30px 22px 22px 30px; }
+.atv-text .atv-scroll__body { width: 380px; font-size: 20px; line-height: 32px; }
+.atv-text .atv-scroll__bar { right: 2px; top: 2px; height: 500px; }
+.atv-text.is-focused .atv-scroll__thumb { background: #000; }
+
+/* info column: NameItemLayouts 29 u wide (label T16 CP_Info150, value T20 CC_Basic170) */
+.atv-info { position: absolute; left: 488px; top: 168px; width: 232px; display: flex; flex-direction: column; gap: 8px; }
+.atv-info__item { height: 64px; }
+.atv-info__item:last-child { height: 192px; }
+.atv-info__label {
+  height: 32px;
+  line-height: 32px;
+  font-size: 16px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atv-info__value { font-size: 20px; line-height: 32px; font-weight: 500; color: rgba(255, 255, 255, 0.7); overflow-wrap: anywhere; }
+
+/* ---- Edit Name: C_InputFieldW_01 72x8 u + counter 11x5 u (T24 500 CC_Basic170) ---- */
+.atv-input {
+  position: absolute;
+  left: 32px;
+  top: 88px;
+  width: 576px;
+  height: 64px;
+  padding: 0 24px;
+  border-radius: 16px;
+  background: #fff; /* CP_PlaneInputfield, focused */
+  color: #000;
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  scale: 1.04;
+  box-shadow: var(--focus-shadow);
+}
+.atv-input__caret { width: 2px; height: 36px; margin-left: 2px; background: #000; animation: atv-caret 1s steps(1) infinite; }
+@keyframes atv-caret { 50% { opacity: 0; } }
+.atv-input__count {
+  position: absolute;
+  left: 624px;
+  top: 100px;
+  width: 88px;
+  height: 40px;
+  line-height: 40px;
+  text-align: right;
+  font-size: 24px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+/* name list standing in for the on-screen keyboard, next to the panel (P_ListOption look) */
+.atv-names {
+  position: absolute;
+  left: 840px;
+  top: 344px;
+  width: 440px;
+  padding: 16px 0;
+  border-radius: 16px;
+  background: #323232;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 60;
+  animation: atv-fade 200ms var(--ease-basic);
+}
+.atv-names__row {
+  height: 72px;
+  margin: 0 16px;
+  padding: 0 24px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atv-names__row.is-focused { background: var(--plate-focused); color: #000; font-weight: 700; }
+
+/* ---- popups (FLUX popup plate, spec/flux.md 5.12) ---- */
+.atv-popup-layer { position: absolute; inset: 0; z-index: 60; }
+.atv-popup-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.3); animation: atv-fade 200ms var(--ease-basic); }
+.atv-popup {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 40px 48px 56px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  animation:
+    atv-fade 200ms var(--ease-basic),
+    atv-scale 500ms var(--ease-elastic);
+}
+@keyframes atv-fade { from { opacity: 0; } }
+@keyframes atv-scale { from { scale: 0.95; } }
+/* Open Source License: 65 u wide, centred on the gadget (x 192, centre y 604) */
+.atv-popup--opensource { left: 192px; top: 604px; width: 520px; translate: 0 -50%; }
+/* QR Code: 63 u wide, top-right with 5 u margins */
+.atv-popup--qr { left: 1376px; top: 40px; width: 504px; padding-left: 32px; padding-right: 32px; }
+.atv-popup__title {
+  width: 100%;
+  height: 72px;
+  padding-bottom: 16px;
+  line-height: 56px;
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.atv-popup__custom { position: relative; width: 100%; height: 352px; border-radius: 16px; background: rgba(255, 255, 255, 0.1); }
+.atv-popup__custom--qr { background: transparent; display: flex; align-items: center; justify-content: center; }
+.atv-popup--qr .atv-popup__custom { height: 280px; }
+.atv-popup__qr { width: 280px; height: 280px; }
+.atv-popup__qr--large { width: 336px; height: 336px; }
+.atv-popup__custom .atv-scroll__clip { inset: 0 8px 0 0; border-radius: 16px 0 0 16px; }
+.atv-popup__custom .atv-scroll__body { width: 384px; font-size: 18px; line-height: 32px; }
+.atv-popup__custom .atv-scroll__bar { right: 0; top: 0; height: 352px; }
+.atv-popup__buttons { width: 100%; display: flex; justify-content: center; gap: 8px; margin-top: 8px; }
+/* C_ButtonBasicText_02, CP_Plane_PopupBTN_FS: black plate, 15 % white stroke, T24, 30 x 7 u */
+.atv-popup__button {
+  position: relative;
+  flex: 0 1 240px;
+  min-width: 152px;
+  height: 56px;
+  font-size: 24px;
+  background: #000;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+}

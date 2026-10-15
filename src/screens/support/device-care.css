@@ -1,0 +1,156 @@
+/* Device Care (spec2/device-sources-home.md A.5): FLUX background, C_Header_01, StackUp templates.
+   All positions are screen pixels at 1920x1080 (inferred from the template units). */
+.dc {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background-color: #090f16;
+  background-size: 40px 100%;
+  background-repeat: repeat-x;
+  animation: dc-fade 200ms var(--ease-basic);
+}
+@keyframes dc-fade { from { opacity: 0; } }
+
+/* header 16 u: CC_BG7100 + 4 px double line (CC_BG120 over CC_BG230), title T56 700 */
+.dc__header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 128px;
+  background: #1b2c42;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.3), inset 0 -4px 0 rgba(255, 255, 255, 0.2);
+}
+.dc__header-title {
+  position: absolute;
+  left: 80px;
+  top: 20px;
+  height: 88px;
+  line-height: 88px;
+  font-size: 56px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* buttons: C_ButtonBasicText_01 49x9 u, label T28 600 */
+.dc-btn { width: 392px; height: 72px; }
+.dc-btn--start { left: 764px; top: 748px; }
+.dc-btn--done { left: 764px; top: 944px; }
+.dc-options__btn.is-disabled { color: rgba(255, 255, 255, 0.2); }
+.dc-options__btn.is-disabled.is-focused { color: rgba(0, 0, 0, 0.4); }
+
+/* ---- checking ---- */
+.dc-checking__ring { position: absolute; left: 896px; top: 492px; }
+.dc-checking__text {
+  position: absolute;
+  left: 460px;
+  top: 668px;
+  width: 1000px;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+/* ---- status block (icon 26 u + Great!/Good T52 700) ---- */
+.dc-status { position: absolute; left: 244px; width: 1432px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.dc-status--home { top: 356px; }
+.dc-status--result { top: 328px; }
+.dc-status__icon { width: 208px; height: 208px; }
+.dc-status__text { width: 100%; height: 72px; line-height: 72px; text-align: center; font-size: 52px; font-weight: 700; }
+
+/* ---- home ---- */
+.dc-home__divider { position: absolute; left: 84px; top: 864px; width: 1752px; height: 2px; background: rgba(255, 255, 255, 0.05); }
+.dc-options { position: absolute; left: 0; top: 952px; width: 1920px; display: flex; justify-content: center; gap: 8px; }
+.dc-options__btn { position: relative; height: 72px; min-width: 232px; max-width: 344px; }
+
+/* ---- progress ---- */
+.dc-progress__caption {
+  position: absolute;
+  left: 204px;
+  top: 176px;
+  width: 1512px;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+.dc-progress__ring { position: absolute; left: 800px; top: 240px; }
+.dc-progress__value {
+  position: absolute;
+  left: 800px;
+  top: 348px;
+  width: 320px;
+  height: 104px;
+  line-height: 104px;
+  text-align: center;
+  font-size: 72px;
+  font-weight: 600;
+}
+.dc-ticker { position: absolute; left: 492px; top: 608px; width: 936px; display: flex; flex-direction: column; gap: 8px; }
+.dc-ticker__slot { display: flex; flex-direction: column; gap: 8px; }
+/* I_DividerH 117x1 u: 2 px line in an 8 px slot */
+.dc-ticker__divider { height: 8px; background: linear-gradient(transparent 3px, rgba(255, 255, 255, 0.05) 3px 5px, transparent 5px); }
+.dc-ticker__row { height: 96px; display: flex; align-items: center; gap: 16px; font-size: 28px; line-height: 48px; }
+.dc-ticker__text { width: 720px; font-weight: 600; color: #fff; }
+.dc-ticker__status { width: 200px; text-align: right; font-weight: 400; color: rgba(255, 255, 255, 0.9); }
+.dc-ticker__row.is-current .dc-ticker__text { color: rgba(70, 214, 123, 0.9); }   /* CC_Point190 */
+.dc-ticker__row.is-current .dc-ticker__status { color: rgba(70, 214, 123, 0.8); } /* CC_Point180 */
+
+/* ---- no issues ---- */
+.dc-result__message {
+  position: absolute;
+  left: 204px;
+  top: 144px;
+  width: 1512px;
+  height: 144px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+.dc-result__hint {
+  position: absolute;
+  left: 204px;
+  top: 760px;
+  width: 1512px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* FLUX toast (P_PopupToast_03), screen centre, 3 s */
+.dc-toast {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  min-width: 312px;
+  max-width: 880px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), var(--focus-shadow);
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  text-align: center;
+  z-index: 2;
+  animation:
+    dc-fade 200ms var(--ease-basic),
+    dc-scale 500ms var(--ease-elastic);
+}
+@keyframes dc-scale { from { scale: 0.95; } }

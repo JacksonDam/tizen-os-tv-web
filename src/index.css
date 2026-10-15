@@ -8,9 +8,18 @@ html, body, #root {
   background: #000;
 }
 
-.stage-host {
+/* The TV (scaled 1920x1080 stage) with the on-screen remote docked to its right. */
+.shell {
   position: fixed;
   inset: 0;
+  display: flex;
+  background: #000;
+}
+.stage-host {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
   overflow: hidden;
   background: #000;
 }
@@ -33,3 +42,4 @@ html, body, #root {
   cursor: default;
 }
 .tv-video { position: absolute; inset: 0; background: #000; }
+.live-video { position: absolute; inset: 0; width: 1920px; height: 1080px; object-fit: cover; background: #000; }

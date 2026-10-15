@@ -1,0 +1,64 @@
+/* Auto Tuning confirmation (spec2/channels.md 2.2.2, AUTO_TUNING_POPUP 2.10). The popup view is 63 u
+   (504 px) wide at x 88-592, bottom flush with the panel (y 952); the visible plate is the popup
+   9-patch inset 9/14/13 px inside it (flux.md 5.12). */
+.atp { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+
+.atp__plate {
+  position: absolute;
+  left: 97px;
+  bottom: 141px;
+  width: 486px;
+  padding: 42px 31px 43px;   /* P_PopupSmallBottom_01 paddings 6/6/7/7 u minus the plate inset */
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;                 /* 2 u */
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 100%;
+  animation:
+    atp-fade 200ms var(--ease-basic),
+    atp-scale 500ms var(--ease-elastic);
+}
+.atp--leaving .atp__plate {
+  opacity: 0;
+  scale: 0.95;
+  transition: opacity 200ms var(--ease-basic), scale 500ms var(--ease-out);
+}
+@keyframes atp-fade { from { opacity: 0; } }
+@keyframes atp-scale { from { scale: 0.95; } }
+
+/* popup title: T36 700, centred, 9 u box */
+.atp__title {
+  height: 72px;
+  line-height: 72px;
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* C_TextArea_02: T24 500 CC_Basic180, (63 - 10) u wide; height lineCount x 5 u + 4 u, max 44 u */
+.atp__message {
+  max-height: 352px;
+  padding: 16px 0;
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: pre-line;
+  overflow: hidden;
+}
+.atp__buttons { display: flex; gap: 16px; }
+/* C_ButtonBasicText_02 / CP_Plane_PopupBTN_FS: 30 x 7 u (min 19 u), black, 15 % white stroke, T24 */
+.atp__button {
+  position: relative;
+  flex: 1;
+  height: 56px;
+  font-size: 24px;
+  background: #000;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
