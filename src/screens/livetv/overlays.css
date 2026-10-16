@@ -295,3 +295,7 @@
 }
 .power-off.is-run .power-off__white { opacity: 1; }
 .power-off.is-run .power-off__half { transform: none; }
+
+/* ---- Smart Hub fading in from black after first-time setup (inferred: 600 ms linear) ---- */
+.hub-fade { position: absolute; inset: 0; background: #000; pointer-events: none; animation: hub-fade-out 600ms linear forwards; }
+@keyframes hub-fade-out { to { opacity: 0; visibility: hidden; } }

@@ -17,7 +17,7 @@ import { OVERLAYS, TV_KEY_HANDLERS, powerOnTarget, setShellView, shell } from '.
 // The TV: live picture at the bottom; the Smart Hub (csfs), the All Settings card and full-screen apps
 // above it; tv-viewer's and volume-app's overlays on top. Keys the apps do not consume reach the TV here.
 
-type Hub = { visible: boolean; key: number; entry?: 'devices' | 'settings' }
+type Hub = { visible: boolean; key: number; entry?: 'devices' | 'settings'; fade?: boolean }
 type RunningApp = { id: string; args?: Record<string, string>; from?: string }
 type Roll = 'up' | 'down' | 'none'
 const TARGETS: Record<string, string | undefined> = { allsettings: undefined, support: 'support', network: 'connection' }
@@ -58,14 +58,26 @@ export default function App() {
       }),
     [],
   )
-  // Home plays home_open the first time it opens the Smart Hub after power-on.
+  // home_open plays the first time the Smart Hub opens after power-on, whatever opened it (Home, Source
+  // or Settings key, the hand-over after first-time setup); during the power-on reveal it waits for the
+  // reveal to end (csfs polls until the audio path is ready, spec2/sounds.md 3.1).
   const homeSounded = useRef(false)
+  const revealing = useRef(false)
+  const homeSoundAfterReveal = useRef(false)
+  const homeOpenSound = () => {
+    if (homeSounded.current) return
+    homeSounded.current = true
+    if (revealing.current) homeSoundAfterReveal.current = true
+    else playFeedback('home_open')
+  }
 
-  const showHub = (entry?: Hub['entry']) => {
+  // fade: Home fades in from black (after first-time setup, whose movie ends on black; inferred)
+  const showHub = (entry?: Hub['entry'], fade = false) => {
     setSettings(null)
     setApp(null)
     setInfo(0)
-    setHub(h => ({ visible: true, key: h.key + 1, entry }))
+    setHub(h => ({ visible: true, key: h.key + 1, entry, fade }))
+    homeOpenSound()
   }
   const hideHub = () => setHub(h => ({ ...h, visible: false }))
 
@@ -74,6 +86,7 @@ export default function App() {
   const powerOn = (cold = false) => {
     setTv({ power: 'on' })
     homeSounded.current = false
+    revealing.current = true
     if (cold) setColdBoot(true)
     else {
       setBootChime(true)
@@ -97,7 +110,14 @@ export default function App() {
     setBootChime(false)
     setBooting(true)
   }, [])
-  const bootDone = useCallback(() => setBooting(false), [])
+  const bootDone = useCallback(() => {
+    setBooting(false)
+    revealing.current = false
+    if (homeSoundAfterReveal.current) {
+      homeSoundAfterReveal.current = false
+      playFeedback('home_open')
+    }
+  }, [])
   // Power off: the white flash, then standby; `then` runs once the TV is off (restart).
   const powerOff = (then?: () => void) => {
     clearTimeout(restartTimer.current)
@@ -142,8 +162,6 @@ export default function App() {
     switch (key) {
       case 'Home':
         if (!hub.visible) {
-          if (!homeSounded.current) playFeedback('home_open')
-          homeSounded.current = true
           showHub()
         }
         return true
@@ -218,7 +236,8 @@ export default function App() {
   const exitApp = (then: 'live' | 'hub' | 'settings' = 'live') => {
     const from = app?.from
     setApp(null)
-    if (then === 'hub') showHub()
+    // first-time setup hands over to the Smart Hub (csfs launched by org.tizen.wizard)
+    if (then === 'hub') showHub(undefined, app?.id === 'setup')
     else if (then === 'settings') setSettings({ target: from })
   }
 
@@ -300,6 +319,7 @@ export default function App() {
             }}
           />
         )}
+        {on && hub.visible && hub.fade && <div key={`fade${hub.key}`} className="hub-fade" />}
         {on && settings && (
           <AllSettings target={settings.target} onClose={() => setSettings(null)} onLaunchApp={launch} />
         )}

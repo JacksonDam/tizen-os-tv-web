@@ -2,8 +2,8 @@
 
 A 1:1 web recreation of the Samsung 2025 TV interface (Tizen 9, firmware T-RSMFDEUC-0090), running the TV
 frontend at native speed in a browser for testing without the TV or an emulator. It mocks the TV's
-hardware: a tuner with a scanned channel lineup, two HDMI devices, a network, Bluetooth devices, audio,
-volume and power.
+hardware: a tuner with a scanned channel lineup, two HDMI devices, a network, Bluetooth devices, volume
+and power.
 
 **Live:** https://jacksondam.com/tizen-os-tv-web/
 
@@ -46,8 +46,7 @@ Use the on-screen remote or the keyboard:
 With a text field open (Settings search, Wi-Fi password, Edit Name), the computer keyboard types into it.
 The PIN is 0000.
 
-Automation hooks: `window.__tv.press('Down')` sends a key; `window.__tvAudio.level()` returns the programme
-sound's output level. URL options:
+Automation hook: `window.__tv.press('Down')` sends a key. URL options:
 
 | Option | Effect |
 |---|---|
@@ -93,7 +92,8 @@ local storage; General & Privacy > Factory data reset clears it and runs first-t
   `src/tv/channels.ts`.
 - **First-time setup** (`src/screens/setup`): the 2025 setup wizard with its music (language, country,
   connected devices, network, Smart Hub agreement, TV source, channel scan) ending with the end-of-setup
-  movie. It runs after Factory data reset or with `?setup=1`.
+  movie, after which the Smart Hub fades in with its Home sound. It runs after Factory data reset or with
+  `?setup=1`.
 - **PIN** (`src/screens/setup`): PIN-protected settings ask for it (default 0000); Change PIN and Factory
   data reset are in General & Privacy.
 - **On-screen keyboard** (`src/components/keyboard`): the TV's keyboard, used by Settings search, Wi-Fi
@@ -101,10 +101,10 @@ local storage; General & Privacy > Factory data reset clears it and runs first-t
 - **Connections** (`src/screens/connections`): Network Status, Network Settings (Wi-Fi list, password entry,
   wired, WPS, saved networks), Reset Network, the Wi-Fi switch, Bluetooth Device List (mocked scan and
   pairing), and Settings search.
-- **Picture, sound, timers and accessibility take effect** (`src/screens/av`): picture modes and Expert
-  Settings filter the video; picture size and zoom; generated per-channel programme sound with Equalizer,
-  Balance, Amplify and Auto Volume; Sleep, Off and Auto Power Off timers; Auto Picture Off; Start with Smart
-  Hub Home; Grayscale, High Contrast, Zoom Menu and Text.
+- **Picture, timers and accessibility take effect** (`src/screens/av`): picture modes and Expert Settings
+  filter the video; picture size and zoom; the Sound pages (Equalizer, Balance, Reset Sound) store their
+  values; Sleep, Off and Auto Power Off timers; Auto Picture Off; Start with Smart Hub Home; Grayscale,
+  High Contrast, Zoom Menu and Text.
 - **Device Care** (`src/screens/diag`): Manage Storage, Self Diagnosis (12 tests with Test All), Picture
   Test, Sound Test, Smart Hub Connection Test, HDMI Troubleshooting, Signal Information and Reset Smart Hub.
   Results and sizes are mock values. Tips and User Guides: Connection Guide, Remote Control Guide (press the
@@ -119,8 +119,8 @@ local storage; General & Privacy > Factory data reset clears it and runs first-t
 
 Mocked hardware lives in `src/tv/store.ts` (state), `src/tv/channels.ts` (lineup and programme guide) and
 the feature modules (network, Bluetooth, schedules, notifications). Channel, network and device names are
-fictional; the channel videos in `public/video` are generated, not broadcast footage, and the programme
-sound is synthesised in the browser.
+fictional; the channel videos in `public/video` are generated, not broadcast footage, and have no sound
+(a TV's programme sound comes from the broadcast or the HDMI device, not the firmware).
 
 Feature modules plug into the shell through registries rather than editing it: `registerApp`
 (`src/apps/registry.ts`), `registerGadget` / `registerPopup` (`src/screens/allsettings/extensions.ts`),

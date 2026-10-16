@@ -3,14 +3,13 @@
 .cd {
   position: absolute;
   inset: 0;
-  opacity: 0;
   visibility: hidden;
 }
-.cd--shown {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 500ms var(--ease-basic);
-}
+.cd--shown { visibility: visible; }
+/* The layer fades in over 500 ms (Basic), applied to the panel rather than the layer so its blur is
+   live during the fade (an ancestor with opacity < 1 would be the blur's backdrop root). */
+.cd--shown > * { animation: cd-layer-in 500ms var(--ease-basic); }
+@keyframes cd-layer-in { from { opacity: 0; } }
 
 /* 52x49 u panel (52x70 u = 416x560 from 5 items: top/height set inline) anchored bottom-left:
    padding-left 10 u, padding-bottom 15 u. */

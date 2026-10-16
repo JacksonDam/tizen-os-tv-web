@@ -1,15 +1,12 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { currentChannel, useTv } from '../../tv/store'
-import { useShellView } from '../../tv/shell'
+import { useTv } from '../../tv/store'
 import { onPictureModeChanged, pictureParams, pictureTransform } from './picture'
-import { audioSettings } from './sound'
-import { applySettings, duck, playProgramme, stopAll } from './audio/engine'
-import { styleFor } from './audio/styles'
 import { buildOverrides, enlarge, enlargeExtra, highContrast } from './themeRewrite'
 import './av.css'
 
 // Always-mounted helpers (registered as overlays, so they run while the TV is on): the picture engine
-// for the video plane, the audio engine, and the accessibility display modes.
+// for the video plane and the accessibility display modes. The stand-in sources have no sound: the
+// programme audio of a real TV comes from the broadcast or the HDMI device, not the firmware.
 
 function useStage() {
   const ref = useRef<HTMLSpanElement>(null)
@@ -70,35 +67,6 @@ export function AvPicture() {
       </svg>
     </span>
   )
-}
-
-// ---- programme audio ----
-
-export function AvAudio() {
-  const s = useTv(st => st)
-  const view = useShellView()
-  const ch = s.source === 'TV' ? currentChannel(s) : undefined
-  // the channel scan owns the tuner: no programme while it runs
-  const id = view.app === 'channel-search' ? null : s.source === 'TV' ? (ch && ch.kind !== 'data' ? `ch:${ch.number}` : null) : s.source
-  const settings = audioSettings(s)
-  const key = JSON.stringify(settings)
-
-  useEffect(() => applySettings(settings), [key]) // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    playProgramme(id, styleFor(s.source, ch), ch ? ch.number : s.source === 'HDMI1' ? 701 : 702)
-  }, [id]) // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => stopAll(), []) // standby
-
-  // retuning mutes for a moment (channel change ~0.4 s, input switch screen 0.7 s)
-  const tune = useRef(s.tuneSeq)
-  const sw = useRef(s.switchSeq)
-  useEffect(() => {
-    if (s.tuneSeq !== tune.current) duck(400)
-    if (s.switchSeq !== sw.current) duck(800)
-    tune.current = s.tuneSeq
-    sw.current = s.switchSeq
-  }, [s.tuneSeq, s.switchSeq])
-  return null
 }
 
 // ---- accessibility display modes on the whole output ----

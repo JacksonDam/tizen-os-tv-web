@@ -3,14 +3,15 @@
 .qs {
   position: absolute;
   inset: 0;
-  opacity: 0;
   visibility: hidden;
 }
-.qs--shown {
-  opacity: 1;
-  visibility: visible;
-  transition: opacity 500ms var(--ease-basic);
-}
+.qs--shown { visibility: visible; }
+/* The layer fades in over 500 ms (Basic). The fade runs on its children, not on the layer: an element
+   with opacity < 1 is the backdrop root of any blur inside it, so the panel's blur would stay empty
+   until the fade ended and then pop in. */
+.qs--shown > .qs__noti,
+.qs--shown > .qs__panel { animation: qs-layer-in 500ms var(--ease-basic); }
+@keyframes qs-layer-in { from { opacity: 0; } }
 
 /* BlurView(Dynamic, Medium) 52x70 u, r 32; grows to 52x80 u (upward) in edit mode over 300 ms. */
 .qs__panel {

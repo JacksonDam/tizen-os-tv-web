@@ -4,7 +4,7 @@ import { registerGadget, registerPopup } from '../allsettings/extensions'
 import { patchRows, registerMenuPatch } from '../allsettings/menu'
 import { getSetting } from '../../tv/store'
 import { registerOverlay, registerPowerOnHook } from '../../tv/shell'
-import { AvAccessibility, AvAudio, AvPicture } from './Engines'
+import { AvAccessibility, AvPicture } from './Engines'
 import { AvTimers } from './Timers'
 import { PanelToast } from './PanelPopup'
 import { BalancePage, EqualizerPage } from './SoundPages'
@@ -12,7 +12,6 @@ import { ResetPopup, ZoomPositionPage } from './PicturePages'
 import { SpinTimePopup } from './SpinTimePopup'
 
 registerOverlay('av-picture', AvPicture, -10)
-registerOverlay('av-audio', AvAudio, -10)
 registerOverlay('av-accessibility', AvAccessibility, -10)
 registerOverlay('av-toast', PanelToast, 5)
 registerOverlay('av-timers', AvTimers, 20)
