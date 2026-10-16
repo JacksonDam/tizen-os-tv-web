@@ -94,10 +94,17 @@ export function sortLineup(chs: Channel[]): Channel[] {
 export const DEFAULT_LINEUP: Channel[] = sortLineup(SCAN_LINEUP)
 
 // ---- programme guide ----
-// Each service has a "now" and a "next" programme (around 09:00-12:00 in the spec). The day repeats that
-// pair from the "now" start, so the titles show at any time of day; 23:59 ends mean the whole day.
+// Each service has a "now" and a "next" programme from the spec (around 09:00-12:00). Around that pair
+// every day is filled with a deterministic schedule (seeded by channel number and date) drawn from
+// genre-based title pools, so the Guide has a full grid for any day and time. "23:59" ends mean the
+// service runs one programme all day (data services). Names and descriptions are fictional (inferred).
 
 export type Programme = { title: string; start: Date; end: Date }
+export type GuideProgramme = Programme & {
+  id: string               // "<LCN>-<start ms>", stable across reloads (Schedule Viewing keys on it)
+  genre: string            // DVB content genre as the Guide names it (epg.mo)
+  desc: string             // synopsis shown in the Guide header and View Details
+}
 
 const GUIDE = new Map(MUXES.flatMap(m => m.services.map((s): [string, [Slot, Slot]] => [s[1], [s[5], s[6]]])))
 
@@ -106,25 +113,164 @@ function minutes(t: string) {
   return t === '23:59' ? 1440 : h * 60 + m
 }
 
-export function programmeAt(ch: Channel, at = new Date()): Programme {
-  const day = new Date(at)
-  day.setHours(0, 0, 0, 0)
-  const slots = GUIDE.get(ch.name)
-  if (!slots) return { title: '', start: day, end: new Date(day.getTime() + 86400000) }
-  const [now, next] = slots
-  const anchor = minutes(now[1]) * 60000
-  const d1 = (minutes(now[2]) - minutes(now[1])) * 60000
-  const d2 = (minutes(next[2]) - minutes(next[1])) * 60000
-  const t = at.getTime() - day.getTime() - anchor
-  const k = Math.floor(t / (d1 + d2))
-  const cycle = day.getTime() + anchor + k * (d1 + d2)
-  return t - k * (d1 + d2) < d1
-    ? { title: now[0], start: new Date(cycle), end: new Date(cycle + d1) }
-    : { title: next[0], start: new Date(cycle + d1), end: new Date(cycle + d1 + d2) }
+// Channel genre -> DVB content nibble text the Guide shows (SIDs in org.tizen.epg's epg.mo) (inferred mapping).
+const DVB_GENRE: Record<string, string> = {
+  Entertainment: 'Show/Game show',
+  'Game shows': 'Show/Game show',
+  Reality: 'Show/Game show',
+  Documentary: 'Education/Science/Factual Topics',
+  'Natural History': 'Education/Science/Factual Topics',
+  'Science&Nature': 'Education/Science/Factual Topics',
+  Drama: 'Movie/Drama',
+  Movies: 'Movie/Drama',
+  Comedy: 'Movie/Drama',
+  Crime: 'Movie/Drama',
+  'News&Opinion': 'News/Current affairs',
+  Kids: "Children's/Youth programmes",
+  Sports: 'Sports',
+  Music: 'Music/Ballet/Dance',
+  'Food & Drink': 'Leisure hobbies',
+  Motoring: 'Leisure hobbies',
+  Lifestyle: 'Leisure hobbies',
+  'Interactive & ambient': 'Undefined content',
 }
 
-export function nextProgramme(ch: Channel, at = new Date()): Programme {
+// Title pools and slot lengths (minutes) per channel genre (inferred; fictional titles).
+const POOLS: Record<string, { titles: string[]; lengths: number[] }> = {
+  Entertainment: { titles: ['Saturday Lights', 'The Big Weekend', 'Talk of the Town', 'Late Lounge', 'Home Truths', 'Star Kitchen', 'Weekend Wonders', 'The Showcase', 'Variety Hour', 'Morning Live', 'Bargain Hunters', 'Good Day Show', 'Kitchen Duel'], lengths: [30, 60, 60, 90] },
+  'Game shows': { titles: ['Five in a Row', 'Top Answer', 'Lucky Streak', 'Brain Race', 'The Final Clue', 'Word Ladder', 'Pass the Prize'], lengths: [30, 30, 60] },
+  Reality: { titles: ['House Swap', 'Island Life', 'Moving Day', 'The Renovators', 'Camp Survive', 'First Dates Abroad'], lengths: [30, 60, 60] },
+  Documentary: { titles: ['Coastal Railways', "The Potter's Wheel", 'Lost Castles', 'Empires of Salt', 'Hidden Cities', 'The Map Makers', 'Bridges of the North', 'Secret Gardens', 'Rivers of Stone'], lengths: [30, 60, 60] },
+  'Natural History': { titles: ['River Otters', 'Life on the Reef', 'Wild Meadows', 'Night Hunters', 'The Great Migration', 'Penguin Shores', 'Forest Giants'], lengths: [30, 60] },
+  'Science&Nature': { titles: ['Inside the Volcano', 'Tiny Machines', 'Deep Ocean', 'Starlight', 'How Things Work', 'The Weather Lab', 'Planet Patterns'], lengths: [30, 60] },
+  Drama: { titles: ['Harbour Lights', 'The Long Field', 'Northern Shore', 'Quiet Street', 'The Ward', 'Second Chances', 'Glass Houses', 'Farewell Station'], lengths: [60, 60, 90] },
+  Movies: { titles: ['The Glass Orchard', 'Night Ferry', 'Desert Crossing', 'The Clockmaker', 'Summer at Elm Lake', 'The Signal', 'Paper Moon Road', 'The Last Lighthouse', 'Winter Garden', 'Silver Arrow'], lengths: [90, 105, 120] },
+  Comedy: { titles: ['Corner Shop', 'Flatmates', 'Open Mic Night', 'Office Hours', 'The In-Laws', 'Bus Route 9', 'Family Matters'], lengths: [30, 30, 60] },
+  Crime: { titles: ['Cold Case Unit', 'Evidence', 'Forensic Files', 'The Inspector', 'Night Patrol', 'Unsolved'], lengths: [60, 60, 90] },
+  'News&Opinion': { titles: ['News', 'Business Today', 'World Report', 'The Briefing', 'Weather Watch', 'Evening Edition', 'Riverside Today', 'Town Hall Live', 'News at Nine'], lengths: [15, 30, 30, 60] },
+  Kids: { titles: ['Paper Planes', 'Robo Pals', 'Puddle Jumpers', 'Sleepy Bear', 'Colour Town', 'Space Pups', 'Story Time', 'Little Builders'], lengths: [10, 15, 25, 30] },
+  Sports: { titles: ['Match Highlights', 'Cycling: Stage 4', 'Tennis: Quarter-finals', 'Sports Desk', 'Football Tonight', 'Golf Round-up', 'Motor Racing: Qualifying', 'Athletics Live'], lengths: [30, 60, 120, 180] },
+  Music: { titles: ['Chart Countdown', 'Live Sessions', 'Breakfast Mix', 'Midday Tunes', 'Request Hour', 'Blue Notes', 'Swing Time', 'Golden Hour', 'Slow Grooves', 'Night Shift'], lengths: [60, 120, 180] },
+  'Food & Drink': { titles: ['One Pan Suppers', 'Bake It Simple', 'Market to Table', 'Spice Route', 'Sunday Roast', 'Street Food Stories'], lengths: [30, 30, 60] },
+  Motoring: { titles: ['Garage Rescue', 'Road Test', 'Classic Cars', 'Rally Diaries', 'Car Clinic'], lengths: [30, 60] },
+  Lifestyle: { titles: ['Small Space Fixes', 'Garden Rescue', 'Home and Kitchen', 'Jewellery Showcase', 'Style Swap', 'Weekend DIY'], lengths: [30, 60, 60] },
+  'Interactive & ambient': { titles: ['Interactive Service'], lengths: [1440] },
+}
+
+// Synopses by genre; {t} is the programme title (inferred, fictional).
+const DESCS: Record<string, string[]> = {
+  'Show/Game show': ['{t} brings studio guests, live music and audience surprises to the end of the week.', 'Contestants put their nerve and general knowledge to the test in {t}, with a cash prize for the last player standing.', 'Bright faces and big laughs as {t} visits viewers at home across the region.'],
+  'Education/Science/Factual Topics': ['{t} follows the people, places and ideas that shaped the region, with archive film and new interviews.', 'A closer look at how the natural world works. {t} uses slow motion and macro cameras to reveal the detail.', 'Experts take {t} behind the scenes and explain the science in plain language.'],
+  'Movie/Drama': ['{t}: a quiet town is turned upside down when an old friend returns with a secret.', 'In {t}, two strangers meet on a late train and set off a chain of events neither can stop.', 'Loyalties are tested in {t} as the family business faces its hardest season yet.'],
+  'News/Current affairs': ['{t}: the latest national and international news, sport and weather.', 'Headlines, interviews and analysis of the stories that matter today in {t}.'],
+  "Children's/Youth programmes": ['{t}: songs, colours and gentle adventures for younger viewers.', 'The friends from {t} solve a new puzzle together in this episode.'],
+  Sports: ['{t}: live coverage with expert commentary and the key moments replayed.', 'All the goals, points and talking points from the day in {t}.'],
+  'Music/Ballet/Dance': ['{t}: an hour of favourite tracks and new releases, with requests from listeners.', 'Relaxed music and conversation in {t}.'],
+  'Leisure hobbies': ['{t} shares simple ideas you can try at home this weekend.', 'Hands-on tips and honest advice in {t}.'],
+  'Undefined content': ['Interactive information service.'],
+}
+
+function rng(seed: number) {
+  let a = seed >>> 0
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+function hash(s: string) {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619)
+  return h >>> 0
+}
+
+function makeProgramme(ch: Channel, title: string, start: number, end: number): GuideProgramme {
+  const genre = DVB_GENRE[ch.genre] ?? 'Undefined content'
+  const pool = DESCS[genre] ?? DESCS['Undefined content']
+  const desc = pool[hash(title) % pool.length].replace('{t}', title)
+  return { id: `${ch.number}-${start}`, title, start: new Date(start), end: new Date(end), genre, desc }
+}
+
+const dayCache = new Map<string, GuideProgramme[]>()
+
+// One local day (00:00-24:00) of a channel's schedule.
+function daySchedule(ch: Channel, day: Date): GuideProgramme[] {
+  const d0 = new Date(day)
+  d0.setHours(0, 0, 0, 0)
+  const key = `${ch.number}:${d0.getTime()}`
+  const hit = dayCache.get(key)
+  if (hit) return hit
+  const d1 = new Date(d0)
+  d1.setDate(d1.getDate() + 1)
+  const dayStart = d0.getTime()
+  const dayLen = d1.getTime() - dayStart        // 23-25 h on DST days
+  const pool = POOLS[ch.genre] ?? POOLS.Entertainment
+  const rand = rng(hash(key))
+  const out: GuideProgramme[] = []
+  let last = ''
+  const fill = (from: number, to: number) => {
+    let t = from
+    while (t < to) {
+      let len = pool.lengths[Math.floor(rand() * pool.lengths.length)] * 60000
+      if (t + len > to) len = to - t
+      if (len < 10 * 60000 && out.length && out[out.length - 1].end.getTime() === t) {
+        const prev = out.pop()!
+        out.push(makeProgramme(ch, prev.title, prev.start.getTime(), t + len))
+      } else {
+        let title = pool.titles[Math.floor(rand() * pool.titles.length)]
+        if (title === last && pool.titles.length > 1) title = pool.titles[(pool.titles.indexOf(title) + 1) % pool.titles.length]
+        last = title
+        out.push(makeProgramme(ch, title, t, t + len))
+      }
+      t += len
+    }
+  }
+  const slots = GUIDE.get(ch.name)
+  if (!slots) fill(dayStart, dayStart + dayLen)
+  else {
+    const [now, next] = slots
+    const a = dayStart + minutes(now[1]) * 60000
+    const b = dayStart + minutes(now[2]) * 60000
+    const c = Math.min(dayStart + dayLen, dayStart + minutes(next[2]) * 60000)
+    if (minutes(now[2]) >= 1440) out.push(makeProgramme(ch, now[0], dayStart, dayStart + dayLen))
+    else {
+      fill(dayStart, a)
+      out.push(makeProgramme(ch, now[0], a, b))
+      if (c > b) out.push(makeProgramme(ch, next[0], b, c))
+      last = next[0]
+      fill(c, dayStart + dayLen)
+    }
+  }
+  if (dayCache.size > 400) dayCache.clear()
+  dayCache.set(key, out)
+  return out
+}
+
+// The programme on air on a channel at a time.
+export function programmeAt(ch: Channel, at = new Date()): GuideProgramme {
+  const day = daySchedule(ch, at)
+  const t = at.getTime()
+  return day.find(p => p.start.getTime() <= t && t < p.end.getTime()) ?? day[day.length - 1]
+}
+
+export function nextProgramme(ch: Channel, at = new Date()): GuideProgramme {
   return programmeAt(ch, programmeAt(ch, at).end)
+}
+
+// Every programme overlapping [from, to), in order.
+export function programmesBetween(ch: Channel, from: Date, to: Date): GuideProgramme[] {
+  const out: GuideProgramme[] = []
+  const d = new Date(from)
+  d.setHours(0, 0, 0, 0)
+  while (d.getTime() < to.getTime()) {
+    for (const p of daySchedule(ch, d)) {
+      if (p.end.getTime() > from.getTime() && p.start.getTime() < to.getTime()) out.push(p)
+    }
+    d.setDate(d.getDate() + 1)
+  }
+  return out
 }
 
 export function hhmm(d: Date) {

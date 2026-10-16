@@ -1,0 +1,37 @@
+/* org.tizen.schedule-manager (layout inferred from FLUX list conventions, spec3/guide.md 6). */
+.sm { position: absolute; inset: 0; z-index: 40; background: #07131b; color: #fff; overflow: hidden; }
+/* FLUX header main text T56 700 CC_Basic1100; sub T28 600 CC_Basic180 (spec/flux.md 3) */
+.sm__title { position: absolute; left: 96px; top: 64px; height: 80px; line-height: 80px; font-size: 56px; font-weight: 700; }
+.sm__sub { position: absolute; left: 96px; top: 144px; height: 48px; line-height: 48px; font-size: 28px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+.sm__list { position: absolute; left: 96px; top: 240px; width: 1200px; display: flex; flex-direction: column; gap: 8px; }
+/* C_TextTile double line: 16u rows trimmed to 13u, plate #E8E8E8 r16 when focused, 1.08 elastic */
+.sm__row {
+  height: 104px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 16px;
+  transition: scale var(--dur-focus) var(--ease-out);
+}
+.sm__row.is-focused {
+  background: #e8e8e8;
+  color: #000;
+  scale: 1.04;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+  transition-timing-function: var(--ease-elastic);
+}
+.sm__icon { flex: none; width: 56px; height: 56px; }
+.sm__text { min-width: 0; }
+.sm__main { font-size: 28px; font-weight: 600; line-height: 48px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sm__row.is-focused .sm__main { font-weight: 700; }
+.sm__info { display: flex; align-items: center; gap: 16px; font-size: 20px; line-height: 32px; color: rgba(255, 255, 255, 0.8); }
+.sm__row.is-focused .sm__info { color: rgba(0, 0, 0, 0.8); }
+.sm__sep { width: 2px; height: 16px; background: currentColor; opacity: 0.4; }
+.sm__empty { position: absolute; left: 0; right: 0; top: 440px; text-align: center; }
+.sm__empty-title { font-size: 36px; font-weight: 700; line-height: 56px; }
+.sm__empty-text { font-size: 28px; line-height: 48px; color: rgba(255, 255, 255, 0.6); }
+/* option list (PListOption: 49u, CC_BG4100, 10u items) beside the row */
+.sm__menu { position: absolute; left: 1320px; width: 392px; padding: 8px; box-sizing: border-box; border-radius: 16px; background: #1f3959; box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85); }
+.sm__menu-item { height: 80px; padding: 0 24px; display: flex; align-items: center; border-radius: 16px; font-size: 28px; font-weight: 600; transition: scale var(--dur-focus) var(--ease-out); }
+.sm__menu-item.is-focused { background: #e8e8e8; color: #000; font-weight: 700; scale: 1.08; transition-timing-function: var(--ease-elastic); }
