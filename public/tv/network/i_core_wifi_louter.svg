@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320px" height="160px" viewBox="0 0 320 160" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Component/C_ImageBox_01/Connect/ i_core_wifi_louter</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="291" height="160"></rect>
+        <filter x="-11.0%" y="-95.5%" width="121.9%" height="290.9%" filterUnits="objectBoundingBox" id="filter-3">
+            <feGaussianBlur stdDeviation="6.66666667" in="SourceGraphic"></feGaussianBlur>
+        </filter>
+        <linearGradient x1="0.189%" y1="49.9670222%" x2="100.189%" y2="49.9670222%" id="linearGradient-4">
+            <stop stop-color="#32383F" offset="0%"></stop>
+            <stop stop-color="#4B5157" offset="27.26%"></stop>
+            <stop stop-color="#4A5056" offset="27.75%"></stop>
+            <stop stop-color="#343A42" offset="51.21%"></stop>
+            <stop stop-color="#2C323A" offset="66.2%"></stop>
+            <stop stop-color="#30383E" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="19.9287755%" y1="43.5951849%" x2="57.0506447%" y2="51.3723023%" id="linearGradient-5">
+            <stop stop-color="#4B5157" offset="0%"></stop>
+            <stop stop-color="#3D434A" offset="17.26%"></stop>
+            <stop stop-color="#30363E" offset="41.47%"></stop>
+            <stop stop-color="#323A44" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="0.0625874126%" y1="49.9324376%" x2="346.653497%" y2="49.9324376%" id="linearGradient-6">
+            <stop stop-color="#000000" stop-opacity="0.4" offset="0%"></stop>
+            <stop stop-color="#000000" stop-opacity="0" offset="3%"></stop>
+            <stop stop-color="#2D2D2D" stop-opacity="0.01508164" offset="3.150816%"></stop>
+            <stop stop-color="#868686" stop-opacity="0.04642458" offset="3.464246%"></stop>
+            <stop stop-color="#C7C7C7" stop-opacity="0.0719851" offset="3.719851%"></stop>
+            <stop stop-color="#F0F0F0" stop-opacity="0.09046042" offset="3.904604%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0.1" offset="4%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0.08624675" offset="4.825195%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="10%"></stop>
+        </linearGradient>
+        <linearGradient x1="100.065385%" y1="49.9324376%" x2="-246.525524%" y2="49.9324376%" id="linearGradient-7">
+            <stop stop-color="#000000" stop-opacity="0.4" offset="0%"></stop>
+            <stop stop-color="#000000" stop-opacity="0" offset="3%"></stop>
+            <stop stop-color="#2D2D2D" stop-opacity="0.01508164" offset="3.150816%"></stop>
+            <stop stop-color="#868686" stop-opacity="0.04642458" offset="3.464246%"></stop>
+            <stop stop-color="#C7C7C7" stop-opacity="0.0719851" offset="3.719851%"></stop>
+            <stop stop-color="#F0F0F0" stop-opacity="0.09046042" offset="3.904604%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0.1" offset="4%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0.08624675" offset="4.825195%"></stop>
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="10%"></stop>
+        </linearGradient>
+        <linearGradient x1="2.72397065%" y1="50.0075142%" x2="89.2121892%" y2="49.9937575%" id="linearGradient-8">
+            <stop stop-color="#2C323A" offset="0%"></stop>
+            <stop stop-color="#282F36" offset="44.58%"></stop>
+            <stop stop-color="#1B242B" offset="92.13%"></stop>
+            <stop stop-color="#182228" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Component/C_ImageBox_01/Connect/-i_core_wifi_louter" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-14" transform="translate(14.000000, 0.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="Mask"></g>
+            <rect id="Rectangle" fill-opacity="0.4" fill="#000000" filter="url(#filter-3)" mask="url(#mask-2)" x="54.2058824" y="130.47619" width="182.588235" height="20.952381" rx="10.4761905"></rect>
+            <g id="wifi" mask="url(#mask-2)">
+                <g transform="translate(54.205882, 21.904762)">
+                    <g id="Group" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g transform="translate(18.802507, 0.000000)" fill="url(#linearGradient-4)" fill-rule="nonzero" id="Rectangle">
+                            <rect x="0" y="0" width="7.52100269" height="83.9821538"></rect>
+                            <rect x="139.13855" y="0" width="7.52100269" height="83.9821538"></rect>
+                        </g>
+                        <g transform="translate(0.000000, 83.011693)" fill-rule="nonzero" id="Path">
+                            <path d="M181.256165,38.8930686 L3.00840108,38.8930686 C1.35378048,38.8930686 0,37.5493541 0,35.9070364 L0,0 L184.264566,0 L184.264566,35.9070364 C184.264566,37.5493541 182.910786,38.8930686 181.256165,38.8930686 Z" fill="url(#linearGradient-5)"></path>
+                            <g>
+                                <path d="M21.5100677,0 L0,0 L0,35.9070364 C0,37.5493541 1.35378048,38.8930686 3.00840108,38.8930686 L21.5100677,38.8930686 L21.5100677,0 Z" fill="url(#linearGradient-6)"></path>
+                                <path d="M162.754498,0 L184.264566,0 L184.264566,35.9070364 C184.264566,37.5493541 182.910786,38.8930686 181.256165,38.8930686 L162.754498,38.8930686 L162.754498,0 Z" fill="url(#linearGradient-7)"></path>
+                            </g>
+                        </g>
+                        <ellipse id="Oval" fill="#9AADC8" fill-rule="nonzero" cx="161.701558" cy="106.078792" rx="3.76050135" ry="3.73254017"></ellipse>
+                        <ellipse id="Oval" fill="#9AADC8" fill-rule="nonzero" cx="146.659553" cy="106.078792" rx="3.76050135" ry="3.73254017"></ellipse>
+                        <ellipse id="Oval" fill="#9AADC8" fill-rule="nonzero" cx="131.617547" cy="106.078792" rx="3.76050135" ry="3.73254017"></ellipse>
+                        <ellipse id="Oval" fill="#9AADC8" fill-rule="nonzero" cx="116.575542" cy="106.078792" rx="3.76050135" ry="3.73254017"></ellipse>
+                    </g>
+                    <path d="M174.938523,80.8468201 L9.55167342,80.8468201 C4.28697154,80.8468201 0,80.8468201 0,80.9214709 L0,83.0116933 L184.490196,83.0116933 L184.490196,80.9214709 C184.490196,80.8468201 180.203225,80.8468201 174.938523,80.8468201 Z" id="Path" fill="url(#linearGradient-8)" fill-rule="nonzero"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -8,6 +8,7 @@ import type { MenuItem } from './menuData'
 export type SettingsHost = {
   launchApp: (app: string, args?: Record<string, string>) => void  // closes All Settings, starts the app
   close: () => void                                                 // closes All Settings
+  openPath?: (path: string[]) => void                               // closes the gadget, opens the pages down to a row by id
 }
 
 // In-panel page. `active` is false while a popup is over it; call onClose to return to the parent page.

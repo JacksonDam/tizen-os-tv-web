@@ -5,6 +5,8 @@ import { playFeedback, useMoveSound } from '../../tv/sound'
 import { setSetting, useSetting } from '../../tv/store'
 import { TV } from '../../assets'
 import type { GadgetProps } from '../allsettings/extensions'
+import { InputText, Keyboard } from '../../components/keyboard/Keyboard'
+import { useTextEntry } from '../../components/keyboard/textEntry'
 import { ABOUT_TV, DEVICE_NAME_SETTING } from './supportData'
 import './about-tv.css'
 
@@ -112,7 +114,7 @@ export function AboutTV({ host, active, onClose }: GadgetProps) {
       <div className="atv__title">{ABOUT_TV.title}</div>
 
       {popup === 'name' ? (
-        <NameEditor current={name} layer={layer} onDone={() => { setPopup(null); setFocus('edit') }} />
+        <NameEditor current={name} onDone={() => { setPopup(null); setFocus('edit') }} />
       ) : (
         <>
           <div className="atv__name">{name}</div>
@@ -244,44 +246,28 @@ function Label({ text, active }: { text: string; active: boolean }) {
 
 // ---- Edit Name (A.2.6) ----
 // The TV swaps the name row for a 72x8 u input field plus an "n/30" counter and opens the Samsung
-// keyboard next to the panel. Here a list of names stands in for the keyboard: Up/Down preview a
-// name in the field, OK writes it (Done), Back cancels; both return focus to Edit Name.
+// keyboard next to the panel ("action=dynamic_ui&entrylimit=30" at the row's top, 2 u right of the
+// 93 u gadget: AT:UserInputUI.cs ShowInputPanel). Done writes the name, Back cancels; both return focus
+// to Edit Name.
 
-function NameEditor({ current, layer, onDone }: { current: string; layer: HTMLElement | null; onDone: () => void }) {
-  const names = ABOUT_TV.presetNames.includes(current) ? ABOUT_TV.presetNames : [current, ...ABOUT_TV.presetNames]
-  const [focus, setFocus] = useState(Math.max(0, names.indexOf(current)))
-  useMoveSound(focus)
-  const value = names[focus]
-
-  useRemote(key => {
-    if (key === 'Up') setFocus(f => Math.max(0, f - 1))
-    else if (key === 'Down') setFocus(f => Math.min(names.length - 1, f + 1))
-    else if (key === 'Enter') {
-      setSetting(DEVICE_NAME_SETTING, value)
-      onDone()
-    } else if (key === 'Back') {
-      playFeedback('back')
-      onDone()
-    } else if (key === 'Home' || key === 'Exit') return false
-    return true // number keys are grabbed while editing
-  })
-
+function NameEditor({ current, onDone }: { current: string; onDone: () => void }) {
+  const entry = useTextEntry(current, ABOUT_TV.nameMaxLength)
   return (
     <>
       <div className="atv-input">
-        <span className="atv-input__text">{value}</span>
-        <span className="atv-input__caret" />
+        <InputText entry={entry} editing />
       </div>
-      <div className="atv-input__count">{`${value.length}/${ABOUT_TV.nameMaxLength}`}</div>
-      {layer &&
-        createPortal(
-          <div className="atv-names">
-            {names.map((n, i) => (
-              <div key={n} className={`atv-names__row ${i === focus ? 'is-focused' : ''}`}>{n}</div>
-            ))}
-          </div>,
-          layer,
-        )}
+      <div className="atv-input__count">{`${entry.text.length}/${ABOUT_TV.nameMaxLength}`}</div>
+      <Keyboard
+        entry={entry}
+        style={{ left: 80 + (93 + 2) * 8, top: 344 }}
+        doneEnabled={entry.text.trim().length > 0}
+        onDone={text => {
+          setSetting(DEVICE_NAME_SETTING, text.trim())
+          onDone()
+        }}
+        onCancel={onDone}
+      />
     </>
   )
 }

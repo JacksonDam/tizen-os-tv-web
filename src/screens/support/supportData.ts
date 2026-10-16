@@ -9,8 +9,6 @@ export const ABOUT_TV = {
   title: 'About TV',
   deviceName: 'Samsung QN90F 65 TV', // mock
   nameMaxLength: 30,
-  // Edit Name stand-in for the on-screen keyboard: names to pick from (mock)
-  presetNames: ['Samsung QN90F 65 TV', 'Living Room TV', 'Bedroom TV', 'Family Room TV', 'Kitchen TV', 'Office TV'],
   fields: [
     { label: 'Model Code', value: 'QE65QN90FATXXU' }, // mock
     { label: 'Serial Number', value: '0D7G3HBY600123W' }, // mock

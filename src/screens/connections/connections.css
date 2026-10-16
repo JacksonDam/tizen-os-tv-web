@@ -1,0 +1,180 @@
+/* Connections gadgets inside the All Settings panel (520 x 696): spec3/connections.md 2-4. The title row
+   reuses .as__top / .as__back / .as__title from all-settings.css. */
+.net { position: absolute; inset: 0; }
+
+/* C_Pagination_01, 4x3 u dots (inferred: current white, others 40 %) */
+.net__steps { position: absolute; left: 0; width: 520px; height: 24px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+.net__steps span { width: 8px; height: 8px; border-radius: 50%; background: rgba(255, 255, 255, 0.4); }
+.net__steps span.is-current { width: 24px; border-radius: 4px; background: #fff; }
+
+/* help image (RIS) area 65x24 u: description T24 CC_Basic190, picture 40x18 u */
+.net__ris { position: absolute; left: 0; width: 520px; height: 192px; display: flex; flex-direction: column; align-items: center; }
+.net__ris-desc { width: 440px; height: 48px; line-height: 48px; text-align: center; font-size: 24px; font-weight: 500; color: rgba(255, 255, 255, 0.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.net__ris-pic { width: 320px; height: 144px; display: flex; align-items: center; justify-content: center; }
+.net__ris-pic img { width: 320px; height: 144px; object-fit: contain; }
+.net__ris-lottie { width: 320px; height: 144px; }
+.net__spinner { width: 80px; height: 80px; }
+
+/* body title: C_TextBoxMultiLine_01 T24 500 CP_Info1100, padding 5 u, bottom aligned */
+.net__body-title {
+  position: absolute;
+  left: 40px;
+  width: 440px;
+  height: 72px;
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 8px;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 500;
+}
+.net__body { position: absolute; left: 0; width: 520px; }
+.net__msg { position: absolute; left: 40px; width: 440px; top: 8px; font-size: 24px; line-height: 40px; font-weight: 500; color: rgba(255, 255, 255, 0.7); }
+
+/* button layout at the bottom: 30x7 u buttons in a row (Settings), or 40x7 u stacked (Status) */
+.net__buttons { position: absolute; left: 0; bottom: 0; width: 520px; display: flex; justify-content: center; align-items: flex-start; gap: 8px; padding-top: 24px; }
+.net__buttons--v { flex-direction: column; align-items: center; padding-top: 8px; }
+.net__button { position: relative; width: 240px; height: 56px; padding: 0 16px; font-size: 24px; font-weight: 500; }
+.net__buttons--v .net__button { width: 320px; }
+.net__button.is-focused { font-weight: 600; }
+.net__button.is-dim { color: rgba(255, 255, 255, 0.2); }
+.net__button.is-dim.is-focused { color: rgba(0, 0, 0, 0.4); }
+
+/* list box: 59 u wide CC_Setting_BG_ListGroup, r 2 u; items 57x10 u inside a 1 u padding */
+.net-list { position: absolute; left: 32px; top: 0; bottom: 0; width: 472px; border-radius: 16px; background: rgba(255, 255, 255, 0.08); overflow: hidden; }
+.net-list__scroll { position: absolute; left: 0; top: 0; width: 472px; transition: transform 300ms var(--ease-basic); }
+.net-list__center { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.net-item {
+  position: absolute;
+  left: 8px;
+  width: 456px;
+  height: 80px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px;
+  font-size: 28px;
+  font-weight: 600;
+  transition: scale 500ms var(--ease-out);
+}
+.net-item + .net-item::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  top: -5px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.net-item.is-focused { z-index: 1; background: var(--plate-focused); color: #000; font-weight: 700; scale: 1.04; box-shadow: var(--focus-shadow); transition: scale 300ms var(--ease-basic); }
+.net-item.is-focused::before, .net-item.is-focused + .net-item::before { display: none; }
+.net-item--ap { font-size: 26px; }
+.net-item__icon { width: 40px; height: 40px; flex: none; }
+.net-item__text { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.net-item__sub { display: block; font-size: 24px; line-height: 32px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+.net-item.is-focused .net-item__sub { color: rgba(0, 0, 0, 0.6); }
+.net-item__check { width: 32px; height: 32px; flex: none; }
+.net-item.is-focused .net-item__check { filter: brightness(0.75); }
+.net-item__box { width: 32px; height: 32px; flex: none; border-radius: 6px; box-shadow: inset 0 0 0 2px currentColor; opacity: 0.8; display: flex; align-items: center; justify-content: center; }
+.net-item__box.is-on { background: #0099ff; box-shadow: none; opacity: 1; }
+.net-item__box.is-on::after { content: ''; width: 18px; height: 10px; border: solid #fff; border-width: 0 0 3px 3px; rotate: -45deg; translate: 0 -2px; }
+
+/* password page (CNetworkWirelessPasswordPage.Render: padding T 3 u, L 4 u) */
+.net-pw { position: absolute; left: 32px; top: 112px; width: 456px; }
+.net-pw__heading { height: 40px; line-height: 40px; font-size: 28px; font-weight: 500; color: rgba(255, 255, 255, 0.9); }
+.net-field {
+  position: relative;
+  height: 64px;
+  border-radius: 16px;
+  background: #9daecd;            /* CP_PlaneInputfield */
+  color: #000;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 28px;
+  font-weight: 400;
+  transition: scale 300ms var(--ease-basic);
+}
+.net-field.is-editing { background: #fff; font-weight: 600; scale: 1.04; box-shadow: var(--focus-shadow); }
+.net-pw__count { height: 40px; line-height: 40px; text-align: right; font-size: 20px; font-weight: 500; color: rgba(255, 255, 255, 0.5); }
+.net-pw__show { position: relative; height: 80px; border-radius: 16px; background: rgba(255, 255, 255, 0.08); }
+.net-pw__show .net-item { left: 0; top: 0; font-size: 24px; font-weight: 500; }
+
+/* Network Status diagram (44x14 u) and AP name (T20) */
+.net-diagram { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; width: 352px; height: 144px; }
+.net-diagram__row { display: flex; align-items: flex-end; height: 112px; }
+.net-diagram__row img { object-fit: contain; }
+.net-diagram__ap { height: 32px; line-height: 32px; font-size: 20px; font-weight: 500; }
+
+/* IP information (RISArea: titles T18 CC_Basic150, values T20 white) */
+.net-ip { position: absolute; left: 40px; top: 8px; width: 440px; display: grid; grid-template-columns: 1fr 1fr; row-gap: 12px; column-gap: 16px; }
+.net-ip__label { font-size: 18px; line-height: 24px; color: rgba(255, 255, 255, 0.5); }
+.net-ip__value { font-size: 20px; line-height: 28px; font-weight: 500; }
+
+/* Bluetooth gadget */
+.bt-desc { position: absolute; left: 40px; width: 440px; font-size: 24px; line-height: 40px; font-weight: 500; color: rgba(255, 255, 255, 0.7); }
+.bt-searching { display: flex; align-items: center; gap: 8px; height: 56px; font-size: 28px; font-weight: 600; color: #33adff; }
+.bt-searching .net__spinner { width: 48px; height: 48px; }
+.bt-group-title { position: absolute; left: 16px; height: 40px; line-height: 40px; font-size: 24px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+.bt-item { height: 112px; }
+.bt-toast { left: 260px; top: auto; bottom: 136px; translate: -50% 0; min-width: 0; width: max-content; max-width: 456px; }
+.bt-item .net-item__icon { width: 64px; height: 64px; }
+.bt-item.is-focused .net-item__icon { filter: invert(1); } /* white device icons go dark on the focused plate */
+
+/* Settings search (menu SearchView): search field 65x10 u area, results grouped by category */
+.ss-field {
+  position: absolute;
+  left: 32px;
+  top: 104px;
+  width: 456px;
+  height: 64px;
+  border-radius: 32px;
+  background: #9daecd;
+  color: #000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 24px;
+  font-size: 28px;
+  transition: scale 300ms var(--ease-basic);
+}
+.ss-field.is-focused { background: #fff; scale: 1.04; box-shadow: var(--focus-shadow); }
+.ss-field__icon { width: 24px; height: 24px; flex: none; background: currentColor; opacity: 0.5; mask: url('/tv/VD_ICONS/i_icon_function_search.svg') center / contain no-repeat; -webkit-mask: url('/tv/VD_ICONS/i_icon_function_search.svg') center / contain no-repeat; }
+.ss-field .kb-text { flex: 1; min-width: 0; }
+.ss-hint { position: absolute; left: 40px; top: 200px; width: 440px; font-size: 24px; line-height: 40px; font-weight: 500; color: rgba(255, 255, 255, 0.7); }
+.ss-results { position: absolute; left: 0; top: 184px; width: 520px; bottom: 24px; overflow: hidden; }
+.ss-results__scroll { position: absolute; left: 0; top: 0; width: 520px; transition: transform 300ms var(--ease-basic); }
+.ss-cat { position: absolute; left: 40px; height: 48px; line-height: 48px; font-size: 24px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+.ss-row { left: 32px; height: 112px; flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; }
+.ss-row .net-item__text { flex: none; max-width: 100%; }
+.ss-row .net-item__sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ss-mark { color: #33adff; }
+.net-item.is-focused .ss-mark { color: #0099ff; }
+
+/* popups over the panel: P_PopupBasicBottom_01, no title (ResetNetwork, WiFiOnOff) */
+.net-popup { position: absolute; inset: 0; z-index: 10; }
+.net-popup__plate {
+  position: absolute;
+  left: 97px;
+  bottom: 141px;
+  width: 486px;
+  padding: 40px 31px 43px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 100%;
+  animation: net-pop-fade 200ms var(--ease-basic), net-pop-scale 500ms var(--ease-elastic);
+}
+@keyframes net-pop-fade { from { opacity: 0; } }
+@keyframes net-pop-scale { from { scale: 0.95; } }
+.net-popup__msg { font-size: 24px; line-height: 40px; font-weight: 500; color: rgba(255, 255, 255, 0.8); white-space: pre-line; }
+.net-popup__wait { display: flex; align-items: center; gap: 16px; }
+.net-popup__wait .net__spinner { width: 56px; height: 56px; flex: none; }
+.net-popup__buttons { display: flex; justify-content: center; gap: 16px; }
+.net-popup__button { position: relative; flex: 0 1 204px; height: 56px; font-size: 24px; font-weight: 500; background: #000; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15); }
+.net-popup__button.is-focused { font-weight: 600; }

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="48px" viewBox="0 0 40 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/ime_keypad_ic_shift</title>
+    <g id="icon/ime_keypad_ic_shift" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(1.000000, 1.000000)">
+            <path d="M18.9625,11.4197573 L29.4126517,22.8910256 L24.1690247,22.8910256 L24.1690247,33.9333333 L13.7559753,33.9333333 L13.7559753,22.8910256 L8.51234833,22.8910256 L18.9625,11.4197573 Z" id="Path-2" stroke="#FFFFFF" stroke-width="1.8"></path>
+            <rect id="Rectangle" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="37" height="44"></rect>
+        </g>
+        <polygon id="C_ImageBox_01-(Fill)" opacity="0" points="0 0 40 0 40 48 0 48"></polygon>
+    </g>
+</svg>
