@@ -1,0 +1,246 @@
+/* Game Bar (com.samsung.tv.gamebar, spec3/extras.md 3). MainView: root aligned BottomCenter; the
+   240 x 46 u layout slides from UnitPositionY 135 u to its place in 500 ms (FLUX basic). */
+.gb {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1920px;
+  height: 368px;
+  z-index: 50;
+}
+.gb--in { animation: gb-up 500ms var(--ease-basic) both; }
+.gb--out { animation: gb-down 500ms var(--ease-basic) both; }
+@keyframes gb-up { from { translate: 0 368px; opacity: 0; } 30% { opacity: 1; } }
+@keyframes gb-down { to { translate: 0 368px; opacity: 0; } }
+.gb__bg { position: absolute; left: 0; top: 0; width: 1920px; height: 368px; }
+
+/* control area 240 x 38 u: items 21 x 36 u, gap 3 u, top centre */
+.gb__controls {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 304px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 24px;
+}
+.gb-item { position: relative; width: 168px; height: 288px; }
+.gb-item__art { position: relative; width: 168px; height: 224px; }
+.gb-item__art.is-pressed { animation: gb-press 500ms var(--ease-basic); }
+@keyframes gb-press { 30% { scale: 0.93; } 100% { scale: 1; } }
+.gb-item__icon,
+.gb-item__bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 168px;
+  height: 224px;
+  background-repeat: no-repeat;
+}
+.gb-item__icon { background-size: 3864px 224px; }
+.gb-item__bg { background-image: url('/tv/gamebar/item_bg.webp'); background-size: 1680px 1568px; }
+.gb-item__name,
+.gb-item__value {
+  height: 32px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 32px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gb-item__name { color: rgba(255, 255, 255, 0.7); } /* CC_Basic170 */
+.gb-item__value { color: #fff; }                    /* CC_Basic1100 */
+
+/* info area 240 x 8 u, items centred, gap 2 u; T16 in CC_Gamebar_custom_C #ECE9FF */
+.gb__info {
+  position: absolute;
+  left: 0;
+  top: 304px;
+  width: 1920px;
+  height: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.gb-info {
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-size: 16px;
+  color: #ece9ff;
+  white-space: nowrap;
+}
+.gb-info--lag { width: 448px; }
+.gb-info--res { width: 184px; }
+.gb-info--fps { width: 184px; }
+.gb-info--hdr { width: 192px; }
+.gb-info--vrr { width: 272px; }
+.gb-info__label { font-weight: 600; }
+.gb-info__value { font-weight: 500; }
+.gb-info--lag .gb-info__value { font-weight: 400; }
+.gb-info__icon { width: 48px; height: 56px; object-fit: contain; }
+
+/* ControlListOption (P_ListOption_02): 33 u wide, 8 u items, list padding 3 u / 5 u, above the item;
+   appears with 0.5 -> 1 opacity (200 ms) and 0.93 -> 1 scale (500 ms elastic) */
+.gb-list {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  width: 264px;
+  margin-left: -132px;
+  transform-origin: 50% 100%;
+  animation: gb-list-fade 200ms var(--ease-basic) both, gb-list-scale 500ms var(--ease-elastic) both;
+}
+@keyframes gb-list-fade { from { opacity: 0.5; } }
+@keyframes gb-list-scale { from { scale: 0.93; } }
+.gb-list__top, .gb-list__bottom, .gb-list__mid { position: absolute; left: 0; width: 264px; }
+.gb-list__top { top: 0; height: 48px; }
+.gb-list__mid { top: 48px; height: calc(100% - 96px); }
+.gb-list__bottom { bottom: 0; height: 48px; }
+.gb-list__items { position: relative; padding: 40px 24px; }
+.gb-list__item {
+  height: 64px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 64px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gb-list__item.is-selected { color: #33adff; }
+.gb-list__item.is-focused { background: #fff; color: #000; font-weight: 600; }
+.gb-list__item.is-selected.is-focused { color: #0099ff; }
+.gb-list__item.is-disabled { opacity: 0.3; }
+
+/* letterbox for the 21:9 / 32:9 game picture */
+.gb-letterbox {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 1;
+}
+.gb-letterbox > div { background: #000; }
+
+/* LoadingScreenWindow: full screen Loading_BG with the SR Lottie (45 x 27 u), "Changing Screen
+   Ratio..." and "16:9 -> 21:9" (T28) */
+.gb-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  background: url('/tv/gamebar/Loading_BG.webp') center / cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.gb-loading__box { width: 1760px; display: flex; flex-direction: column; align-items: center; }
+.gb-loading__anim { width: 360px; height: 216px; }
+.gb-loading__text { height: 48px; line-height: 48px; font-size: 28px; font-weight: 600; }
+.gb-loading__ratio { display: flex; align-items: center; height: 48px; font-size: 28px; color: rgba(255, 255, 255, 0.7); }
+.gb-loading__from { width: 856px; text-align: right; }
+.gb-loading__to { width: 856px; text-align: left; }
+.gb-loading__arrow {
+  width: 48px;
+  height: 48px;
+  position: relative;
+}
+.gb-loading__arrow::after {
+  content: '';
+  position: absolute;
+  left: 18px;
+  top: 16px;
+  border: 8px solid transparent;
+  border-left: 10px solid currentColor;
+}
+
+/* GuideView: content 55 x 21 u, padding bottom 4 u, at the bottom centre */
+.gb-guide {
+  position: absolute;
+  left: 0;
+  bottom: 32px;
+  width: 1920px;
+  display: flex;
+  justify-content: center;
+  z-index: 50;
+  animation: gb-guide-up 500ms var(--ease-basic) both;
+}
+.gb-guide.is-leaving { animation: gb-guide-down 500ms var(--ease-basic) both; }
+@keyframes gb-guide-up { from { translate: 0 200px; opacity: 0; } }
+@keyframes gb-guide-down { to { translate: 0 200px; opacity: 0; } }
+.gb-guide__box {
+  width: 440px;
+  height: 168px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: url('/tv/gamebar/gamebar_img_bg_keyguide_01.svg') center / 100% 100% no-repeat;
+}
+.gb-guide__key { width: 120px; height: 120px; }
+.gb-guide__text { width: 256px; font-size: 24px; font-weight: 400; color: #fff; line-height: 36px; }
+
+/* Help Guide: P_PopupLargeBottom_01, 160 x 98 u */
+.gb-help { position: fixed; inset: 0; z-index: 80; background: rgba(0, 0, 0, 0.5); animation: gb-list-fade 200ms var(--ease-basic) both; }
+.gb-help__area {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1280px;
+  height: 784px;
+  translate: -50% -50%;
+  padding: 32px 44px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  animation: gb-list-scale 500ms var(--ease-elastic) both;
+}
+.gb-help__title { height: 72px; line-height: 72px; font-size: 36px; font-weight: 700; }
+.gb-help__body { display: flex; gap: 24px; width: 1192px; height: 488px; margin-top: 24px; }
+.gb-help__tabs { width: 472px; height: 488px; overflow: hidden; }
+.gb-help__tablist { transition: translate 300ms var(--ease-basic); }
+.gb-help__tab {
+  width: 408px;
+  height: 80px;
+  padding: 0 24px;
+  border-radius: 16px;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 80px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gb-help__tab.is-current { color: #33adff; font-weight: 600; }
+.gb-help__tab.is-focused { background: #fff; color: #0099ff; }
+.gb-help__text {
+  width: 696px;
+  height: 488px;
+  padding: 24px 24px 24px 32px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 40px;
+  white-space: pre-line;
+  overflow: hidden;
+  scroll-behavior: smooth;
+}
+.gb-help__text.is-focused { box-shadow: inset 0 0 0 4px #fff; }
+.gb-help__close { position: relative; margin-top: auto; width: 240px; height: 56px; font-size: 24px; background: #000; }

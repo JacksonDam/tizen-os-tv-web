@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/control_icon_01_schedulemanager</title>
+    <g id="icon/control_icon_01_schedulemanager" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group">
+            <rect id="Rectangle" x="0" y="0" width="48" height="48"></rect>
+            <g id="control_icon_livetv_schedulemanager" transform="translate(11, 10)" fill="#FFFFFF" fill-rule="nonzero">
+                <polygon id="Path" points="14.2971429 4.69142857 14.2971429 14.6914286 5.29714286 14.6914286 5.29714286 12.6914286 12.297 12.691 12.2971429 4.69142857"></polygon>
+                <path d="M13.2971429,-0.308571429 C20.9246431,-0.308571429 27.1274697,5.79118094 27.2937208,13.3787835 L27.2971429,13.6914286 L25.2971429,13.6914286 C25.2971429,7.06401157 19.9245599,1.69142857 13.2971429,1.69142857 C6.66972586,1.69142857 1.29714286,7.06401157 1.29714286,13.6914286 C1.29714286,20.2168853 6.50568723,25.5258213 12.9921681,25.6876287 L13.2971429,25.6914286 L13.2971429,27.6914286 C5.56515636,27.6914286 -0.702857143,21.4234151 -0.702857143,13.6914286 C-0.702857143,5.95944207 5.56515636,-0.308571429 13.2971429,-0.308571429 Z" id="Path"></path>
+                <polygon id="Path" points="26.6057843 16.9689167 27.9885014 18.4139404 18.9382879 27.0739269 12.6074926 21.0446791 13.9867932 19.596394 18.934 24.308"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

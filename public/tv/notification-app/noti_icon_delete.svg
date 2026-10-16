@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>noti_icon_delete</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="40" height="40"></rect>
+    </defs>
+    <g id="NEW-OOBE" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="3.2.2.-Welcome-more-language-2--Copy-5" transform="translate(-393.000000, -234.000000)">
+            <g id="noti_icon_delete" transform="translate(393.000000, 234.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Rectangle"></g>
+                <path d="M29.5,11.2 L27.7,32.9 C27.7,33.4 27.2,33.8 26.8,33.8 L13.2,33.8 C12.7,33.8 12.3,33.4 12.3,32.9 L10.5,11.2" id="Stroke-3" stroke="#FFFFFF" stroke-width="1.6" mask="url(#mask-2)"></path>
+                <line x1="7.3" y1="10.5" x2="32.7" y2="10.5" id="Stroke-5" stroke="#FFFFFF" stroke-width="1.6" mask="url(#mask-2)"></line>
+                <path d="M15.8,10.9 L15.8,7.1 C15.8,6.6 16.2,6.2 16.7,6.2 L23.5,6.2 C24,6.2 24.4,6.6 24.4,7.1 L24.4,10.8" id="Stroke-7" stroke="#FFFFFF" stroke-width="1.6" mask="url(#mask-2)"></path>
+                <line x1="22.9" y1="16.1" x2="22.9" y2="28.5" id="Stroke-9" stroke="#FFFFFF" stroke-width="1.6" mask="url(#mask-2)"></line>
+                <line x1="17.1" y1="16.1" x2="17.1" y2="28.5" id="Stroke-11" stroke="#FFFFFF" stroke-width="1.6" mask="url(#mask-2)"></line>
+            </g>
+        </g>
+    </g>
+</svg>

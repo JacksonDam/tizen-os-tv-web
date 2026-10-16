@@ -5,6 +5,7 @@ import { BRIGHTNESS_ROWS, TILES, type SecondDepthRow, type Tile } from './quickS
 import './quick-settings.css'
 import { TV } from '../../assets'
 import { useMoveSound } from '../../tv/sound'
+import { openNotificationCenter } from '../extras/notifications/NotificationCenter'
 
 // QLPanel Quick Settings (spec/settings.md sections 3, 5.1, 6.2-6.5): a blurred 416x560 card with a
 // 2x3 tile grid per page, level-2 lists, the Brightness gadget and edit mode.
@@ -111,7 +112,8 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
     if (!isNavKey(key)) return false // TV keys go on to tv-viewer
     if (level === 'l1' && !editing) {
       if (focus === 'noti') {
-        if (key === 'Down') setFocus(index)
+        if (key === 'Enter') openNotificationCenter() // CompHomeNotification -> com.samsung.tv.notification-app
+        else if (key === 'Down') setFocus(index)
         else if (key === 'Left') onExitLeft()
         else if (key === 'Home') onHome()
         else if (key === 'Back') onHideHub()

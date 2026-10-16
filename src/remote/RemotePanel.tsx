@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { pressKey, type RemoteKey } from '../input/remote'
+import { playPauseDown, playPauseUp, pressKey, type RemoteKey } from '../input/remote'
 import './remote.css'
 
 // On-screen remote docked beside the TV: every button sends the same key as its keyboard shortcut
@@ -102,6 +102,18 @@ export function RemotePanel() {
         </div>
         <div className="rc-row">{ROW2.map(b => <Btn key={b.key} b={b} />)}</div>
         <div className="rc-row">{ROW3.map(b => <Btn key={b.key} b={b} />)}</div>
+        <div className="rc-row">
+          {/* hold for the Game Bar (XF86PlayBackGame), like the TV remote's Play/Pause */}
+          <button
+            className="rc-btn"
+            title="Play/Pause, hold for the Game Bar (K)"
+            onPointerDown={playPauseDown}
+            onPointerUp={playPauseUp}
+            onPointerLeave={e => e.buttons && playPauseUp()}
+          >
+            Play/Pause
+          </button>
+        </div>
         <div className="rc-row rc-colours">
           {COLOURS.map(b => (
             <button key={b.key} className={`rc-colour ${b.cls}`} title={`${b.label} (${b.kbd})`} aria-label={b.label} onClick={() => pressKey(b.key)} />

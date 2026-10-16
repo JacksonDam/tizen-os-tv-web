@@ -1,0 +1,286 @@
+/* Notification center and banner (com.samsung.tv.notification-app, spec3/extras.md 2). The center is
+   aligned TopRight with padding T 5 u, R 5 u; 52 u wide. */
+.nc {
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  width: 416px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;                /* mainLayout ItemGap 2 u */
+  z-index: 60;
+  transform-origin: 50% 50%;
+  /* Appear: opacity 0.5 -> 1 in 200 ms (basic), scale 0.9 -> 1 in 500 ms (elastic) */
+  animation: nc-fade 200ms var(--ease-basic) both, nc-scale 500ms var(--ease-elastic) both;
+}
+.nc.is-leaving {
+  opacity: 0;
+  scale: 0.95;
+  transition: opacity 200ms var(--ease-basic), scale 500ms var(--ease-out);
+}
+@keyframes nc-fade { from { opacity: 0.5; } }
+@keyframes nc-scale { from { scale: 0.9; } }
+
+/* ---- header (NotificationCenterHeader): 6 u tall, FlexH gap 2 u: title area 36 x 4 u (new-message
+   plate noti_bg_newmessage.png + T16 400 CP_Info190) and the icon area 14 x 6 u at the right ---- */
+.nc__header {
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.nc__title {
+  width: 288px;
+  height: 32px;
+  padding-left: 16px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.1);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 32px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nc__title.is-hidden { visibility: hidden; }
+.nc__icons {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}
+
+/* C_ButtonBasicIcon_01, 6 u: plate CP_Plane_BTN_FS (black 50 %, 10 % white stroke -> #E8E8E8),
+   icon tint CP_Info1100 (white -> black); the tooltip names the button */
+.nc-icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--plate-button);
+  box-shadow: inset 0 0 0 2px var(--plate-button-stroke);
+  color: #fff;
+}
+.nc-icon.is-focused {
+  background: var(--plate-focused);
+  box-shadow: var(--focus-shadow);
+  color: #000;
+}
+.nc-icon__glyph {
+  position: absolute;
+  inset: 8px;
+  background: currentColor;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+}
+/* C_TooltipSingleLine_01 (fill CC_Point7100 #0099FF, r 2 u, padding 2 u, T24 600) below the icon (inferred side) */
+.nc-tip {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: 0;
+  height: 56px;
+  padding: 0 16px;
+  border-radius: 16px;
+  background: #0099ff;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 56px;
+  white-space: nowrap;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+  z-index: 2;
+}
+.nc-tip::after {
+  content: '';
+  position: absolute;
+  right: 16px;
+  bottom: 100%;
+  border: 8px solid transparent;
+  border-bottom-color: #0099ff;
+}
+
+/* ---- body: noti_bg.9.png = black 85 % with a 2 px rgba(43,43,43,.87) rim, capsule ends (r 56);
+   28 u when empty, the list height up to 116 u ---- */
+.nc__body {
+  border-radius: 56px;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 0 0 2px rgba(43, 43, 43, 0.87);
+  overflow: hidden;
+}
+.nc__list {
+  max-height: 896px;
+  padding: 16px 0;
+  overflow: hidden;
+}
+.nc__empty {
+  height: 224px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* 44 x 13 u, T24 400 CP_Info1100, centred */
+.nc__empty-text {
+  width: 352px;
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 400;
+  color: #fff;
+}
+
+/* C_ButtonBasicText_01 capsule, 6 u tall (44 u, or 21 u for a pair), T20 label; focused scale stays 1 */
+.nc-btn {
+  height: 48px;
+  min-width: 168px;
+  padding: 0 24px;
+  border-radius: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--plate-button);
+  box-shadow: inset 0 0 0 2px var(--plate-button-stroke);
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+.nc-btn--wide { width: 352px; }
+.nc-btn.is-focused {
+  background: var(--plate-focused);
+  color: #000;
+  font-weight: 700;
+  box-shadow: var(--focus-shadow);
+}
+
+/* ---- banner (BannerGUI): padding 3 u; icon area 6 x 5 u with a 4 u icon; text 38 u ---- */
+.nb {
+  width: 400px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.nb__row { display: flex; width: 352px; }
+.nb__icon-area { width: 48px; height: 40px; flex: none; display: flex; align-items: center; }
+.nb__icon { width: 32px; height: 32px; }
+.nb__text { width: 304px; display: flex; flex-direction: column; }
+.nb__title {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 40px;
+  color: #fff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nb__desc {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 32px;
+  color: #fff;
+}
+.nb__time {
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 40px;
+  color: #33adff; /* CP_Point3100 */
+}
+.nb__buttons {
+  width: 352px;
+  padding-top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.nb__buttons--row { flex-direction: row; justify-content: center; }
+
+/* ---- banner toast: top right, noti_bg (slim banner) plate ---- */
+.ntoast {
+  position: absolute;
+  right: 40px;
+  top: 40px;
+  width: 416px;
+  border-radius: 56px;
+  background: rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 0 0 2px rgba(43, 43, 43, 0.87);
+  z-index: 60;
+  animation: nc-fade 200ms linear both, nc-scale 500ms var(--ease-elastic) both;
+}
+.ntoast.is-leaving {
+  opacity: 0;
+  scale: 0.95;
+  transition: opacity 300ms var(--ease-basic), scale 300ms var(--ease-out);
+}
+
+/* ---- Settings popup (SettingPopup2, 161 x 97 u) ---- */
+.ns { position: absolute; inset: 0; z-index: 100; }
+.ns__dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); animation: nc-fade 200ms var(--ease-basic) both; }
+.ns__area {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1288px;
+  height: 776px;
+  translate: -50% -50%;
+  padding: 40px 48px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  animation: nc-fade 200ms var(--ease-basic) both, nc-scale 500ms var(--ease-elastic) both;
+}
+.ns__title { height: 72px; line-height: 72px; font-size: 36px; font-weight: 700; }
+/* CustomSwitchTextTile, 13 u tall */
+.ns-switch {
+  width: 100%;
+  height: 104px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 28px;
+  font-weight: 600;
+}
+.ns-switch.is-focused { background: #fff; color: #000; }
+.ns-switch__track {
+  position: relative;
+  width: 64px;
+  height: 32px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.3);
+}
+.ns-switch.is-focused .ns-switch__track { background: rgba(0, 0, 0, 0.3); }
+.ns-switch__track.is-on { background: #0099ff !important; }
+.ns-switch__thumb {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 200ms var(--ease-basic);
+}
+.ns-switch__track.is-on .ns-switch__thumb { left: 36px; }
+.ns__list {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ns__msg { width: 1120px; text-align: center; font-size: 28px; font-weight: 400; color: #fff; }
+.ns__ok { width: 240px; height: 56px; font-size: 24px; }

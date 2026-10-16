@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/controlui_backspace copy</title>
+    <g id="HC" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VISUAL" transform="translate(-664, -206)">
+            <g id="Function-Keys" transform="translate(663.592, 29)">
+                <g id="icon/controlui_backspace-copy" transform="translate(0.408, 177)">
+                    <g id="icon/controlui_backspace" transform="translate(7.3673, 15.1837)" stroke="#FFFFFF" stroke-width="2.7">
+                        <g id="controlui_delete">
+                            <path d="M32.0159533,0 C32.1873782,0 32.3265306,0.1325293 32.3265306,0.296012476 L32.3265306,17.336464 C32.3292669,17.4157928 32.2975041,17.4927143 32.238649,17.5488428 C32.1797939,17.6049712 32.0991356,17.6352626 32.0159533,17.6324765 L7.08111309,17.6324765 C6.89154094,17.6214659 6.71534108,17.5356598 6.59483198,17.3956665 L0.0765957438,9.0481147 C-0.0255319146,8.90887162 -0.0255319146,8.72360489 0.0765957438,8.58436182 L6.56379276,0.236809981 C6.68430186,0.0968166668 6.86050172,0.0110105674 7.05007387,0 L32.0159533,0 Z" id="Path"></path>
+                            <line x1="13.7142857" y1="3.91836735" x2="23.1222081" y2="13.8969759" id="Path" stroke-linejoin="round"></line>
+                            <line x1="23.1222081" y1="3.91836735" x2="13.7142857" y2="13.8969759" id="Path" stroke-linejoin="round"></line>
+                        </g>
+                    </g>
+                    <rect id="buttonarea" x="0" y="0" width="48" height="48"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/controlui_ttxmix</title>
+    <g id="Guideline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="1.1.-Common_icon_key" transform="translate(-124, -323)" fill="#FFFFFF">
+            <g id="Numeric-pad" transform="translate(80, 197)">
+                <g id="1.-Option-Keys" transform="translate(13, 57)">
+                    <g id="icon/controlui_ttxmix" transform="translate(31, 69)">
+                        <g id="Group-3" transform="translate(7, 13)">
+                            <g id="Group-7" transform="translate(2.7429, 13.8462)">
+                                <polygon id="Fill-4" points="7.21795089 0 4.74483602 5.98983918 2.24916506 0 0 0 0 10.1538462 1.91887936 10.1538462 1.91887936 3.75772259 3.77492387 8.21542912 5.70347013 8.21542912 7.53534739 3.80014586 7.53534739 10.1538462 9.49450549 10.1538462 9.49450549 0"></polygon>
+                                <polygon id="Fill-5" points="12.3428571 10.1538462 14.2417582 10.1538462 14.2417582 0 12.3428571 0"></polygon>
+                                <polygon id="Fill-6" points="22.3222951 0 20.4499326 3.25680169 18.5992834 0 16.2542371 0 19.2540257 5.00920901 16.1406593 10.1538462 18.4773544 10.1538462 20.3931437 6.763248 22.3222951 10.1538462 24.6857143 10.1538462 21.58571 4.99778736 24.6589901 0"></polygon>
+                            </g>
+                            <g id="Group">
+                                <polygon id="Fill-1" points="0 0 0 1.86009716 2.24483415 1.86009716 2.24483415 10.1538462 4.08827411 10.1538462 4.08827411 1.86009716 6.34500142 1.86009716 6.34500142 0"></polygon>
+                                <polygon id="Fill-2" points="8.15785897 0 8.15785897 1.86009716 10.4026931 1.86009716 10.4026931 10.1538462 12.2461331 10.1538462 12.2461331 1.86009716 14.5028604 1.86009716 14.5028604 0"></polygon>
+                                <polygon id="Fill-3" points="22.2184034 0 20.4305324 3.25680169 18.663395 0 16.4241704 0 19.2885917 5.00920901 16.3157179 10.1538462 18.5469681 10.1538462 20.3763062 6.763248 22.2184034 10.1538462 24.4735769 10.1538462 21.5150572 4.99778736 24.4512485 0"></polygon>
+                                <polygon id="/" fill-rule="nonzero" points="28.0669553 10.1538462 32 0 30.3645077 0 26.4314631 10.1538462"></polygon>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

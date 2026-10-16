@@ -9,6 +9,8 @@ export type RemoteKey =
   | 'Guide'                              // XF86ChannelGuide
   | 'More'                               // XF86More: the 123 / colour button (virtual numeric pad)
   | 'Red' | 'Green' | 'Yellow' | 'Blue'  // colour keys
+  | 'PlayPause'                          // XF86PlayBack (short press)
+  | 'PlayBackGame'                       // XF86PlayBackGame: long press of Play/Pause (Game Bar)
   | DigitKey
 
 // Keyboard mapping. Mirrors the QEMU setup used to drive the real firmware
@@ -84,6 +86,25 @@ export function setTextCapture(fn: TextCapture | null) {
   textCapture = fn
 }
 
+// Play/Pause: keyrouter-tv's key_config.txt maps a long press of XF86PlayBack (and XF86AudioPlay) to
+// XF86PlayBackGame, which opens the Game Bar. Down/up come from the K key or the on-screen button.
+const LONG_PRESS_MS = 1000 // (inferred) keyrouter long-press duration
+let playTimer: ReturnType<typeof setTimeout> | undefined
+let playHeld = false
+export function playPauseDown() {
+  clearTimeout(playTimer)
+  playHeld = false
+  playTimer = setTimeout(() => {
+    playHeld = true
+    pressKey('PlayBackGame')
+  }, LONG_PRESS_MS)
+}
+export function playPauseUp() {
+  clearTimeout(playTimer)
+  if (!playHeld) pressKey('PlayPause')
+  playHeld = true
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('keydown', e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return
@@ -91,10 +112,18 @@ if (typeof window !== 'undefined') {
       e.preventDefault()
       return
     }
+    if (e.key === 'k' || e.key === 'K') {
+      e.preventDefault()
+      if (!e.repeat) playPauseDown()
+      return
+    }
     const key = KEYMAP[e.key]
     if (!key) return
     e.preventDefault()
     pressKey(key)
+  })
+  window.addEventListener('keyup', e => {
+    if (e.key === 'k' || e.key === 'K') playPauseUp()
   })
   // Test hook: drive the UI from automation (window.__tv.press('Down')).
   ;(window as unknown as { __tv: object }).__tv = { press: pressKey }

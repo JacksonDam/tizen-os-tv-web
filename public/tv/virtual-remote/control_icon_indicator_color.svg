@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="56px" height="56px" viewBox="0 0 56 56" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Component/C_Imagebox_01</title>
+    <g id="Guideline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Preview/Numeric-Pad/Common" transform="translate(-920, -881)">
+            <g id="VISUAL" transform="translate(81, 856)">
+                <g id="Component/C_Imagebox_01" transform="translate(839, 25)">
+                    <g id="colorque" transform="translate(14.592, 19.5807)">
+                        <g id="Group-9" transform="translate(0, 5.7331)">
+                            <path d="M5,2.5 C5,3.87994723 3.87994723,5 2.5,5 C1.12005277,5 0,3.87994723 0,2.5 C0,1.11873351 1.12005277,0 2.5,0 C3.87994723,0 5,1.11873351 5,2.5" id="Fill-10" fill="#FF1A1A"></path>
+                            <path d="M12,2.5 C12,3.87994723 10.8789238,5 9.50065946,5 C8.12239515,5 7,3.87994723 7,2.5 C7,1.11873351 8.12239515,0 9.50065946,0 C10.8789238,0 12,1.11873351 12,2.5" id="Fill-12" fill="#16B73C"></path>
+                            <path d="M19,2.5 C19,3.87994723 17.8815616,5 16.4993405,5 C15.1210762,5 14,3.87994723 14,2.5 C14,1.11873351 15.1210762,0 16.4993405,0 C17.8815616,0 19,1.11873351 19,2.5" id="Fill-14" fill="#FFF657"></path>
+                            <path d="M26,2.5 C26,3.87994723 24.8815616,5 23.4993405,5 C22.1210762,5 21,3.87994723 21,2.5 C21,1.11873351 22.1210762,0 23.4993405,0 C24.8815616,0 26,1.11873351 26,2.5" id="Fill-16" fill="#3993FF"></path>
+                        </g>
+                        <polygon id="Path" fill="#FFFFFF" fill-rule="nonzero" points="30.3931982 0.847320911 31.3551022 0 39.6192859 8.54358894 31.3551022 17.0871779 30.3931982 16.239857 37.8377112 8.54296433"></polygon>
+                    </g>
+                    <rect id="C_ImageBox_01-(Fill)" x="0" y="0" width="56" height="56"></rect>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

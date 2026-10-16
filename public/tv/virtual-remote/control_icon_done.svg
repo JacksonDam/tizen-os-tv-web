@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="25px" height="24px" viewBox="0 0 25 24" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Component/C_ButtonBasicicon_01/done</title>
+    <g id="Guideline" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="2.1.-Numeric-Pad_Common---Input-Scenario" transform="translate(-868, -799)">
+            <g id="VISUAL" transform="translate(77, 760)">
+                <g id="done" transform="translate(756, 24)">
+                    <g id="Group-5" transform="translate(35, 8)">
+                        <g id="Component/C_ButtonBasicicon_01/done" transform="translate(0, 7)">
+                            <polygon id="C_ImageTileBasic_03" opacity="0" points="0 0 24 0 24 24 0 24"></polygon>
+                            <g id="Group-2" transform="translate(0, 4.7334)" fill="#FFFFFF" fill-rule="nonzero">
+                                <path d="M8.83921768,17.0281452 C8.53441707,17.34608 8.07721615,17.34608 7.77241554,17.0281452 L0.228600457,9.07977564 C-0.0762001524,8.76184085 -0.0762001524,8.28493868 0.228600457,7.9670039 L0.838201676,7.33113433 C1.14300229,7.01319955 1.6002032,7.01319955 1.90500381,7.33113433 L9.4488189,15.2795039 C9.75361951,15.5974387 9.75361951,16.0743409 9.4488189,16.3922756 C9.14401829,16.7102104 9.14401829,16.7102104 8.83921768,17.0281452 Z" id="Check-the-Json-file's-name-for-this-component-in-Visual-Princlipe-Guide."></path>
+                                <path d="M7.49049162,16.4057267 C7.18058882,16.0926832 7.18058882,15.623118 7.49049162,15.3100745 L22.2955346,0.234782609 C22.6054374,-0.0782608696 23.0702916,-0.0782608696 23.3801944,0.234782609 L24,0.860869565 C24.3099028,1.17391304 24.3099028,1.64347826 24,1.95652174 L9.19495704,17.0318137 C8.88505423,17.3448572 8.42020003,17.3448572 8.11029722,17.0318137 C7.80039442,16.7187702 7.80039442,16.7187702 7.49049162,16.4057267 Z" id="Check-the-Json-file's-name-for-this-component-in-Visual-Princlipe-Guide."></path>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

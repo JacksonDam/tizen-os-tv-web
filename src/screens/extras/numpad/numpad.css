@@ -1,0 +1,172 @@
+/* Virtual remote, Bar layout (VirtualRemoteControlNUIGadget, spec3/extras.md 1.3). The host lays the
+   gadget out at the bottom left with padding L 10 u, B 16 u (GadgetUIContentPage.CreateGadgetContainer). */
+.vr {
+  position: absolute;
+  left: 80px;
+  bottom: 128px;
+  display: flex;
+  flex-direction: column;
+  z-index: 40;
+}
+
+/* ---- input field: 11 u frame above the bar; digits T60 600 white with a 1 px CC_CONTROLUI_TEXTSTROKE
+   (#000 30 %) outline, padding L 4 u; Done (C_ButtonBasicText_02) at the right ---- */
+.vr-input {
+  position: relative;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.vr-input.is-hidden { visibility: hidden; }
+.vr-input__text {
+  padding-left: 32px;
+  width: 448px;
+  font-size: 60px;
+  font-weight: 600;
+  line-height: 88px;
+  color: #fff;
+  -webkit-text-stroke: 1px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* Done: 7 u tall, width = label + icon + 8 u (+1 u), plate CP_Control_BTN_FS (#141414 98 % -> white
+   focused), icon 3 u and label T24 600 in CP_Info1100 (white -> black focused) */
+.vr-done {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 36px 0 32px;
+  border-radius: 28px;
+  background: rgba(20, 20, 20, 0.98);
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  transition: scale var(--dur-focus) var(--ease-out);
+}
+.vr-done.is-focused {
+  background: #fff;
+  color: #000;
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;
+  transition-timing-function: var(--ease-elastic);
+}
+.vr-done__icon {
+  width: 24px;
+  height: 24px;
+  background: currentColor;
+  mask-size: contain;
+  -webkit-mask-size: contain;
+}
+
+/* ---- the bar: padsContainer 13 u tall with a BlurView (style 6, r 4 u) under the pads ---- */
+.vr-bar {
+  position: relative;
+  height: 104px;
+  border-radius: 32px;
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  outline: 2px solid rgba(128, 128, 128, 0.4);
+  outline-offset: -1px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+/* BarNumericView / BarOptionView: FlexH, padding L/R 3 u, centred: list (7 u tall) and the 7 u paging cue */
+.vr-pad {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+}
+.vr-pad.is-away { visibility: hidden; }
+.vr-list { height: 56px; display: flex; align-items: center; }
+.vr-list--center { justify-content: center; }
+.vr-group { display: flex; align-items: center; }
+.vr-que { width: 56px; height: 56px; flex: none; }
+
+/* Pad switch (BarMainPadsView.OnShowOptionPad / OnShowNumberPad): the old pad fades out in 100 ms and
+   moves 5 u away, the new one fades in 100-300 ms from 5 u the other side; moves are 500 ms basic. */
+.vr-pad.to-option.is-away { visibility: visible; animation: vr-out-left 500ms var(--ease-basic) forwards; }
+.vr-pad.to-option.is-current { animation: vr-in-right 500ms var(--ease-basic) both; }
+.vr-pad.to-number.is-away { visibility: visible; animation: vr-out-right 500ms var(--ease-basic) forwards; }
+.vr-pad.to-number.is-current { animation: vr-in-left 500ms var(--ease-basic) both; }
+@keyframes vr-out-left {
+  0% { opacity: 1; translate: 0; }
+  20% { opacity: 0; }
+  100% { opacity: 0; translate: -40px; visibility: hidden; }
+}
+@keyframes vr-out-right {
+  0% { opacity: 1; translate: 0; }
+  20% { opacity: 0; }
+  100% { opacity: 0; translate: 40px; visibility: hidden; }
+}
+@keyframes vr-in-right {
+  0%, 20% { opacity: 0; translate: 40px; }
+  60% { opacity: 1; }
+  100% { opacity: 1; translate: 0; }
+}
+@keyframes vr-in-left {
+  0%, 20% { opacity: 0; translate: -40px; }
+  60% { opacity: 1; }
+  100% { opacity: 1; translate: 0; }
+}
+
+/* ---- items: 6 u. Numbers are C_ButtonBasicIcon_01 with plane CP_Plane200_Tile_FS (transparent ->
+   white); options are round C_ImageTileBasic_03 on CP_Plane110 (10 % white -> white). Icons tint with
+   CP_Info1100 (white -> black). The list scales the focused item to 1.35 (ItemFocusScaleValue). ---- */
+.vr-item {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  color: #fff;
+  transition: scale var(--dur-focus) var(--ease-out), background-color 150ms linear;
+}
+.vr-item--option { background: rgba(255, 255, 255, 0.1); }
+.vr-item.is-focused {
+  background: #fff;
+  color: #000;
+  scale: 1.35;
+  z-index: 1;
+  transition-timing-function: var(--ease-elastic), linear;
+}
+.vr-item__icon {
+  position: absolute;
+  inset: 0;
+  background: currentColor;
+  mask-size: 48px 48px;
+  -webkit-mask-size: 48px 48px;
+}
+
+/* option tooltip: C_TooltipSingleLine_01, 8 u above the tile centre, arrow down, fill CC_Control_Tooltip
+   #48566F, label T24 600 white (OptionItemIconView); unscaled (InheritScale = false) */
+.vr-tip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(50% + 64px / 1.35);
+  translate: -50% 0;
+  scale: calc(1 / 1.35);
+  transform-origin: 50% 100%;
+  padding: 0 16px;
+  height: 56px;
+  line-height: 56px;
+  border-radius: 16px;
+  background: #48566f;
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+}
+.vr-tip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  translate: -50% 0;
+  border: 8px solid transparent;
+  border-top-color: #48566f;
+}

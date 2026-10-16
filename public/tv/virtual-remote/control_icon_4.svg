@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>control_icon_4</title>
+    <g id="HC" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="VISUAL" transform="translate(-192, -29)">
+            <g id="Number-Keys" transform="translate(24, 21)">
+                <g id="control_icon_4" transform="translate(168, 8)">
+                    <rect id="Rectangle" x="0" y="0" width="48" height="48"></rect>
+                    <path d="M27.6511081,31.0082115 L13.9168881,31.0082115 L13.9168881,28.4732453 L27.4240962,10.5014699 L30.86711,10.5014699 L30.86711,28.0192215 L34.0831119,28.0192215 L34.0831119,31.0082115 L30.86711,31.0082115 L30.86711,37.40238 L27.6511081,37.40238 L27.6511081,31.0082115 Z M27.6511081,15.0417079 L17.9274317,28.0192215 L27.6511081,28.0192215 L27.6511081,15.0417079 Z" id="Shape" fill="#FFFFFF" fill-rule="nonzero"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

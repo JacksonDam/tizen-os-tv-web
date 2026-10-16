@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon/control_icon_stop</title>
+    <g id="icon/control_icon_stop" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <polygon id="Clip-4" points="0 47.9991429 48 47.9991429 48 0 0 0"></polygon>
+        <path d="M18,31 L30,31 C30.5522847,31 31,30.5522847 31,30 L31,18 C31,17.4477153 30.5522847,17 30,17 L18,17 C17.4477153,17 17,17.4477153 17,18 L17,30 C17,30.5522847 17.4477153,31 18,31 Z" id="Fill-3" fill="#FFFFFF"></path>
+    </g>
+</svg>
