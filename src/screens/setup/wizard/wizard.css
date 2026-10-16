@@ -1,0 +1,262 @@
+/* First-time setup (spec3/setup.md 3). Geometry from wizard-setup.edc (ug-wizard-setup-new) and the
+   wizard-api base theme (WizardOSDInfo.h: TYPE B/C titles, TYPE B lists and buttons), 1920 x 1080. */
+.wz { position: absolute; inset: 0; z-index: 40; overflow: hidden; background: #000; color: #fff; }
+
+/* FLUX background: bg_oobe_default_tile (CC_OOBE_BG_default #1e6887) or, on the start and complete
+   pages, bg_oobe_welcome */
+.wz__bg { position: absolute; inset: 0; background-size: 100% 100%; }
+
+/* wizard-base.edc content.clip: show.content.motion LINEAR 0.833 s, hide.content.motion LINEAR 0.5 s */
+.wz__content { position: absolute; inset: 0; animation: wz-in 833ms linear; }
+.wz__content--out { opacity: 0; transition: opacity 500ms linear; }
+@keyframes wz-in { from { opacity: 0; } }
+
+/* ---- step indicator: 1920 x 120 band, side layouts 43 u, step columns 14 u ---- */
+.wz-steps {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 120px;
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  animation: wz-in 833ms linear;
+}
+.wz-steps__side {
+  width: 344px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);   /* CC_Basic160 */
+}
+.wz-steps__arrow {
+  width: 32px;
+  height: 32px;
+  position: relative;
+}
+.wz-steps__arrow::after {          /* i_icon_arrow_m, CC_Basic150 (drawn, inferred) */
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 9px;
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid rgba(255, 255, 255, 0.5);
+  border-bottom: 3px solid rgba(255, 255, 255, 0.5);
+  rotate: 45deg;
+}
+.wz-steps__items { flex: 1; display: flex; justify-content: center; align-items: center; height: 104px; }
+.wz-steps__item {
+  width: 112px;
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.5);   /* CC_Basic150 */
+}
+.wz-steps__item--current { font-size: 48px; font-weight: 600; color: #33adff; }  /* CC_Point3100 */
+.wz-steps__item--skipped { color: rgba(255, 255, 255, 0.2); }
+.wz-steps__item img { width: 40px; height: 40px; }
+
+/* ---- base pages: TYPE B/C title (0.166667-0.259259, T60 700 white), subtitle 20 px below (T32 400
+   80 %, line 48, 0.707 wide), message T24 400 50 % line 46 ---- */
+.wz-page { position: absolute; inset: 0; }
+.wz-title {
+  position: absolute;
+  left: 141px;
+  width: 1638px;
+  top: 180px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 60px;
+  font-weight: 700;
+  line-height: 80px;
+}
+.wz-sub {
+  position: absolute;
+  left: 281px;
+  width: 1358px;
+  top: 300px;
+  text-align: center;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 48px;
+  color: rgba(255, 255, 255, 0.8);
+}
+.wz-msg {
+  position: absolute;
+  left: 281px;
+  width: 1358px;
+  top: 846px;
+  text-align: center;
+  font-size: 24px;
+  line-height: 46px;
+  color: rgba(255, 255, 255, 0.5);
+}
+.wz-msg--note { top: 800px; }
+.wz-msg--pin { position: static; width: auto; margin-top: 8px; font-size: 28px; color: rgba(255, 255, 255, 0.8); }
+
+/* TYPE B buttons: y 928 (0.859259), 84 tall, 454 wide (1-2 buttons) at 0.381772 / 0.2609375+0.5026042 */
+.wz-buttons { position: absolute; top: 928px; left: 0; width: 1920px; height: 84px; }
+.wz-button {
+  width: 454px;
+  height: 84px;
+  top: 0;
+  font-size: 28px;
+}
+.wz-buttons--1 .wz-button { left: 733px; }
+.wz-buttons--2 .wz-button:nth-child(1) { left: 501px; }
+.wz-buttons--2 .wz-button:nth-child(2) { left: 965px; }
+
+/* TYPE B list x 0.24948-0.75052 from y 0.492593; C_ListBasic 9 u rows, T32 */
+.wz-page__list { position: absolute; left: 479px; width: 962px; top: 452px; }
+.wz-page__list--terms { top: 420px; }
+.wz-list { position: relative; overflow: hidden; }
+.wz-list__inner { transition: transform 500ms var(--ease-scroll); }
+.wz-list__row {
+  position: relative;
+  height: 72px;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  border-radius: 16px;
+  font-size: 32px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.9);
+  transition: background-color 200ms var(--ease-basic);
+}
+.wz-list__row.is-focused { background: var(--plate-focused); color: #000; font-weight: 600; box-shadow: var(--focus-shadow); }
+.wz-list__text { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.wz-list__check { width: 40px; height: 40px; filter: brightness(0) invert(1); }
+.wz-list__row.is-focused .wz-list__check { filter: none; }
+
+/* ---- start page: welcome + language (light: text 17,17,17 / 0,0,0 at 204) ---- */
+.wz-welcome__title {
+  position: absolute;
+  left: 310px;
+  width: 1300px;
+  top: 388px;
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+  font-size: 52px;
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.8);
+  animation: wz-welcome 1000ms var(--ease-basic) 500ms both;
+}
+@keyframes wz-welcome { from { opacity: 0; scale: 0.95; } }
+
+.wz-lang__title {
+  position: absolute;
+  left: 118px;
+  width: 1684px;
+  top: 166px;
+  height: 64px;
+  line-height: 64px;
+  text-align: center;
+  font-size: 52px;
+  font-weight: 400;
+  color: rgba(17, 17, 17, 0.8);
+  white-space: nowrap;
+  animation: wz-lang-title 667ms cubic-bezier(0.5, 0, 0.7, 1);   /* FadeInText, BREATHE_IN */
+}
+@keyframes wz-lang-title { from { opacity: 0; scale: 0.95; } }
+.wz-lang__sub {
+  position: absolute;
+  left: 540px;
+  width: 840px;
+  top: 252px;
+  text-align: center;
+  font-size: 34px;
+  line-height: 43px;
+  font-weight: 400;
+  color: rgba(17, 17, 17, 0.8);
+}
+.wz-lang__list { position: absolute; left: 604px; width: 712px; top: 330px; }
+.wz-list--light .wz-list__row { color: rgba(17, 17, 17, 0.8); justify-content: center; text-align: center; }
+.wz-list--light .wz-list__row.is-focused { background: #fff; color: #000; }
+.wz-lang__shortcut {
+  position: absolute;
+  left: 540px;
+  width: 840px;
+  top: 989px;
+  text-align: center;
+  font-size: 24px;
+  line-height: 36px;
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* ---- connection guide: 3 HDMI + 1 ANT port cards every 264 px, layout clip at y 504 ---- */
+.wz-ports { position: absolute; left: 0; width: 1920px; top: 452px; display: flex; justify-content: center; gap: 24px; }
+.wz-port { width: 240px; display: flex; flex-direction: column; align-items: center; }
+.wz-port__img { width: 220px; height: 220px; }
+.wz-port__label { margin-top: 18px; font-size: 20px; line-height: 30px; font-weight: 600; color: rgba(237, 237, 237, 0.8); }
+.wz-port__name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+  line-height: 30px;
+  font-weight: 600;
+  color: #ededed;             /* connection_devicename_style_normal_white */
+  text-align: center;
+}
+.wz-port__name.is-connected { font-weight: 700; }   /* connection_devicename_style_connected_white */
+.wz-port__icon { width: 24px; height: 24px; }
+
+/* ---- network ---- */
+.wz-net { position: absolute; left: 0; width: 1920px; top: 470px; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.wz-net__spinner { width: 96px; height: 96px; }
+.wz-net__state { font-size: 36px; font-weight: 600; }
+.wz-net__detail { margin-top: -16px; font-size: 28px; color: rgba(255, 255, 255, 0.6); }
+
+/* ---- TV source options ---- */
+.wz-options { position: absolute; left: 479px; width: 962px; top: 430px; display: flex; flex-direction: column; gap: 16px; }
+.wz-option {
+  padding: 20px 32px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  transition: background-color 200ms var(--ease-basic), scale var(--dur-focus) var(--ease-out);
+}
+.wz-option.is-focused { background: var(--plate-focused); color: #000; box-shadow: var(--focus-shadow); scale: 1.02; transition-timing-function: var(--ease-elastic); }
+.wz-option__title { font-size: 32px; line-height: 48px; font-weight: 600; }
+.wz-option__text { font-size: 24px; line-height: 36px; color: rgba(255, 255, 255, 0.7); }
+.wz-option.is-focused .wz-option__text { color: rgba(0, 0, 0, 0.7); }
+
+/* ---- PIN page ---- */
+.wz-pin { position: absolute; left: 610px; width: 700px; top: 430px; display: flex; flex-direction: column; align-items: center; }
+
+/* ---- complete page: title T50 400 #111 centred on y 193; Lotties 600 x 450 at (660, 339) ---- */
+.wz-complete__title {
+  position: absolute;
+  left: 60px;
+  width: 1800px;
+  top: 127px;
+  height: 133px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 50px;
+  line-height: 65px;
+  font-weight: 400;
+  color: #111;
+  animation: wz-in 1500ms linear;   /* TitleShow LINEAR 1.5 */
+}
+.wz-complete__box { position: absolute; left: 660px; top: 339px; width: 600px; height: 450px; }
+.wz-complete__lottie { position: absolute; inset: 0; }
+
+/* ---- ending page: the movie full screen ---- */
+.wz-ending { position: absolute; inset: 0; background: #000; }
+.wz-ending__video, .wz-ending__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

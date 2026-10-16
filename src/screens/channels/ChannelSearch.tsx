@@ -20,8 +20,15 @@ type Phase = { page: 'options' } | { page: 'progress'; plan: ScanPlan } | { page
 // Option values survive between launches (the TV keeps them in vconf).
 let saved: Record<string, string> = {}
 
-export function ChannelSearch({ onExit }: AppProps) {
-  const [phase, setPhase] = useState<Phase>({ page: 'options' })
+// `embedded`: first-time setup runs the scan as one of its pages (wizard page channel-scan): no option
+// page (the antenna was chosen on the TV source page), and Close hands back to the wizard instead of
+// tuning live TV.
+export type EmbeddedScan = { onDone: () => void }
+
+export function ChannelSearch({ onExit, embedded }: AppProps & { embedded?: EmbeddedScan }) {
+  const [phase, setPhase] = useState<Phase>(() =>
+    embedded ? { page: 'progress', plan: makePlan('Air', 'Digital & Analog') } : { page: 'options' },
+  )
   const [values, setValues] = useState(saved)
 
   const start = () => {
@@ -36,6 +43,7 @@ export function ChannelSearch({ onExit }: AppProps) {
     setPhase({ page: 'result', plan, found })
   }
   const close = () => {
+    if (embedded) return embedded.onDone()
     tuneChannel(0)
     onExit('live')
   }

@@ -7,6 +7,7 @@ import './all-settings.css'
 import { TV } from '../../assets'
 import { setSetting, useTv } from '../../tv/store'
 import { playFeedback, useMoveSound } from '../../tv/sound'
+import { requestPin } from '../../tv/shell'
 
 // All Settings (org.tizen.menu): one blurred 520x696 card at the bottom-left over live TV; sub-pages
 // replace its contents (spec/settings.md sections 4, 5.3, 6.6).
@@ -125,22 +126,31 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
       }
     } else if (key === 'Enter') {
       if (row.disabled) setToast(row.disabledReason ?? "This function isn't available.")
-      else if (row.style === 'title.switch') setValue(row, Number(valueOf(row) ?? 0) ? 0 : 1)
-      else if (row.style === 'option') {
-        // options on an option page set the parent's value
-        const parent = page.item
-        if (parent) setValue(parent, row.value ?? row.id)
-      } else if (row.picker && row.options?.length) {
-        const cur = row.options.findIndex(o => o.value === valueOf(row))
-        setPicker({ item: row, focus: Math.max(0, cur), rowTop: rowTops[page.focus] - scroll })
-      } else if (row.launch) {
-        onLaunchApp(row.launch.app, row.launch.args, stack[1]?.item?.id)
-      } else if (row.popup && POPUPS[row.popup]) setPopup(row)
-      else if (row.gadget && GADGETS[row.gadget]) setGadget(row)
-      else if (row.groups?.length) push(row)
+      else if (row.pinPrompt) {
+        // pinprompt rows ask for the PIN first (SettingViewPluginTileBase: GetItemPinFlag -> EnterPinPopup)
+        const act = activate
+        void requestPin().then(ok => ok && act(row))
+      } else activate(row)
     }
     return true
   })
+
+  // What OK does on a row (after the PIN, for pinprompt rows).
+  function activate(row: MenuItem) {
+    if (row.style === 'title.switch') setValue(row, Number(valueOf(row) ?? 0) ? 0 : 1)
+    else if (row.style === 'option') {
+      // options on an option page set the parent's value
+      const parent = page.item
+      if (parent) setValue(parent, row.value ?? row.id)
+    } else if (row.picker && row.options?.length) {
+      const cur = row.options.findIndex(o => o.value === valueOf(row))
+      setPicker({ item: row, focus: Math.max(0, cur), rowTop: rowTops[page.focus] - scroll })
+    } else if (row.launch) {
+      onLaunchApp(row.launch.app, row.launch.args, stack[1]?.item?.id)
+    } else if (row.popup && POPUPS[row.popup]) setPopup(row)
+    else if (row.gadget && GADGETS[row.gadget]) setGadget(row)
+    else if (row.groups?.length) push(row)
+  }
 
   // ---- layout of the sub-page list (panel-relative y, before scrolling) ----
   const { rowTops, rowHeights, groupBoxes, contentHeight } = useMemo(() => layoutGroups(page.item), [page.item])
