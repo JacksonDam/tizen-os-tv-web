@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="80px" viewBox="0 0 120 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>picture size_zoom and position_bg_n</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="120" height="80"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="8-1-/-Resource-Information" transform="translate(-172.000000, -1143.000000)">
+            <g id="picture-size_zoom-and-position_bg_n" transform="translate(172.000000, 1143.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Mask"></g>
+                <rect fill="#0B1115" mask="url(#mask-2)" x="0" y="0" width="120" height="80" rx="16"></rect>
+            </g>
+        </g>
+    </g>
+</svg>

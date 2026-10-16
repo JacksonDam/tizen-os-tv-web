@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="80px" viewBox="0 0 120 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>picture size_position_icon_04_f</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="120" height="80"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="8-1-/-Resource-Information" transform="translate(-937.000000, -707.000000)">
+            <g id="picture-size_position_icon_04_f" transform="translate(937.000000, 707.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Mask"></g>
+                <g mask="url(#mask-2)">
+                    <g transform="translate(8.000000, 12.000000)">
+                        <g id="Group-5-Copy">
+                            <rect id="Rectangle" fill="#000000" x="0" y="0" width="96" height="56" rx="8"></rect>
+                        </g>
+                        <g id="Group-7-Copy" transform="translate(56.000000, 28.000000) scale(-1, 1) translate(-56.000000, -28.000000) translate(8.000000, 0.000000)">
+                            <path d="M24.3861575,20.1567443 L31.8206555,27.4871562 C32.0369526,27.7004251 32.0394075,28.0486572 31.8261386,28.2649543 C31.7227796,28.3697809 31.5817111,28.4287968 31.434498,28.4287968 L26.193,28.428 L26.1939167,35.45 C26.1939167,35.7537566 25.9476733,36 25.6439167,36 L22.3560833,36 C22.0523267,36 21.8060833,35.7537566 21.8060833,35.45 L21.806,28.428 L16.565502,28.4287968 C16.2617454,28.4287968 16.015502,28.1825534 16.015502,27.8787968 C16.015502,27.7315838 16.0745179,27.5905152 16.1793445,27.4871562 L23.6138425,20.1567443 C23.8279864,19.9455985 24.1720136,19.9455985 24.3861575,20.1567443 Z" id="Combined-Shape" fill="#29C5FF" transform="translate(24.000000, 28.000000) rotate(270.000000) translate(-24.000000, -28.000000) "></path>
+                            <rect id="Rectangle-Copy-11" stroke="#29C5FF" stroke-width="3" x="1.5" y="1.5" width="93" height="53" rx="8"></rect>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

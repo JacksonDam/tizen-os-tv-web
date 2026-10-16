@@ -7,6 +7,9 @@ import { TV } from '../../assets'
 import { useMoveSound } from '../../tv/sound'
 import { openNotificationCenter } from '../extras/notifications/NotificationCenter'
 import { connectionMenu, useConnectionTiles } from '../connections/qsTiles'
+import { setSetting, useTv } from '../../tv/store'
+import { pictureValue } from '../av/picture'
+import { useSleepLeftMinutes } from '../av/sleepTimer'
 
 // QLPanel Quick Settings (spec/settings.md sections 3, 5.1, 6.2-6.5): a blurred 416x560 card with a
 // 2x3 tile grid per page, level-2 lists, the Brightness gadget and edit mode.
@@ -31,6 +34,16 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
   const [values, setValues] = useState<Record<string, number>>(() =>
     Object.fromEntries(TILES.filter(t => t.values).map(t => [t.id, t.value ?? 0])),
   )
+  // tiles with a `setting` show and change the All Settings value (the same setting ids)
+  const settings = useTv(s => s.settings)
+  const sleepLeft = useSleepLeftMinutes()
+  const brightness = useTv(s => pictureValue(s, 'brightness'))
+  const indexOf = (t: Tile) => {
+    if (!t.setting) return values[t.id]
+    const v = settings[t.setting]
+    const i = v === undefined ? -1 : t.settingValues!.findIndex(x => String(x) === String(v))
+    return i >= 0 ? i : (t.value ?? 0)
+  }
   const [focus, setFocus] = useState<number | 'noti'>(0)
   const [level, setLevel] = useState<Level>('l1')
   const [openTile, setOpenTile] = useState<Tile | null>(null)
@@ -64,7 +77,12 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
   const select = (tile: Tile) => {
     switch (tile.action) {
       case 'toggle':
-        setValues(v => ({ ...v, [tile.id]: (v[tile.id] + 1) % tile.values!.length }))
+        if (tile.setting) {
+          const i = indexOf(tile)
+          // a counting Sleep Timer turns off; otherwise step to the next value (CompSettingSleepTimer.OnSelected)
+          const counting = tile.id === 'sleeptimer' && sleepLeft > 0 && sleepLeft !== tile.settingValues![i]
+          setSetting(tile.setting, tile.settingValues![counting ? 0 : (i + 1) % tile.settingValues!.length])
+        } else setValues(v => ({ ...v, [tile.id]: (v[tile.id] + 1) % tile.values!.length }))
         break
       case 'second':
         setOpenTile(tile)
@@ -169,7 +187,14 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
     setOpenTile(null)
   }
 
-  const valueOf = (t: Tile) => (t.values ? t.values[values[t.id]] : undefined)
+  const valueOf = (t: Tile) => {
+    if (!t.values) return undefined
+    const v = t.values[indexOf(t)]
+    if (t.id === 'sleeptimer' && sleepLeft > 0 && sleepLeft !== t.settingValues![indexOf(t)]) {
+      return { ...v, label: `${sleepLeft} min remaining` } // TV_SID_MIX_MIN_REMANING
+    }
+    return v
+  }
 
   return (
     <div className={`qs ${visible && (shown || active) ? 'qs--shown' : ''} ${editing ? 'qs--editing' : ''}`}>
@@ -190,7 +215,7 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
               {tiles.map((t, i) => {
                 const v = valueOf(t)
                 const focused = active && level === 'l1' && focus === i && !editFocusDone
-                const subtitle = v?.label ?? t.subtitle ?? ''
+                const subtitle = v?.label ?? (t.id === 'picture_setup' ? `${brightness}/50` : t.subtitle) ?? ''
                 const off = subtitle === 'Off'
                 const iconUrl = v?.icon ?? (focused && t.iconFocused ? t.iconFocused : t.icon!)
                 const dots = t.values && t.values.length > 1 ? Math.min(t.values.length, 5) : 0
@@ -221,7 +246,7 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
                       {dots > 0 && (
                         <div className="qs-tile__dots">
                           {Array.from({ length: dots }, (_, d) => (
-                            <span key={d} className={d === values[t.id] % dots ? 'is-current' : ''} />
+                            <span key={d} className={d === indexOf(t) % dots ? 'is-current' : ''} />
                           ))}
                         </div>
                       )}
@@ -366,7 +391,8 @@ function BrightnessGadget({
   onBack: () => void
   onHome: () => void
 }) {
-  const [vals, setVals] = useState(BRIGHTNESS_ROWS.map(r => r.value))
+  const tv = useTv(s => s)
+  const vals = BRIGHTNESS_ROWS.map(r => pictureValue(tv, r.id as 'brightness'))
   const [focus, setFocus] = useState<number | 'back'>(0)
   useMoveSound(focus, active)
   useMoveSound(vals.join(), active) // each slider step
@@ -398,7 +424,7 @@ function BrightnessGadget({
     else if (key === 'Left' || key === 'Right') {
       const r = BRIGHTNESS_ROWS[focus]
       const d = key === 'Left' ? -1 : 1
-      setVals(v => v.map((x, i) => (i === focus ? Math.max(r.min, Math.min(r.max, x + d)) : x)))
+      setSetting(r.id, Math.max(r.min, Math.min(r.max, vals[focus] + d)))
     }
     return true
   }, active)

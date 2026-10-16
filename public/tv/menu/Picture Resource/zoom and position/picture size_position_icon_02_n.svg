@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="120px" height="80px" viewBox="0 0 120 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>picture size_position_icon_02_n</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="120" height="80"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="8-1-/-Resource-Information" transform="translate(-423.000000, -593.000000)">
+            <g id="picture-size_position_icon_02_n" transform="translate(423.000000, 593.000000)">
+                <mask id="mask-2" fill="white">
+                    <use xlink:href="#path-1"></use>
+                </mask>
+                <g id="Mask"></g>
+                <g mask="url(#mask-2)">
+                    <g transform="translate(12.000000, 6.000000)">
+                        <g id="Group-5-Copy" fill-opacity="0.204977396">
+                            <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="96" height="56" rx="8"></rect>
+                        </g>
+                        <g id="Group-8-Copy" transform="translate(48.000000, 36.000000) scale(1, -1) translate(-48.000000, -36.000000) translate(0.000000, 8.000000)">
+                            <rect id="Rectangle-Copy-18" stroke="#D8D8D8" stroke-width="3" x="1.5" y="1.5" width="93" height="53" rx="8"></rect>
+                            <path d="M48.3861575,16.1567443 L55.8206555,23.4871562 C56.0369526,23.7004251 56.0394075,24.0486572 55.8261386,24.2649543 C55.7227796,24.3697809 55.5817111,24.4287968 55.434498,24.4287968 L50.193,24.428 L50.1939167,31.45 C50.1939167,31.7537566 49.9476733,32 49.6439167,32 L46.3560833,32 C46.0523267,32 45.8060833,31.7537566 45.8060833,31.45 L45.806,24.428 L40.565502,24.4287968 C40.2617454,24.4287968 40.015502,24.1825534 40.015502,23.8787968 C40.015502,23.7315838 40.0745179,23.5905152 40.1793445,23.4871562 L47.6138425,16.1567443 C47.8279864,15.9455985 48.1720136,15.9455985 48.3861575,16.1567443 Z" id="Combined-Shape" fill="#D8D8D8"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
