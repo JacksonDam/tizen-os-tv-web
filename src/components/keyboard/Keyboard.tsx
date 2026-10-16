@@ -4,11 +4,12 @@ import { setTextCapture, useRemote, type RemoteKey } from '../../input/remote'
 import { playFeedback, useMoveSound } from '../../tv/sound'
 import { TV } from '../../assets'
 import { DEFAULT_FOCUS, QWERTY, SYMB, moveFocus, type Cell, type Layout } from './layouts'
+import type { TextEntry } from './textEntry'
 import './keyboard.css'
 
 // The Samsung on-screen keyboard (com.samsung.tv.sboard-app, "S Board") for the web rebuild.
 //
-// Usage: keep the text in a useTextEntry() state, show it in the host's own field (<InputText>), and
+// Usage: keep the text in a useTextEntry() state (textEntry.ts), show it in the host's own field (<InputText>), and
 // mount <Keyboard> while the field is being edited. The keyboard takes every remote key while it is up
 // (number keys type digits, Back cancels, Done/Return commits) and lets Home and Exit through.
 //
@@ -31,35 +32,6 @@ const GAP = 8
 const PAD = 24
 export const KEYBOARD_W = 11 * KEY_W + 10 * GAP + 2 * PAD // 920
 export const KEYBOARD_H = 5 * KEY_H + 4 * GAP + 2 * PAD // 360
-
-type TextState = { text: string; cursor: number }
-
-export type TextEntry = TextState & {
-  maxLength: number
-  set: (text: string, cursor?: number) => void
-  // edit from the latest state (several key events can arrive before React renders); null = no change
-  edit: (fn: (s: TextState) => TextState | null) => boolean
-}
-
-export function useTextEntry(initial: string, maxLength: number): TextEntry {
-  const [s, setS] = useState<TextState>({ text: initial.slice(0, maxLength), cursor: Math.min(initial.length, maxLength) })
-  const latest = useRef(s)
-  const apply = (next: TextState) => {
-    const clamped = { text: next.text, cursor: Math.max(0, Math.min(next.cursor, next.text.length)) }
-    latest.current = clamped
-    setS(clamped)
-  }
-  return {
-    ...s,
-    maxLength,
-    set: (text, cursor = text.length) => apply({ text, cursor }),
-    edit: fn => {
-      const next = fn(latest.current)
-      if (next) apply(next)
-      return !!next
-    },
-  }
-}
 
 // The text field (C_InputFieldW_01): text with the caret at the cursor, or the hint while empty.
 // Passwords show a dot per character (InputFieldBase password mode).

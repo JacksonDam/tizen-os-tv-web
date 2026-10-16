@@ -3,7 +3,8 @@ import { useRemote, type RemoteKey } from '../../input/remote'
 import { playFeedback, useMoveSound } from '../../tv/sound'
 import type { GadgetProps } from '../allsettings/extensions'
 import { connectedAp, getNet, isConnected, setNet, useNet } from './network'
-import { ADDRESS_ROWS, NetPage, StatusDiagram } from './NetPage'
+import { NetPage, StatusDiagram } from './NetPage'
+import { ADDRESS_ROWS } from './netUtil'
 
 // Network Status (NUI gadget org.tizen.appfw.gadget.NetworkStatus): checks the connection with the
 // TV - router - Internet diagram, then the success page with Retry / Disconnect / IP Settings stacked

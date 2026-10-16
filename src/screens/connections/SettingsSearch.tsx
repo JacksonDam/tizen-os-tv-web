@@ -5,7 +5,8 @@ import { useTv } from '../../tv/store'
 import type { GadgetProps } from '../allsettings/extensions'
 import { getMenu } from '../allsettings/menu'
 import type { MenuItem } from '../allsettings/menuData'
-import { Keyboard, InputText, useTextEntry } from '../../components/keyboard/Keyboard'
+import { Keyboard, InputText } from '../../components/keyboard/Keyboard'
+import { useTextEntry } from '../../components/keyboard/textEntry'
 
 // All Settings > Search (org.tizen.menu SearchPage / SearchView / SearchManager): the search field in a
 // 65x10 u area, the keyboard next to the panel ("action=dynamic_ui&entrylimit=30&action=search", placed

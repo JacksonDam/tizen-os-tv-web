@@ -3,9 +3,11 @@ import { useRemote, type RemoteKey } from '../../input/remote'
 import { playFeedback, useMoveSound } from '../../tv/sound'
 import { TV } from '../../assets'
 import type { GadgetProps } from '../allsettings/extensions'
-import { Keyboard, InputText, useTextEntry } from '../../components/keyboard/Keyboard'
+import { Keyboard, InputText } from '../../components/keyboard/Keyboard'
+import { useTextEntry } from '../../components/keyboard/textEntry'
 import { ACCESS_POINTS, getNet, setNet, useNet, type AccessPoint, type NetType } from './network'
-import { NET, NetPage, Ris, Spinner, useCountdown, useListScroll, wifiIcon, type Btn } from './NetPage'
+import { NetPage, Ris, Spinner, type Btn } from './NetPage'
+import { NET, useCountdown, useListScroll, wifiIcon } from './netUtil'
 
 // Network Settings (NUI gadget org.tizen.appfw.gadget.NetworkSettings, org.tizen.example.NetworkSettings):
 // network type -> Wi-Fi scan and list -> password -> checking -> connected, plus wired, Add Network,
