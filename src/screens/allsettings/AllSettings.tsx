@@ -65,7 +65,7 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
   }
 
   // Rows of the current page, flattened (root: account, search, categories).
-  const rows: MenuItem[] = page.item ? (page.item.groups ?? []).flat() : MENU
+  const rows: MenuItem[] = (page.item ? (page.item.groups ?? []).flat() : MENU).map(r => (r.live ? { ...r, ...r.live(values) } : r))
 
   useRemote(key => {
     if (!isNavKey(key)) return false // TV keys go on to tv-viewer

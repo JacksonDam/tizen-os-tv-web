@@ -24,6 +24,8 @@ export type Tile = {
   iconFocused?: string         // static focused icon (Sound Output)
   colouredIcon?: boolean       // not overlaid black when focused
   action: 'toggle' | 'second' | 'gadget' | 'launch' | 'edit'
+  setting?: string             // toggle tiles that show an All Settings value: its id and the value of each entry
+  settingValues?: (string | number)[]
   second?: { title: string; groups: SecondDepthRow[][] }
 }
 
@@ -35,6 +37,8 @@ export const TILES: Tile[] = [
     title: 'Picture Mode',
     action: 'toggle',
     value: 1,
+    setting: 'picturemode',
+    settingValues: [65536, 65537, 65538, 655360],
     values: [
       { label: 'Dynamic', icon: `${QS}/13_picturemode_Dynamic.json` },
       { label: 'Standard', icon: `${QS}/09_picturemode_Standard.json` },
@@ -47,6 +51,8 @@ export const TILES: Tile[] = [
     title: 'Sound Mode',
     action: 'toggle',
     value: 0,
+    setting: 'sound-mode',
+    settingValues: [1, 5],
     values: [
       { label: 'Standard', icon: `${QS}/21_soundmode_Standard.json` },
       { label: 'Amplify', icon: `${QS}/27_soundmode_Amplify.json` },
@@ -96,6 +102,8 @@ export const TILES: Tile[] = [
     title: 'Game Mode',
     action: 'toggle',
     value: 0,
+    setting: 'game-mode',
+    settingValues: [0, 1],
     values: [
       { label: 'Off', icon: `${QS}/57_gamemode_Off.json` },
       { label: 'On', icon: `${QS}/56_gamemode_On.json` },
@@ -106,6 +114,8 @@ export const TILES: Tile[] = [
     title: 'Energy Saving Solution',
     action: 'toggle',
     value: 0,
+    setting: 'energy-saving-solution',
+    settingValues: [0, 1],
     values: [
       { label: 'Off', icon: `${QS}/177_energy_saving_solution_off.json` },
       { label: 'On', icon: `${QS}/176_energy_saving_solution_on.json` },
@@ -117,6 +127,8 @@ export const TILES: Tile[] = [
     title: 'Sleep Timer',
     action: 'toggle',
     value: 0,
+    setting: 'sleeptimer',
+    settingValues: [0, 30, 60, 120, 180],
     values: [
       { label: 'Off', icon: `${QS}/55_sleeptimer_Off.json` },
       { label: '30 min', icon: `${QS}/54_sleeptimer_On.json` },

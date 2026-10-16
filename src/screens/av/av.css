@@ -1,0 +1,267 @@
+/* Picture engine on the video plane (Engines.tsx sets the variables on .stage). */
+.av-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+.live-video,
+.pig__video { filter: var(--av-filter, none); }
+.live-video { transform: var(--av-transform, none); transition: transform 300ms var(--ease-basic); }
+
+/* Accessibility: Grayscale is applied to the whole output. */
+.stage.av-grayscale { filter: grayscale(1); }
+
+/* Picture off (Auto Picture Off): the panel is dark. */
+.av-screen-off { position: absolute; inset: 0; background: #000; z-index: 150; }
+
+/* tv-viewer timer popups (MessageBox with a multi-line, live message) */
+.avp__message { white-space: pre-line; }
+
+/* ---- All Settings small bottom popup (P_PopupSmallBottom_01 on the panel; as AutoTuningPopup) ---- */
+.avsp { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+.avsp__plate {
+  position: absolute;
+  width: 486px;
+  padding: 42px 31px 43px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 100%;
+  animation: avsp-fade 200ms var(--ease-basic), avsp-scale 500ms var(--ease-elastic);
+}
+.avsp--leaving .avsp__plate {
+  opacity: 0;
+  scale: 0.95;
+  transition: opacity 200ms var(--ease-basic), scale 500ms var(--ease-out);
+}
+@keyframes avsp-fade { from { opacity: 0; } }
+@keyframes avsp-scale { from { scale: 0.95; } }
+/* C_TextArea_02: T24 500 CC_Basic180 */
+.avsp__message {
+  padding: 16px 0;
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: pre-line;
+}
+.avsp__buttons { display: flex; gap: 16px; }
+.avsp__button {
+  position: relative;
+  flex: 1;
+  height: 56px;
+  font-size: 24px;
+  background: #000;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+/* Settings toast (P_PopupToast_03) centred on the panel */
+.avtoast {
+  position: absolute;
+  z-index: 60;
+  translate: -50% -50%;
+  min-width: 312px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), 0 5px 7px rgba(0, 0, 0, 0.85);
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  text-align: center;
+  animation: avsp-fade 200ms var(--ease-basic), avsp-scale 500ms var(--ease-elastic);
+}
+/* one line is centred, more lines start at the left (P_PopupToast_03) */
+.avtoast span { display: inline-block; text-align: left; }
+
+/* ---- pages drawn in the All Settings card (panel-relative; 1 u = 8 px) ---- */
+.avpage { position: absolute; inset: 0; }
+.avpage__dim { position: absolute; inset: 0; border-radius: 32px; background: rgba(19, 29, 34, 0.4); z-index: 6; }
+/* DescriptionTextBox1: T24 500 CC_Basic170, 55 u wide */
+.avpage__desc {
+  width: 440px;
+  min-height: 40px;
+  max-height: 120px;
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  overflow: hidden;
+}
+.avpage__reset { position: absolute; left: 0; top: 600px; width: 520px; display: flex; justify-content: center; }
+/* C_ButtonBasicText_01 32 x 7 u, BottomButtonTextTile T24 600 */
+.avpage__button { position: relative; width: 256px; height: 56px; font-size: 24px; }
+
+/* Balance: image 39 x 18 u, then description and the 57 x 14 u slider group, then Reset */
+.avbal__image { position: absolute; left: 104px; top: 88px; width: 312px; height: 144px; }
+.avbal__image img { width: 100%; height: 100%; object-fit: contain; }
+.avbal__center {
+  position: absolute;
+  left: 0;
+  top: 248px;
+  width: 520px;
+  height: 336px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.avbal__slider {
+  width: 456px;
+  height: 112px;
+  flex: none;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.avbal__slider .avs-track { width: 248px; }
+/* BalanceSliderTitleTextBox: T24 700 CC_Point3100, 10 x 5 u */
+.avbal__lr { width: 80px; text-align: center; font-size: 24px; font-weight: 700; color: #33adff; line-height: 40px; }
+
+/* FLUX slider track, current bar and handle (flux.md 5.10) */
+.avs-track { position: relative; height: 40px; flex: none; }
+.avs-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 18px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+}
+.avs-track__fill { position: absolute; left: 0; top: 18px; height: 4px; background: #33adff; }
+.avs-track.is-focused .avs-track__fill { background: #0099ff; }
+.avs-track__handle {
+  position: absolute;
+  top: 20px;
+  width: 16px;
+  height: 16px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: linear-gradient(#fff, #e5e5e5 50%, #cbcbcb);
+  transition: width 483ms var(--ease-elastic), height 483ms var(--ease-elastic);
+}
+.avs-track.is-focused .avs-track__handle { width: 32px; height: 32px; box-shadow: 0 0 0 3px #0099ff; }
+.avs-track--v { width: 40px; height: 280px; }
+.avs-track--v::before { left: 18px; right: auto; top: 0; bottom: 0; width: 4px; height: auto; }
+.avs-track--v .avs-track__fill { left: 18px; top: auto; bottom: 0; width: 4px; height: auto; }
+.avs-track--v .avs-track__handle { left: 20px; top: auto; translate: -50% 50%; }
+
+/* value tooltip (C_TooltipSingleLine_01): #0099FF, r 16, T24 600, 15 u wide, 2 u from the slider */
+.avs-tip {
+  position: absolute;
+  bottom: 52px;
+  min-width: 120px;
+  height: 56px;
+  padding: 0 16px;
+  translate: -50% 0;
+  border-radius: 16px;
+  background: #0099ff;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 56px;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 3;
+}
+.avs-tip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  translate: -50% 0;
+  border: 8px solid transparent;
+  border-top-color: #0099ff;
+  border-bottom: 0;
+}
+.avs-tip--right { left: 56px; bottom: auto; translate: 0 50%; }
+.avs-tip--right::after { left: auto; right: 100%; top: 50%; translate: 0 -50%; border: 8px solid transparent; border-right-color: #0099ff; border-left: 0; }
+.avs-tip--above { left: 50%; bottom: 88px; }
+
+/* Equalizer (Large panel 93 u): group 74 x 61 u, 7 sliders 9 x 51 u, band labels, Reset icon, Bass/Treble */
+.aveq__group { position: absolute; left: 32px; top: 96px; width: 592px; height: 488px; border-radius: 16px; background: rgba(255, 255, 255, 0.08); }
+.aveq__sliders { position: absolute; left: 16px; top: 16px; width: 560px; height: 408px; display: flex; gap: 8px; }
+.aveq__slider { width: 72px; height: 408px; display: flex; flex-direction: column; align-items: center; }
+/* EqualizerSliderTitleTextBox: T40 500 white, 9 x 8 u */
+.aveq__pm { width: 72px; height: 64px; line-height: 64px; text-align: center; font-size: 40px; font-weight: 500; }
+.aveq__bands { position: absolute; left: 16px; top: 424px; width: 560px; height: 32px; display: flex; gap: 8px; }
+/* EqualizerSliderButtomTitleTextBox: T20 500 CC_Basic180 */
+.aveq__bands span { width: 72px; text-align: center; font-size: 20px; line-height: 32px; font-weight: 500; color: rgba(255, 255, 255, 0.8); }
+.aveq__icon-area { position: absolute; left: 624px; top: 96px; width: 120px; height: 496px; display: flex; align-items: center; justify-content: center; }
+/* C_ButtonBasicIcon_01: 9 u circle, CP_Plane_BTN_FS, icon 5 u tinted CP_Info1100 */
+.aveq__reset {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: scale 500ms var(--ease-elastic);
+}
+.aveq__reset.is-focused { background: #e8e8e8; color: #000; scale: 1.08; box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85); }
+.aveq__reset-icon { width: 40px; height: 40px; background: currentColor; mask: center / contain no-repeat; -webkit-mask: center / contain no-repeat; }
+.aveq__bottom { position: absolute; left: 48px; top: 600px; width: 560px; height: 48px; display: flex; justify-content: space-between; }
+.aveq__bottom span { font-size: 28px; font-weight: 600; line-height: 48px; }
+
+/* Zoom and Position: two 59 u groups of 15 x 10 u image tiles, then Reset */
+.avzp { position: absolute; left: 0; top: 88px; width: 520px; }
+.avzp__group { position: absolute; left: 24px; width: 472px; border-radius: 16px; background: rgba(255, 255, 255, 0.08); }
+.avzp__group--zoom { top: 0; height: 232px; }
+.avzp__group--pos { top: 248px; height: 248px; }
+.avzp__head { margin-left: 16px; width: 440px; height: 48px; display: flex; align-items: center; gap: 8px; font-size: 24px; font-weight: 500; color: rgba(255, 255, 255, 0.8); }
+.avzp__value { color: #33adff; }
+.avzp__row { display: flex; justify-content: center; gap: 16px; height: 80px; margin-bottom: 8px; }
+.avzp__pad { margin-left: 16px; width: 440px; height: 184px; display: flex; justify-content: center; gap: 16px; }
+.avzp__col { width: 120px; display: flex; flex-direction: column; align-items: center; }
+.avzp__col--side { justify-content: center; }
+.avzp__col--mid { gap: 24px; }
+.avzp__btn { position: relative; width: 120px; height: 80px; border-radius: 16px; overflow: hidden; transition: scale 500ms var(--ease-elastic); }
+.avzp__btn.is-focused { scale: 1.04; box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85); }
+.avzp__bg, .avzp__icon { position: absolute; inset: 0; width: 120px; height: 80px; }
+.avzp__reset { top: 512px; }
+
+/* spin.time on the Off Timer > Time row: 33 x 15 u CC_BG14100 (#323232) box, r 4 u, right end of the row */
+.avspin {
+  position: absolute;
+  left: 304px;
+  width: 264px;
+  height: 120px;
+  padding-left: 24px;
+  border-radius: 32px;
+  background: #323232;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 12;
+  animation: avsp-fade 200ms var(--ease-basic), avsp-scale 500ms var(--ease-elastic);
+}
+.avspin--leaving { opacity: 0; transition: opacity 150ms var(--ease-basic); }
+.avspin__group { display: flex; align-items: center; }
+.avspin__colon { width: 24px; text-align: center; font-size: 24px; font-weight: 600; }
+/* C_SpinControlV_01 12 x 9 u: value T24 600; the focused spin is a white plate with black text */
+.avspin__spin {
+  position: relative;
+  width: 96px;
+  height: 72px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  transition: scale 500ms var(--ease-elastic);
+}
+.avspin__spin.is-focused { background: #e8e8e8; color: #000; scale: 1.04; }
+.avspin__arrow { position: absolute; left: 50%; translate: -50% 0; border: 6px solid transparent; opacity: 0; }
+.avspin__spin.is-focused .avspin__arrow { opacity: 0.6; }
+.avspin__arrow--up { top: 6px; border-bottom-color: currentColor; border-top: 0; }
+.avspin__arrow--down { bottom: 6px; border-top-color: currentColor; border-bottom: 0; }

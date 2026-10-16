@@ -52,6 +52,7 @@ export type MenuItem = {
   gadget?: string            // OK opens an in-panel page component (e.g. About TV)
   popup?: string             // OK opens a popup component drawn over the panel (e.g. the Auto Tuning confirmation)
   launch?: { app: string; args?: Record<string, string>; exitMenu?: boolean }  // OK starts a full-screen app
+  live?: (values: Record<string, string | number>) => Partial<MenuItem>       // row state that follows other settings
 }
 
 export const MAIN_MENU: MenuItem[] = [
