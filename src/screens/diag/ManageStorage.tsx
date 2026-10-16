@@ -175,7 +175,7 @@ export function ManageStorage({ onBack }: { onBack: () => void }) {
           <div
             key={b}
             className={`flux-btn ms__fn ${disabled ? 'is-disabled' : ''} ${focus.area === 'header' && focus.i === i && !popup ? 'is-focused' : ''}`}
-            style={{ left: 1376 + i * 312 }}
+            style={{ left: 1920 - 80 - 2 * 304 - 8 + i * 312 }} // right-aligned to the 80 px margin (inferred)
           >
             {b}
           </div>
