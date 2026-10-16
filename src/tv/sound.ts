@@ -16,6 +16,7 @@ const FILES: Partial<Record<SoundName, string>> = {
   home_open: 'home_open.mp3',
   normal_noti: 'normal_noti.mp3',
   luxo_power_on: 'luxo_power_on.m4a',
+  power_off: 'power_off.mp3',
 }
 
 let ctx: AudioContext | null = null

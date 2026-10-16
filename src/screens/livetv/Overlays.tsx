@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { TV } from '../../assets'
-import { currentChannel, currentSource, getTv, useTv, type SourceId } from '../../tv/store'
+import { currentChannel, currentSource, getSetting, useTv, type SourceId } from '../../tv/store'
 import { hhmm, programmeAt, type Channel } from '../../tv/channels'
-import { playSound } from '../../tv/sound'
+import { playFeedback, playSound } from '../../tv/sound'
+import { useRemote } from '../../input/remote'
 import './overlays.css'
 
 // Live-TV system overlays: tv-viewer's channel banner, info banner, source switch screen and source
@@ -340,26 +341,81 @@ function NoSignalBackground() {
   )
 }
 
-// ---- Power on (org.tizen.welcome-mode "main" group) ----
+// ---- Power sounds ----
+// welcome-mode CAudioHandler::PlayBootingAudio plays the boot melody when Voice Guide
+// (db/setting/accessibility/tts) or Welcome Sound (db/menu/sound/welcome_sound) is on; on this model it is
+// the Luxo chime the boot-sound service also plays on a cold boot (/usr/apps/boot-sound/01_Luxo_power_on).
+// The buxton default of welcome_sound is off and the per-model data that sets it is not in the update;
+// db/menu/system/general/welcome-sound defaults to 1, so the rebuild treats it as on (inferred).
+function powerChimeEnabled() {
+  return !!Number(getSetting('welcome-sound', 1)) || !!Number(getSetting('voiceguide_on', 0))
+}
+
+// ---- Boot logo (bootservice: featureconf logo_path, logo_duration 900 ms, logo_delay 0) ----
+// A cold boot shows the model's logo bitmap centred on black. This mock TV is a Neo QLED (About TV:
+// QE65QN90F), whose featureconf column points at /prd/usr/share/boot-logo/boot_logo_neoqledtv.bmp
+// (stored bottom-up; converted the right way up). Drawn 1:1 on the 1080p plane (inferred). Keys wait.
+export function BootLogo({ onDone, chime }: { onDone: () => void; chime: boolean }) {
+  useRemote(() => true)
+  useEffect(() => {
+    if (chime && powerChimeEnabled()) playSound('luxo_power_on')
+    const t = setTimeout(onDone, 900)
+    return () => clearTimeout(t)
+  }, [onDone, chime])
+  return (
+    <div className="boot-logo">
+      <img src={`${TV}/boot/boot_logo_neoqledtv.png`} alt="" />
+    </div>
+  )
+}
+
+// ---- Power on (org.tizen.welcome-mode "main" group, intro_animation) ----
 // A white frame behind two black halves; the halves slide apart and the white fades over 1.1 s,
-// cubic-bezier(0.630952, 0.036, 0, 0.992). The Luxo boot chime plays only when Welcome Sound
-// (db/menu/sound/welcome_sound, default off) is on.
-export function PowerOn({ onDone }: { onDone: () => void }) {
+// cubic-bezier(0.630952, 0.036, 0, 0.992). The boot melody plays with it (powerChimeEnabled), except
+// after a cold boot, where the boot-sound service already played it under the logo.
+export function PowerOn({ onDone, chime = true }: { onDone: () => void; chime?: boolean }) {
   const [run, setRun] = useState(false)
   useEffect(() => {
-    if (getTv().settings['welcome-sound']) playSound('luxo_power_on')
+    if (chime && powerChimeEnabled()) playSound('luxo_power_on')
     const a = requestAnimationFrame(() => requestAnimationFrame(() => setRun(true)))
     const t = setTimeout(onDone, 1300)
     return () => {
       cancelAnimationFrame(a)
       clearTimeout(t)
     }
-  }, [onDone])
+  }, [onDone, chime])
   return (
     <div className={`power-on ${run ? 'is-run' : ''}`}>
       <div className="power-on__white" />
       <div className="power-on__half power-on__half--top" />
       <div className="power-on__half power-on__half--bottom" />
+    </div>
+  )
+}
+
+// ---- Power off (welcome-mode outro_animation) ----
+// The reverse of the reveal: a white frame fades in over the picture while the two black halves slide in
+// from the top and bottom and meet in the middle (outro_prepare -> outro_animation, 1.1 s, same curve),
+// a white flash that closes to a line; then standby. CAudioHandler::PlayPowerOffAudio plays the POWEROFF
+// feedback pattern (37, power_off.wav) only when Voice Guide is on; like every feedback sound it is
+// silent with Sound Feedback Off. Keys wait until the TV is off.
+export function PowerOff({ onDone }: { onDone: () => void }) {
+  const [run, setRun] = useState(false)
+  useRemote(() => true)
+  useEffect(() => {
+    if (Number(getSetting('voiceguide_on', 0))) playFeedback('power_off')
+    const a = requestAnimationFrame(() => requestAnimationFrame(() => setRun(true)))
+    const t = setTimeout(onDone, 1150)
+    return () => {
+      cancelAnimationFrame(a)
+      clearTimeout(t)
+    }
+  }, [onDone])
+  return (
+    <div className={`power-off ${run ? 'is-run' : ''}`}>
+      <div className="power-off__white" />
+      <div className="power-off__half power-off__half--top" />
+      <div className="power-off__half power-off__half--bottom" />
     </div>
   )
 }

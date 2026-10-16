@@ -1,7 +1,7 @@
 // Capture the web UI at exactly 1920x1080 with headless Chrome over CDP.
 // usage: node tools/shot.mjs <url> <out.png> [--keys Left,Down,...] [--wait ms] [--keywait ms]
 // Keys go through the app's window.__tv.press() hook ("type:text" / "kbd:Key" send keydown events instead,
-// "wait:ms" pauses),
+// "wait:ms" pauses, "eval:expr" prints a page value),
 // --keywait apart (default 400 ms), and the
 // screenshot is taken --wait ms after the last key (default 1200 ms).
 import { spawn } from 'node:child_process'
@@ -20,8 +20,10 @@ const opt = (name, def) => {
 const keys = opt('--keys', '').split(',').filter(Boolean)
 const wait = +opt('--wait', 1200)
 const keywait = +opt('--keywait', 400)
-const [url, out] = args
-if (!url || !out) {
+const [pageUrl, out] = args
+// captures skip the page-load boot logo unless the URL sets boot= itself
+const url = pageUrl && !/[?&]boot=/.test(pageUrl) ? `${pageUrl}${pageUrl.includes('?') ? '&' : '?'}boot=0` : pageUrl
+if (!pageUrl || !out) {
   console.error('usage: node tools/shot.mjs <url> <out.png> [--keys K1,K2] [--wait ms] [--keywait ms]')
   process.exit(2)
 }
@@ -70,6 +72,12 @@ try {
   for (const k of keys) {
     if (k.startsWith('wait:')) {
       await sleep(+k.slice(5)) // "wait:3000" pauses between keys
+      continue
+    }
+    if (k.startsWith('eval:')) {
+      // "eval:expr" prints the value of a page expression (e.g. eval:window.__tvAudio.level())
+      const r = await send('Runtime.evaluate', { expression: k.slice(5), returnByValue: true, awaitPromise: true })
+      console.log(`eval ${k.slice(5)} = ${JSON.stringify(r.result?.value)}`)
       continue
     }
     // "type:abc" types on a physical keyboard (keydown events), "kbd:Backspace" sends one raw key

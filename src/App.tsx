@@ -4,7 +4,7 @@ import { Home } from './screens/home/Home'
 import { AllSettings } from './screens/allsettings/AllSettings'
 import { LiveVideo } from './screens/livetv/LiveVideo'
 import {
-  ChannelBanner, InfoBanner, NoSignal, PowerOn, SourceBanner, SourceSwitch, VolumeOsd,
+  BootLogo, ChannelBanner, InfoBanner, NoSignal, PowerOff, PowerOn, SourceBanner, SourceSwitch, VolumeOsd,
 } from './screens/livetv/Overlays'
 import { RemotePanel } from './remote/RemotePanel'
 import { APPS } from './apps/registry'
@@ -22,12 +22,21 @@ type RunningApp = { id: string; args?: Record<string, string>; from?: string }
 type Roll = 'up' | 'down' | 'none'
 const TARGETS: Record<string, string | undefined> = { allsettings: undefined, support: 'support', network: 'connection' }
 
+// Opening the page is a cold boot (boot logo, then the power-on reveal); ?boot=0 skips it.
+const COLD_BOOT_ON_LOAD = typeof location === 'undefined' || new URLSearchParams(location.search).get('boot') !== '0'
+// The boot chime needs a user gesture first (browser autoplay rules), so the page-load boot is silent.
+const hadGesture = () => (navigator as Navigator & { userActivation?: { hasBeenActive: boolean } }).userActivation?.hasBeenActive ?? true
+
 export default function App() {
   const [hub, setHub] = useState<Hub>({ visible: true, key: 0 })
   const [settings, setSettings] = useState<null | { target?: string }>(null)
   // a full-screen app (Device Care, channel scan, channel list...): `from` = settings category to return to
   const [app, setApp] = useState<RunningApp | null>(null)
-  const [booting, setBooting] = useState(false)
+  const [booting, setBooting] = useState(false)       // power-on reveal (welcome-mode intro)
+  const [bootChime, setBootChime] = useState(true)     // the reveal plays the chime (not after the boot logo)
+  const [coldBoot, setColdBoot] = useState(COLD_BOOT_ON_LOAD) // boot logo (bootservice)
+  const [poweringOff, setPoweringOff] = useState(false) // power-off flash (welcome-mode outro)
+  const afterOff = useRef<(() => void) | undefined>(undefined)
   const power = useTv(s => s.power)
 
   // overlays: each counter re-arms its overlay; 0 = hidden
@@ -60,11 +69,16 @@ export default function App() {
   }
   const hideHub = () => setHub(h => ({ ...h, visible: false }))
 
-  // Power on: the power-on animation, then what the power-on hooks choose (default the Smart Hub).
-  const powerOn = () => {
+  // Power on: the power-on animation (after the boot logo on a cold boot), then what the power-on hooks
+  // choose (default the Smart Hub).
+  const powerOn = (cold = false) => {
     setTv({ power: 'on' })
     homeSounded.current = false
-    setBooting(true)
+    if (cold) setColdBoot(true)
+    else {
+      setBootChime(true)
+      setBooting(true)
+    }
     const t = powerOnTarget()
     if (t === 'hub') showHub()
     else if (t === 'live') toLive()
@@ -78,13 +92,35 @@ export default function App() {
   }
   const restartTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   useEffect(() => () => clearTimeout(restartTimer.current), [])
+  const bootLogoDone = useCallback(() => {
+    setColdBoot(false)
+    setBootChime(false)
+    setBooting(true)
+  }, [])
+  const bootDone = useCallback(() => setBooting(false), [])
+  // Power off: the white flash, then standby; `then` runs once the TV is off (restart).
+  const powerOff = (then?: () => void) => {
+    clearTimeout(restartTimer.current)
+    afterOff.current = then
+    setPoweringOff(true)
+  }
+  const powerOffDone = useCallback(() => {
+    setPoweringOff(false)
+    setBooting(false)
+    setVolume(0) // the volume bar does not come back at the next power-on
+    setTv({ power: 'standby' })
+    const then = afterOff.current
+    afterOff.current = undefined
+    then?.()
+  }, [])
 
   // ---- system keys: volume, mute, power (volume-app and the power manager work over every app) ----
   useSystemKeys(key => {
     const tv = getTv()
     if (key === 'Power') {
+      if (poweringOff || coldBoot) return true // the TV is busy switching
       clearTimeout(restartTimer.current)
-      if (tv.power === 'on') setTv({ power: 'standby' }) // no power-off sound on a home TV
+      if (tv.power === 'on') powerOff()
       else powerOn()
       return true
     }
@@ -235,13 +271,13 @@ export default function App() {
     },
     toLive,
     standby: () => {
-      clearTimeout(restartTimer.current)
-      setTv({ power: 'standby' })
+      if (getTv().power === 'on' && !poweringOff) powerOff()
     },
     restart: () => {
-      clearTimeout(restartTimer.current)
-      setTv({ power: 'standby' })
-      restartTimer.current = setTimeout(powerOn, 1500)
+      // power off, then a cold boot (boot logo) a moment later
+      powerOff(() => {
+        restartTimer.current = setTimeout(() => powerOn(true), 1500)
+      })
     },
   })
   useEffect(() => {
@@ -281,7 +317,9 @@ export default function App() {
         )}
         {on && OVERLAYS.map(o => <o.component key={o.id} />)}
         {on && volume > 0 && <VolumeOsd seq={volume} />}
-        {booting && <PowerOn onDone={() => setBooting(false)} />}
+        {on && poweringOff && <PowerOff onDone={powerOffDone} />}
+        {booting && <PowerOn chime={bootChime} onDone={bootDone} />}
+        {on && coldBoot && <BootLogo chime={hadGesture()} onDone={bootLogoDone} />}
         {!on && <div className="standby" />}
       </Stage>
       <RemotePanel />
