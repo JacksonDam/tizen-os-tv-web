@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useRemote, type RemoteKey } from '../../input/remote'
 import { useMoveSound } from '../../tv/sound'
-import { currentChannel, currentSource, getTv, setTv, useTv } from '../../tv/store'
+import { currentChannel, getTv, setTv, useTv } from '../../tv/store'
 import { MUXES } from '../../tv/channels'
 import type { AppProps } from '../../apps/registry'
 import { SD_APP_ID } from './sdData'
@@ -49,7 +49,7 @@ function tunerRows(): Row[] {
   return [
     { title: T.channel, value: `${ch.number} ${ch.name}` },
     { title: T.multiplex, value: `Mux ${String.fromCharCode(65 + muxIndex)}` },
-    { title: T.network, value: 'Freeview Air' },
+    { title: T.network, value: 'Aurora DTT' },
     { title: T.physical, value: String(ch.rf) },
     { title: T.frequency, value: `${ch.freqMHz} MHz` },
     { title: T.bandwidth, value: '8 MHz' },
@@ -146,7 +146,6 @@ export function SignalInfo({ onExit, launch, args }: AppProps) {
         </div>
       </div>
       <div className="si__hint">{isTv ? T.hint : T.hdmiHint}</div>
-      <span hidden>{currentSource(tv).id}</span>
     </div>
   )
 }

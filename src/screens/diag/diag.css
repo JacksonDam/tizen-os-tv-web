@@ -303,3 +303,58 @@
 .shr__ring { width: 88px; height: 88px; }
 .shr__text { flex: none; }
 .sd-toast--white { background: #fff; color: #000; box-shadow: var(--focus-shadow); }
+
+/* ================= Remote Control Guide (RemoteGuide GUIDefine units) ================= */
+.rg__steps { position: absolute; left: 0; top: 0; width: 1920px; height: 104px; }
+.rg__step { position: absolute; top: 36px; font-size: 24px; font-weight: 600; color: rgba(255, 255, 255, 0.6); }
+.rg__step--prev { left: 80px; }
+.rg__step--next { right: 80px; }
+/* TitleView: title T60 700, subtitle T32 400 CC_Basic180 */
+.rg__title { position: absolute; left: 160px; top: 104px; width: 1600px; height: 96px; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: 700; }
+.rg__subtitle { position: absolute; left: 160px; top: 200px; width: 1600px; text-align: center; font-size: 32px; line-height: 48px; font-weight: 400; color: rgba(255, 255, 255, 0.8); }
+.rg__guide { position: absolute; left: 160px; top: 840px; width: 1600px; text-align: center; font-size: 20px; color: rgba(255, 255, 255, 0.5); }
+/* index: remote 56 x 73 u + 4 columns 37 u, gap 3 u */
+.rg__index-remote { position: absolute; left: 108px; top: 300px; width: 408px; height: 512px; }
+.rg__index-remote--center { left: 756px; }
+.rg__columns { position: absolute; left: 584px; top: 296px; display: flex; gap: 24px; }
+.rg__column { width: 296px; display: flex; flex-direction: column; gap: 16px; }
+.rg__category { height: 104px; display: flex; align-items: flex-end; justify-content: center; text-align: center; font-size: 24px; font-weight: 700; color: #33adff; }
+.rg__page-btn { position: relative; width: 296px; height: 72px; font-size: 24px; white-space: normal; text-align: center; line-height: 28px; }
+/* guide page: body 102 x 65 u (remote 51 x 64 u), skin 116 x 65 u (screen 98 x 56 u) */
+.rg__body { position: absolute; left: 88px; top: 296px; width: 816px; height: 520px; }
+.rg__remote { position: absolute; left: 204px; top: 4px; width: 408px; height: 512px; }
+.rg__tooltip {
+  position: absolute; right: 628px; translate: 0 -50%; max-width: 360px; padding: 12px 20px; border-radius: 12px;
+  background: #0099ff; color: #fff; font-size: 22px; line-height: 30px; font-weight: 600; margin-top: 4px;
+}
+.rg__tooltip::after { content: ''; position: absolute; right: -10px; top: 50%; translate: 0 -50%; border: 10px solid transparent; border-right: 0; border-left-color: #0099ff; }
+.rg__skin { position: absolute; left: 904px; top: 296px; width: 928px; height: 520px; }
+.rg__screen { position: absolute; left: 72px; top: 36px; width: 784px; height: 448px; }
+.rg__solar { position: absolute; left: 456px; top: 300px; width: 1008px; height: 456px; }
+.rg__body--test { left: 120px; }
+.rg__skin--test { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 24px; }
+.rg__countdown { font-size: 160px; font-weight: 700; line-height: 180px; height: 180px; color: #33adff; }
+.rg__ok { width: 160px; height: 160px; margin-top: -204px; }
+.rg__test-guide { font-size: 40px; font-weight: 600; }
+.rg__test-count { font-size: 24px; color: rgba(255, 255, 255, 0.6); }
+
+/* ================= Connection Guide (inferred arrangement on connection_bg_01_base) ================= */
+.cg__title { position: absolute; left: 280px; top: 40px; height: 88px; line-height: 88px; font-size: 48px; font-weight: 700; }
+.cg__plate { position: absolute; left: 280px; top: 135px; width: 1360px; height: 810px; background-size: 100% 100%; }
+.cg__list { position: absolute; left: 32px; top: 40px; width: 360px; display: flex; flex-direction: column; gap: 8px; }
+.cg__cat { height: 80px; display: flex; align-items: center; gap: 16px; padding: 0 16px; border-radius: 16px; font-size: 26px; font-weight: 600; transition: scale 500ms var(--ease-out); }
+.cg__cat img { width: 56px; height: 56px; }
+.cg__cat.is-focused { background: #e8e8e8; color: #000; font-weight: 700; scale: 1.04; box-shadow: var(--focus-shadow); transition-timing-function: var(--ease-elastic); }
+.cg__cat.is-selected { background: rgba(255, 255, 255, 0.1); color: #33adff; }
+.cg__detail { position: absolute; left: 432px; top: 56px; width: 420px; }
+.cg__intro { font-size: 28px; line-height: 42px; font-weight: 600; }
+.cg__methods { display: flex; gap: 8px; margin-top: 24px; }
+.cg__method { position: relative; height: 56px; min-width: 160px; font-size: 24px; }
+.cg__method.is-selected:not(.is-focused) { color: #33adff; }
+.cg__steps { margin: 32px 0 0; padding-left: 32px; font-size: 24px; line-height: 36px; color: rgba(255, 255, 255, 0.8); display: flex; flex-direction: column; gap: 16px; }
+.cg__open { position: relative; margin-top: 40px; width: 392px; height: 72px; }
+.cg__image { position: absolute; right: 24px; top: 55px; width: 479px; height: 700px; }
+
+/* ================= e-Manual loading ================= */
+.em__spinner { position: absolute; left: 912px; top: 468px; width: 96px; height: 96px; }
+.em__title { position: absolute; left: 0; top: 600px; width: 1920px; text-align: center; font-size: 32px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }

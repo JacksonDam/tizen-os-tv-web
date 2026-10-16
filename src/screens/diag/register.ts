@@ -7,6 +7,8 @@ import { SmartHubConnectionTest } from './SmartHubConnectionTest'
 import { HdmiTroubleshooting } from './HdmiTroubleshooting'
 import { SignalInfo } from './SignalInfo'
 import { RemoteGuide } from './RemoteGuide'
+import { ConnectionGuide } from './ConnectionGuide'
+import { EManual } from './EManual'
 
 registerApp('picture-test', PictureTest)                         // org.tizen.picture-test
 registerApp('sound-test', SoundTest)                             // org.tizen.sound-test
@@ -14,6 +16,8 @@ registerApp('smarthub-connection-test', SmartHubConnectionTest)  // org.tizen.sm
 registerApp('hdmi-troubleshooting', HdmiTroubleshooting)         // com.samsung.tv.hdmi-troubleshooting
 registerApp('signal-info', SignalInfo)                           // com.samsung.tv.broadcastingmenu ID=signal-information
 registerApp('remote-guide', RemoteGuide)                         // com.samsung.tv.remoteguide
+registerApp('connection-guide', ConnectionGuide)                 // org.tizen.connection-guide-app
+registerApp('emanual', EManual)                                  // org.tizen.emanual-app
 
 // Settings > Support > Tips and User Guides
 registerMenuPatch(m =>
