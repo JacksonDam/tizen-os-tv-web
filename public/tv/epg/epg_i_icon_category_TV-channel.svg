@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="40px" viewBox="0 0 40 40" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>epg_i_icon_category_TV(channel)</title>
+    <defs>
+        <linearGradient x1="100%" y1="172.069732%" x2="6.19660044%" y2="32.7794292%" id="linearGradient-1">
+            <stop stop-color="#BAE1FB" offset="0%"></stop>
+            <stop stop-color="#6D94C9" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="100%" y1="172.069732%" x2="6.19660044%" y2="32.7794292%" id="linearGradient-2">
+            <stop stop-color="#2C91D7" offset="0%"></stop>
+            <stop stop-color="#2C91D7" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Resource" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-41">
+            <rect id="Rectangle-Copy-7" x="0" y="0" width="40" height="40"></rect>
+            <path d="M28.3360853,5.34960852 L28.4727922,5.45663154 C29.1318019,6.02742095 29.1729901,6.93068826 28.5963565,7.54303742 L28.4727922,7.66144363 L22.309,13 L34.7195799,13 C35.4399803,13 35.9349992,13.5278519 35.9940625,14.0880276 L36,14.2003469 L36,32.8004625 C36,33.5200231 35.3602276,34 34.7195799,34 L5.2804201,34 C4.511993,34 4,33.4002313 4,32.8004625 L4,14.2003469 C4,13.4799769 4.64064765,13 5.2804201,13 L17.691,13 L11.5272078,7.66144363 C10.8242641,7.05260158 10.8242641,6.06547358 11.5272078,5.45663154 C12.1862175,4.88584212 13.2290924,4.85016778 13.9360853,5.34960852 L14.0727922,5.45663154 L20,10.5907088 L25.9272078,5.45663154 C26.5862175,4.88584212 27.6290924,4.85016778 28.3360853,5.34960852 Z" id="Combined-Shape" fill="url(#linearGradient-2)"></path>
+        </g>
+    </g>
+</svg>

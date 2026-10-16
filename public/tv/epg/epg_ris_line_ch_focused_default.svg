@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="136px" height="240px" viewBox="0 0 136 240" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>RIS/Line/epg_ris_line_ch_focused_default</title>
+    <g id="RIS/Line/epg_ris_line_ch_focused_default" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Default" transform="translate(-32, 0)">
+            <rect id="area" x="0" y="0" width="168" height="240"></rect>
+            <g transform="translate(81, 24.5823)">
+                <g id="1">
+                    <polyline id="Line" stroke="#EC5ECE" points="82 0 21.7352295 0 3 28.4176712"></polyline>
+                    <circle id="Dot" fill="#EC5ECE" fill-rule="nonzero" cx="3" cy="28.4176712" r="3"></circle>
+                </g>
+                <g id="5" transform="translate(29, 151.4177)">
+                    <polyline id="Line" stroke="#EC5ECE" points="53 41.2066345 22.5 41.2066345 3 3"></polyline>
+                    <circle id="Dot" fill="#EC5ECE" fill-rule="nonzero" cx="3" cy="3" r="3"></circle>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

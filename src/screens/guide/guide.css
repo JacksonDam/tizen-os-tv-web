@@ -1,0 +1,329 @@
+/* org.tizen.epg, the classic EU Guide, at 1920x1080 (spec3/guide.md). 1 FLUX unit = 8 px; FLUX text size
+   enum e -> (18 - e) x 4 px (spec2/livetv.md 0). */
+
+.gd {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: #07131b; /* CC_EPG_BG, registered by CAppWindow::GetWindow (HC #000) */
+  color: #fff;
+  overflow: hidden;
+}
+
+/* ---- header 35u: CC_BG210 strip (CBasicView::t_CreateEPGArea) ---- */
+.gd-header {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 280px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* PIG 65u x 35u, CC_BG2100 (CBasicView::t_CreateDetailInfoLayouts, CPIGArea::CreatePIG) */
+.gd-pig { position: absolute; left: 0; top: 0; width: 520px; height: 280px; background: #000; overflow: hidden; }
+.gd-pig__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+/* programme info box: 65u x 12u, CC_BG260, padding 3u; title 6u T24 600 CC_Basic1100; channel 4u T20 600
+   CC_Basic180 with a 2u gap (CPIGArea::t_CreateProgramInfoBox, t_CreateDesc*LineLayout) */
+.gd-pig__info {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 520px;
+  height: 96px;
+  padding: 4px 24px 12px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.6);
+}
+.gd-pig__title {
+  height: 48px;
+  line-height: 48px;
+  font-size: 24px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gd-pig__ch { display: flex; gap: 16px; height: 32px; line-height: 32px; font-size: 20px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+.gd-pig__num { flex: none; }
+.gd-pig__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* detail info: min 78u, max 108u wide, item gap 1u; title 9u (T48 600 CC_Basic190), info 5u (T24 400
+   CC_Basic160 with 2u x 5u divider items), description 16u (T24 400 CC_Basic160, multiline)
+   (CDetailInfoArea::t_CreateMainLayout, t_CreateProg*Layout) */
+.gd-detail {
+  position: absolute;
+  left: 584px; /* 65u + 8u padding (inferred) */
+  top: 8px;
+  width: 864px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.gd-detail__title-row { display: flex; align-items: center; gap: 16px; height: 72px; }
+.gd-detail__title {
+  font-size: 48px;
+  font-weight: 600;
+  line-height: 72px;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gd-detail__remind { flex: none; width: 56px; height: 56px; }
+.gd-detail__info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 40px;
+  font-size: 24px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+.gd-detail__sep { width: 2px; height: 20px; background: rgba(255, 255, 255, 0.3); }
+.gd-detail__progress { position: relative; width: 120px; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.gd-detail__progress span { position: absolute; left: 0; top: 0; bottom: 0; background: #fff; }
+.gd-detail__desc {
+  height: 128px;
+  font-size: 24px;
+  line-height: 32px;
+  color: rgba(255, 255, 255, 0.6);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* remote key guide: 17u x 35u remote art, 136 x 240 line art, 32u text column T16 400 CC_Basic1100
+   (CDarkThemeKeyGuide) */
+.gd-keys { position: absolute; right: 16px; top: 0; width: 392px; height: 280px; }
+.gd-keys__remote { position: absolute; left: 0; top: 0; width: 136px; height: 280px; }
+.gd-keys__lines { position: absolute; left: 0; top: 20px; width: 136px; height: 240px; }
+.gd-keys__texts { position: absolute; left: 136px; top: 0; width: 256px; height: 280px; }
+.gd-keys__text {
+  position: absolute;
+  left: 8px;
+  translate: 0 -50%;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+
+/* ---- band 16u: channel filter, CC_BG220, padding 4u / 3u, 10u button (CMainView::t_CreateChannelsListParentLayouts) ---- */
+.gd-band { position: absolute; left: 0; top: 280px; width: 1920px; height: 128px; background: rgba(0, 0, 0, 0.2); }
+.gd-filter {
+  position: absolute;
+  left: 32px;
+  top: 24px;
+  height: 80px;
+  min-width: 392px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-radius: 16px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+}
+.gd-filter img { width: 40px; height: 40px; }
+.gd-filter.is-focused { background: #fff; color: #000; font-weight: 700; box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85); }
+
+/* ---- grid 84u ---- */
+.gd-grid { position: absolute; left: 0; top: 408px; width: 1920px; height: 672px; }
+/* channel column header: epg_bg_chlist.9 (top 10u at 10% black) */
+.gd-chhead {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 520px;
+  height: 80px;
+  padding-left: 32px;
+  box-sizing: border-box;
+  line-height: 80px;
+  background: rgba(0, 0, 0, 0.1);
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.4);
+}
+/* time line bar 10u, CC_BG220, left padding 0.5u; tiles of 43u per 30 min with an epg_date_line divider
+   (CP_Stroke210) and T20 600 CC_Basic140 labels with 2u side padding (CTimeLineBar) */
+.gd-timebar { position: absolute; left: 520px; top: 0; width: 1400px; height: 80px; background: rgba(0, 0, 0, 0.2); overflow: hidden; }
+.gd-tick { position: absolute; top: 0; height: 80px; width: 344px; border-left: 1px solid rgba(0, 0, 0, 0.1); box-sizing: border-box; }
+.gd-tick span { position: absolute; left: 16px; top: 8px; line-height: 64px; font-size: 20px; font-weight: 600; color: rgba(255, 255, 255, 0.4); }
+
+.gd-rows { position: absolute; left: 0; top: 80px; width: 1920px; height: 592px; }
+.gd-row { position: absolute; left: 0; width: 1920px; height: 80px; box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.05); /* CC_Basic105 divider */ }
+
+/* channel button 65u x 10u: plate CC_BG200 / CC_BG1100 focused; padding 4u, gap 1u; no-logo plate 6u
+   CC_EPG_NO_LOGO #536B72 with T16 600 CP_Info190; number 13u T20 500 CP_Info170; name T28 400 CP_Info170
+   (CChannelsList::m_CreateChannelButton) */
+.gd-ch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 520px;
+  height: 80px;
+  padding: 0 32px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+}
+.gd-ch.is-focused { background: #fff; color: rgba(0, 0, 0, 0.7); }
+.gd-ch__logo {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #536b72;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  white-space: nowrap;
+}
+.gd-ch__num { flex: none; width: 104px; font-size: 20px; font-weight: 500; text-align: center; }
+.gd-ch__name { font-size: 28px; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gd-ch.is-tuned .gd-ch__name { font-weight: 600; }
+
+/* programme cells: rect plates CC_BG200 (focused CC_BG1100, no motion: button_disable_animation), on-air
+   plate CC_BG210 (inferred), 1 px CC_Basic105 dividers, T28 600 CP_Info1100 with 1u side padding
+   (CProgramView::m_CreateEventButton, m_CreateEventButtonContent) */
+.gd-progs { position: absolute; left: 520px; top: 0; width: 1400px; height: 80px; overflow: hidden; }
+.gd-prog {
+  position: absolute;
+  top: 0;
+  height: 80px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+.gd-prog.is-now { background: rgba(0, 0, 0, 0.1); }
+.gd-prog.is-focused { background: #fff; color: #000; }
+.gd-prog__icon { flex: none; width: 40px; height: 40px; }
+.gd-prog__title { font-size: 28px; font-weight: 600; line-height: 48px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* now line: epg_body_now_line.9 (#89E413 7 px marker, 1 px line) from 9u below the grid top (CTimeLine) */
+.gd-now { position: absolute; top: 72px; bottom: 32px; width: 9px; pointer-events: none; }
+.gd-now::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: 0;
+  border-left: 3.5px solid transparent;
+  border-right: 3.5px solid transparent;
+  border-top: 5px solid #89e413;
+}
+.gd-now::after { content: ''; position: absolute; left: 4px; top: 4px; bottom: 0; width: 1px; background: #89e413; }
+
+/* ---- popups ---- */
+.gd-popdim { position: absolute; inset: 0; z-index: 50; background: rgba(0, 0, 0, 0.5); /* CC_Dim50 */ }
+/* option list: 49u, CC_BG4100 #1F3959 round plate (2u), padding 1u, C_TextTile_SingleLine_02 10u items
+   (spec/flux.md 5.x option list) */
+.gd-opt {
+  position: absolute;
+  padding: 8px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #1f3959;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+  animation: gd-pop 200ms var(--ease-basic);
+}
+@keyframes gd-pop { from { opacity: 0; } }
+.gd-opt__item {
+  position: relative;
+  height: 80px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  border-radius: 16px;
+  font-size: 28px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: scale var(--dur-focus) var(--ease-out);
+}
+.gd-opt__item.is-focused {
+  background: #e8e8e8;
+  color: #000;
+  font-weight: 700;
+  scale: 1.08;
+  box-shadow: 0 5px 7px rgba(0, 0, 0, 0.85);
+  transition-timing-function: var(--ease-elastic);
+}
+.gd-opt__item.is-selected { color: #33adff; }
+.gd-opt__item.is-selected.is-focused { color: #0099ff; }
+.gd-opt__check { position: absolute; right: 24px; width: 32px; height: 32px; }
+
+/* View Details popup: 109u content (ug-program-detail-efl) */
+.gd-pd { width: 968px; }
+.gd-pd__props { width: 872px; display: flex; flex-direction: column; }
+.gd-pd__prop { height: 40px; line-height: 40px; font-size: 24px; color: rgba(255, 255, 255, 0.8); text-align: center; }
+.gd-pd__desc {
+  width: 808px;
+  max-height: 240px;
+  overflow: hidden;
+  font-size: 24px;
+  line-height: 40px;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+}
+.gd-pd__button { position: relative; width: auto; min-width: 240px; padding: 0 24px; }
+
+/* FLUX toast P_PopupToast_03 (spec/flux.md 5.13) */
+.gd-toast {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 60;
+  translate: -50% -50%;
+  min-width: 312px;
+  max-width: 880px;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), 0 5px 7px rgba(0, 0, 0, 0.85);
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  text-align: center;
+  animation: gd-pop 200ms var(--ease-basic);
+}
+
+/* Schedule Viewing reminder notification (org.tizen.reminder CNotificationBar; plate and position inferred) */
+.gd-remind {
+  position: absolute;
+  right: 64px;
+  top: 64px;
+  z-index: 70;
+  width: 720px;
+  padding: 24px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.9);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), 0 5px 7px rgba(0, 0, 0, 0.85);
+  color: #fff;
+  animation: gd-pop 300ms var(--ease-basic);
+}
+.gd-remind__head { display: flex; align-items: center; gap: 16px; height: 56px; }
+.gd-remind__icon { width: 56px; height: 56px; }
+.gd-remind__title { font-size: 28px; font-weight: 700; }
+.gd-remind__content { padding: 8px 0 0 72px; }
+.gd-remind__line { font-size: 24px; line-height: 36px; color: rgba(255, 255, 255, 0.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gd-remind__prog { color: #fff; font-weight: 600; }
+.gd-remind__msg { margin-top: 8px; font-size: 24px; line-height: 32px; color: rgba(255, 255, 255, 0.6); }
+.gd-remind__buttons { display: flex; gap: 16px; justify-content: flex-end; margin-top: 24px; height: 56px; }
+.gd-remind__button { position: relative; width: 200px; height: 56px; font-size: 24px; background: #000; box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15); }
