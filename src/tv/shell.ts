@@ -85,3 +85,16 @@ export function powerOnTarget(): PowerOnTarget {
   }
   return 'hub'
 }
+
+// ---- PIN prompt: the TV's PIN pad (feat/setup registers it) for rows and apps that ask for the PIN ----
+// requestPin resolves true once the right PIN is entered, false when the user backs out. Without a
+// registered PIN pad it resolves true.
+
+export type PinRequest = { title?: string; message?: string }
+let pinPrompt: ((r: PinRequest) => Promise<boolean>) | null = null
+export function registerPinPrompt(fn: (r: PinRequest) => Promise<boolean>) {
+  pinPrompt = fn
+}
+export function requestPin(r: PinRequest = {}): Promise<boolean> {
+  return pinPrompt ? pinPrompt(r) : Promise.resolve(true)
+}
