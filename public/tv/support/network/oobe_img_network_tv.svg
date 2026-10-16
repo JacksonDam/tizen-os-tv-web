@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="176px" height="144px" viewBox="0 0 176 144" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>oobe_img_network_tv</title>
+    <g id="oobe_img_network_tv" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Q,-wall" transform="translate(0.000000, 20.000000)">
+            <polygon id="Fill-1" fill="#000000" points="0 103 174 103 174 1 0 1"></polygon>
+            <polygon id="Fill-2" fill="#DAE9F2" points="0 103 174 103 174 0 0 0"></polygon>
+            <polygon id="Fill-3" fill="#BDD7F9" points="117.540583 61.3434453 0 80.5920158 0 82 175 69.7331215 175 47"></polygon>
+            <polygon id="Fill-4" fill="#7C95A3" points="0 78 175 78 175 77.2966529 110.639464 59.0889412 0 32"></polygon>
+            <polygon id="Fill-5" fill="#557387" points="174.272243 55 168.207631 56.0422418 152.431451 59.1792368 135.559123 61.650282 113.79345 63.389546 102.796301 69.7617564 84 72.8958548 84 79 176 79 176 55"></polygon>
+            <polygon id="Fill-6" fill="#7D9DAA" points="0 103 175 103 175 68 0 68"></polygon>
+            <polygon id="Fill-7" fill="#8FAFBC" points="0 68 0 76 175 69.5167708 175 68"></polygon>
+            <polygon id="Fill-8" fill="#4C6F89" points="171.076144 80 162.578505 80.9581451 140.472175 85.9995031 114.814521 89.6473647 70.6466738 90.701723 36.276824 95.9636803 0 99.8688191 0 103 175 103 175 80"></polygon>
+            <polygon id="Fill-9" fill="#2C4958" points="0 72 175 72 175 68.6814578 145.612225 66.1725631 129.777582 66.1725631 92.7551398 63.2657739 35.976196 56.6628023 8.55548434 52.7491505 0 52"></polygon>
+            <polygon id="Fill-10" fill="#D0E8EF" points="0 1 0 25.3616142 175 37 175 1"></polygon>
+            <polygon id="Fill-11" fill="#FF523E" points="122.615601 54 124.393677 54 125 64 122 64"></polygon>
+            <g id="Group-20" transform="translate(0.000000, 17.000000)">
+                <path d="M123.591897,39.1905451 C123.918688,39.1905451 124.183532,38.9204594 124.183532,38.5875023 C124.183532,38.2540212 123.918688,37.9844594 123.591897,37.9844594 C123.264845,37.9844594 123,38.2540212 123,38.5875023 C123,38.9204594 123.264845,39.1905451 123.591897,39.1905451" id="Fill-12" fill="#FFFFFF"></path>
+                <polygon id="Fill-14" fill="#F7F7F7" points="171.128898 18.202402 0.237257632 0.34950529 0.237257632 13.0584625 74.663814 15.7367899"></polygon>
+                <polygon id="Fill-16" fill="#6B8A99" points="176 86.4588071 176 65.718535 172.338999 65.718535 158.14796 68.3397542 142.509894 75.7583335 106.221162 76.6917139 67.7803948 76.6917139 36.7341459 83.5441874 0 83.5441874 0 86.4588071"></polygon>
+            </g>
+            <path d="M175,1 L175,103 L1,103 L1,1 L175,1 Z" id="Path" stroke="#4C566D" stroke-width="2"></path>
+        </g>
+        <rect id="Rectangle" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="176" height="144"></rect>
+    </g>
+</svg>

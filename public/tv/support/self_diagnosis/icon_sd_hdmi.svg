@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="64px" height="64px" viewBox="0 0 64 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>item/icon_sd_hdmi</title>
+    <g id="item/icon_sd_hdmi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="area" x="0" y="0" width="64" height="64"></rect>
+        <g id="Group-4" transform="translate(8, 24)" stroke="#FFFFFF">
+            <line x1="6.0003" y1="8" x2="42.0003" y2="8" id="Stroke-1" stroke-width="2"></line>
+            <path d="M0.552,0 L47.449,0 C47.753,0 48,0.239 48,0.534 L48,8.001 C48,12.419 44.295,16 39.725,16 L8.275,16 C3.705,16 -6.66133815e-16,12.419 -6.66133815e-16,8.001 L-6.66133815e-16,0.534 C-6.66133815e-16,0.239 0.247,0 0.552,0 Z" id="Stroke-2" stroke-width="3"></path>
+        </g>
+    </g>
+</svg>

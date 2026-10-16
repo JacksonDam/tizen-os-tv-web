@@ -1,23 +1,50 @@
 import { useEffect, useState } from 'react'
-import { useRemote } from '../../input/remote'
+import { useRemote, type RemoteKey } from '../../input/remote'
 import { useMoveSound } from '../../tv/sound'
 import { TV } from '../../assets'
 import type { AppProps } from '../../apps/registry'
 import { DEVICE_CARE as D } from './supportData'
+import { SelfDiagnosis } from '../diag/SelfDiagnosis'
+import { SelfDiagnosisAll, type SDAllMode } from '../diag/SelfDiagnosisAll'
+import { ManageStorage } from '../diag/ManageStorage'
+import { KeyLayer } from '../diag/ui'
+import { SmartHubReset } from '../diag/SmartHubReset'
+import { SD_APP_ID, prepareRun, type SDItem } from '../diag/sdData'
 import './device-care.css'
 
-// Device Care (com.samsung.SelfDiagnosis, spec2/device-sources-home.md A.5): full-screen FLUX app.
-// Checking (2.1 s) -> Home -> [Start Device Care] Progress (10 checks, about 16.5 s) -> No issues.
-// It was launched with exitmenu=1, so leaving it returns to live TV.
+// Device Care (com.samsung.SelfDiagnosis, spec2/device-sources-home.md A.5, spec3/diag.md): full-screen
+// FLUX app. Checking (2.1 s) -> Home -> [Start Device Care] Progress (10 checks, about 16.5 s) -> No issues;
+// Home's option row opens Manage Storage and Self Diagnosis (stacked views), Request Support (disabled)
+// and Reset Smart Hub (org.tizen.smarthub-reset). It was launched with exitmenu=1, so leaving it returns
+// to live TV. The test apps come back with args: view=selfdiag (focus=<item>), view=sdall (action=...)
+// or view=home (focus=reset), like SDLaunchControl's launch_mech / UserData.
 
 const TIME_SCALE = 1 // 0.5 = twice as fast (all timers below are multiplied by it)
 const RES = `${TV}/support`
 
-type View = 'checking' | 'home' | 'progress' | 'result'
+type View = 'checking' | 'home' | 'progress' | 'result' | 'storage' | 'selfdiag' | { sdall: SDAllMode }
 
-export function DeviceCare({ onExit }: AppProps) {
-  const [view, setView] = useState<View>('checking')
+function initialStack(args?: Record<string, string>): View[] {
+  if (args?.view === 'selfdiag') return ['home', 'selfdiag']
+  if (args?.view === 'sdall') return ['home', 'selfdiag', { sdall: { type: 'all', resume: args.action as 'Complete' | 'Skip' | 'Stop' } }]
+  if (args?.view === 'home') return ['home']
+  return ['checking']
+}
+
+export function DeviceCare({ onExit, args, launch }: AppProps) {
+  const [stack, setStack] = useState<View[]>(() => initialStack(args))
+  const view = stack[stack.length - 1]
+  const setView = (v: View) => setStack(s => [...s.slice(0, -1), v])
+  const push = (v: View) => setStack(s => [...s, v])
+  const pop = () => setStack(s => (s.length > 1 ? s.slice(0, -1) : s))
   const [toast, setToast] = useState(0) // bumps to (re)show "This function isn't available."
+  const [resetting, setResetting] = useState(false) // org.tizen.smarthub-reset over Device Care
+  const [focusName, setFocusName] = useState(args?.view === 'selfdiag' ? args.focus : undefined)
+  // Home option button that opened the current sub-view (lastSelectedButton)
+  const [homeFocus, setHomeFocus] = useState(() => (args?.view === 'home' && args.focus === 'reset' ? 3 : args?.view ? 1 : -1))
+
+  const launchTest = (item: SDItem, extra: Record<string, string>) =>
+    launch(item.app!, { launchedFrom: SD_APP_ID, ...extra })
 
   useEffect(() => {
     if (!toast) return
@@ -25,24 +52,71 @@ export function DeviceCare({ onExit }: AppProps) {
     return () => clearTimeout(t)
   }, [toast])
 
-  // Exit/Home are not captured: the app closes (Home lets the TV open the Smart Hub)
-  useRemote(key => {
+  // Exit/Home are not captured: the app closes (Home lets the TV open the Smart Hub). Rendered as the
+  // first child so the views above it see keys first (KeyLayer).
+  const rootKeys = (key: RemoteKey) => {
     if (key === 'Home') return false
     if (key === 'Exit') onExit('live')
     return true
-  })
+  }
 
   return (
     <div className="dc" style={{ backgroundImage: `url(${RES}/i_img_bg_tile.webp)` }}>
-      <div className="dc__header">
-        <div className="dc__header-title">{D.title}</div>
-      </div>
+      <KeyLayer handler={rootKeys} />
+      {/* C_Header_01 on the Device Care views only; Self Diagnosis and Manage Storage have their own tops */}
+      {(view === 'checking' || view === 'home' || view === 'progress' || view === 'result') && (
+        <div className="dc__header">
+          <div className="dc__header-title">{D.title}</div>
+        </div>
+      )}
       {view === 'checking' && <Checking onDone={() => setView('home')} onBack={() => onExit('live')} />}
       {view === 'home' && (
-        <Home onStart={() => setView('progress')} onBack={() => onExit('live')} onUnavailable={() => setToast(t => t + 1)} />
+        <Home
+          initialFocus={homeFocus}
+          onStart={() => setView('progress')}
+          onBack={() => onExit('live')}
+          onUnavailable={() => setToast(t => t + 1)}
+          onOption={(id, i) => {
+            setHomeFocus(i)
+            if (id === 'storage') push('storage')
+            else if (id === 'selfdiag') {
+              setFocusName(undefined)
+              push('selfdiag')
+            } else if (id === 'reset') setResetting(true)
+          }}
+        />
       )}
       {view === 'progress' && <Progress onDone={() => setView('result')} onBack={() => setView('home')} />}
       {view === 'result' && <Result onDone={() => setView('home')} />}
+      {view === 'storage' && <ManageStorage onBack={pop} />}
+      {view === 'selfdiag' && (
+        <SelfDiagnosis
+          focusName={focusName}
+          onBack={pop}
+          onRunItem={item => push({ sdall: { type: 'individual', item } })}
+          onLaunch={item => launchTest(item, { DiagnosisType: 'Individual' })}
+          onTestAll={() => {
+            prepareRun()
+            push({ sdall: { type: 'all' } })
+          }}
+        />
+      )}
+      {typeof view === 'object' && (
+        <SelfDiagnosisAll
+          key={JSON.stringify(view.sdall.type === 'individual' ? view.sdall.item.name : view.sdall)}
+          mode={view.sdall}
+          onClose={() => {
+            if (view.sdall.type === 'individual') setFocusName(view.sdall.item.name)
+            pop()
+          }}
+          onLaunch={(item, current, total) =>
+            launchTest(item, { DiagnosisType: 'DiagnoseAll', currentDiagnosisCount: String(current), totalDiagnosisCount: String(total) })
+          }
+          onSignalInfo={() => launch('signal-info', { PrevSubmenu: SD_APP_ID, DiagnosisType: 'Individual' })}
+          onUpdateNow={() => launch('swu', { MainAppType: 'UpgradeSearch' })}
+        />
+      )}
+      {resetting && <SmartHubReset onDone={() => setResetting(false)} />}
       {toast > 0 && <div key={toast} className="dc-toast">{D.unavailable}</div>}
     </div>
   )
@@ -103,8 +177,16 @@ function StatusBlock({ className }: { className: string }) {
 
 // ---- Home view (A.5.4): status, Start Device Care, option row ----
 
-function Home({ onStart, onBack, onUnavailable }: { onStart: () => void; onBack: () => void; onUnavailable: () => void }) {
-  const [focus, setFocus] = useState(-1) // -1 = Start Device Care, 0.. = option buttons
+type HomeProps = {
+  initialFocus: number
+  onStart: () => void
+  onBack: () => void
+  onUnavailable: () => void
+  onOption: (id: string, index: number) => void
+}
+
+function Home({ initialFocus, onStart, onBack, onUnavailable, onOption }: HomeProps) {
+  const [focus, setFocus] = useState(initialFocus) // -1 = Start Device Care, 0.. = option buttons
   useMoveSound(focus)
   const last = D.options.length - 1
   useRemote(key => {
@@ -117,7 +199,10 @@ function Home({ onStart, onBack, onUnavailable }: { onStart: () => void; onBack:
       if (key === 'Up') setFocus(-1)
       else if (key === 'Left') setFocus(Math.max(0, focus - 1))
       else if (key === 'Right') setFocus(Math.min(last, focus + 1))
-      else if (key === 'Enter' && D.options[focus].disabled) onUnavailable()
+      else if (key === 'Enter') {
+        if (D.options[focus].disabled) onUnavailable()
+        else onOption(D.options[focus].id, focus)
+      }
     }
     return true
   })

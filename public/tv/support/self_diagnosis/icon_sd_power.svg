@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="51px" height="54px" viewBox="0 0 51 54" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_sd_power</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon_sd_power" transform="translate(1.000000, 0.000000)">
+            <path d="M0.636121651,28.158 C0.636121651,27.4669474 0.664665572,26.7827368 0.723112647,26.1067368" id="Stroke-1" stroke="#FFFFFF" stroke-width="3"></path>
+            <path d="M1.37051594,22.2431368 C3.17965679,15.1081895 8.18435748,9.26092632 14.760333,6.33797895" id="Stroke-3" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="3.895040111541748,3.895040111541748"></path>
+            <path d="M16.5595515,5.62530526 C17.1983916,5.40225263 17.850824,5.20656842 18.5127711,5.03825263" id="Stroke-5" stroke="#FFFFFF" stroke-width="3"></path>
+            <path d="M4.68065923,41.4883368 C2.12665798,37.6827579 0.635577958,33.0958105 0.635577958,28.1585474" id="Stroke-7" stroke="#FFFFFF" stroke-width="3" stroke-dasharray="14.04879989624023"></path>
+            <path d="M33.9754205,6.38231579 C42.2409243,10.1030526 48,18.4531579 48,28.158 C48,41.3249474 37.3979725,52 24.3180608,52 C16.1436258,52 8.93696551,47.8304211 4.68120292,41.4877895" id="Stroke-9" stroke="#FFFFFF" stroke-width="3"></path>
+            <polyline id="Stroke-11" stroke="#FFFFFF" stroke-width="3" points="43.0431444 4.87062105 33.1302486 4.87062105 33.1302486 14.8505158"></polyline>
+            <path d="M25.2970709,19.1578947 L24.106827,19.1578947 C23.6063392,19.1578947 23.2014612,18.59 23.2014612,17.8893684 L23.2014612,1.26852632 C23.2014612,0.567894737 23.6063392,0 24.106827,0 L25.2970709,0 C25.7965831,0 26.2014612,0.567894737 26.2014612,1.26852632 L26.2014612,17.8893684 C26.2014612,18.59 25.7965831,19.1578947 25.2970709,19.1578947" id="Fill-13" fill="#FFFFFF"></path>
+        </g>
+    </g>
+</svg>

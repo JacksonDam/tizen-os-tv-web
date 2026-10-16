@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="51px" height="51px" viewBox="0 0 51 51" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_sd_pic</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon_sd_pic" transform="translate(2.000000, 2.000000)" stroke="#FFFFFF">
+            <rect id="Rectangle" stroke-width="3" x="0" y="0" width="47" height="47" rx="1"></rect>
+            <circle id="Oval" stroke-width="2" cx="14.5" cy="12.5" r="5.5"></circle>
+            <path d="M1,37 L15.306,23.1402841 C15.536,22.9140516 15.90975,22.9200051 16.13975,23.1462376 L22.2865,29.2902354 C22.5165,29.5164678 22.712,29.7188864 22.72925,29.7367468 C22.7465,29.7546073 22.77525,29.7546073 22.78675,29.7367468 C22.79825,29.7188864 22.9995,29.5224213 23.2295,29.2902354 L35.27575,17.1689374 C35.5,16.9427049 35.868,16.9427049 36.09225,17.1748909 L47,28.6293984" id="Path" stroke-width="2" stroke-linecap="round"></path>
+        </g>
+    </g>
+</svg>
