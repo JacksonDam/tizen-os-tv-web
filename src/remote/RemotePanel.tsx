@@ -23,6 +23,16 @@ const ROW2: B[] = [
   { key: 'ChannelList', label: 'Ch. List', kbd: 'L' },
   { key: 'Exit', label: 'Exit', kbd: 'X' },
 ]
+const ROW3: B[] = [
+  { key: 'Guide', label: 'Guide', kbd: 'G' },
+  { key: 'More', label: '123', kbd: 'N' },
+]
+const COLOURS: B[] = [
+  { key: 'Red', label: 'Red', kbd: 'F1', cls: 'rc-btn--red' },
+  { key: 'Green', label: 'Green', kbd: 'F2', cls: 'rc-btn--green' },
+  { key: 'Yellow', label: 'Yellow', kbd: 'F3', cls: 'rc-btn--yellow' },
+  { key: 'Blue', label: 'Blue', kbd: 'F4', cls: 'rc-btn--blue' },
+]
 
 function Btn({ b }: { b: B }) {
   return (
@@ -91,6 +101,12 @@ export function RemotePanel() {
           </div>
         </div>
         <div className="rc-row">{ROW2.map(b => <Btn key={b.key} b={b} />)}</div>
+        <div className="rc-row">{ROW3.map(b => <Btn key={b.key} b={b} />)}</div>
+        <div className="rc-row rc-colours">
+          {COLOURS.map(b => (
+            <button key={b.key} className={`rc-colour ${b.cls}`} title={`${b.label} (${b.kbd})`} aria-label={b.label} onClick={() => pressKey(b.key)} />
+          ))}
+        </div>
       </div>
     </aside>
   )

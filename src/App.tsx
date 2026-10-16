@@ -12,6 +12,7 @@ import './apps'
 import { onAnyKey, useFallbackKeys, useSystemKeys, type RemoteKey } from './input/remote'
 import { getTv, setTv, tuneChannel, useTv } from './tv/store'
 import { playFeedback } from './tv/sound'
+import { OVERLAYS, TV_KEY_HANDLERS, powerOnTarget, setShellView, shell } from './tv/shell'
 
 // The TV: live picture at the bottom; the Smart Hub (csfs), the All Settings card and full-screen apps
 // above it; tv-viewer's and volume-app's overlays on top. Keys the apps do not consume reach the TV here.
@@ -59,17 +60,32 @@ export default function App() {
   }
   const hideHub = () => setHub(h => ({ ...h, visible: false }))
 
+  // Power on: the power-on animation, then what the power-on hooks choose (default the Smart Hub).
+  const powerOn = () => {
+    setTv({ power: 'on' })
+    homeSounded.current = false
+    setBooting(true)
+    const t = powerOnTarget()
+    if (t === 'hub') showHub()
+    else if (t === 'live') toLive()
+    else launch(t.app, t.args)
+  }
+  const toLive = () => {
+    hideHub()
+    setSettings(null)
+    setApp(null)
+    setInfo(0)
+  }
+  const restartTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  useEffect(() => () => clearTimeout(restartTimer.current), [])
+
   // ---- system keys: volume, mute, power (volume-app and the power manager work over every app) ----
   useSystemKeys(key => {
     const tv = getTv()
     if (key === 'Power') {
+      clearTimeout(restartTimer.current)
       if (tv.power === 'on') setTv({ power: 'standby' }) // no power-off sound on a home TV
-      else {
-        setTv({ power: 'on' })
-        homeSounded.current = false
-        setBooting(true)
-        showHub()
-      }
+      else powerOn()
       return true
     }
     if (tv.power !== 'on') return true
@@ -85,6 +101,7 @@ export default function App() {
   useFallbackKeys((key: RemoteKey) => {
     const tv = getTv()
     if (tv.power !== 'on') return true
+    for (const h of TV_KEY_HANDLERS) if (h(key)) return true // feature modules (Guide, 123 pad...)
     const live = !hub.visible && !settings && !app
     switch (key) {
       case 'Home':
@@ -206,6 +223,31 @@ export default function App() {
   const live = power === 'on' && !hub.visible && !settings && !app
   const on = power === 'on'
 
+  // the shell API for feature modules (src/tv/shell.ts)
+  Object.assign(shell, {
+    launch: (id: string, args?: Record<string, string>) => launch(id, args),
+    showHub,
+    openSettings: (target?: string) => {
+      hideHub()
+      setApp(null)
+      setInfo(0)
+      setSettings({ target })
+    },
+    toLive,
+    standby: () => {
+      clearTimeout(restartTimer.current)
+      setTv({ power: 'standby' })
+    },
+    restart: () => {
+      clearTimeout(restartTimer.current)
+      setTv({ power: 'standby' })
+      restartTimer.current = setTimeout(powerOn, 1500)
+    },
+  })
+  useEffect(() => {
+    setShellView({ live, hub: on && hub.visible, settings: on && !!settings, app: on && app ? app.id : null })
+  })
+
   return (
     <div className="shell">
       <Stage>
@@ -237,6 +279,7 @@ export default function App() {
         {on && live && !switching && sourceBanner > 0 && (
           <SourceBanner seq={sourceBanner} onHidden={() => setSourceBanner(0)} />
         )}
+        {on && OVERLAYS.map(o => <o.component key={o.id} />)}
         {on && volume > 0 && <VolumeOsd seq={volume} />}
         {booting && <PowerOn onDone={() => setBooting(false)} />}
         {!on && <div className="standby" />}

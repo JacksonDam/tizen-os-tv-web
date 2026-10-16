@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRemote, isNavKey } from '../../input/remote'
 import type { MenuItem } from './menuData'
-import { MENU } from './menu'
+import { getMenu } from './menu'
 import { GADGETS, POPUPS, type SettingsHost } from './extensions'
 import './all-settings.css'
 import { TV } from '../../assets'
@@ -23,6 +23,7 @@ type Props = {
 type Page = { item: MenuItem | null; focus: number } // item null = root page
 
 export function AllSettings({ target, onClose, onLaunchApp }: Props) {
+  const MENU = getMenu()
   const initial = useMemo<Page[]>(() => {
     const root: Page = { item: null, focus: 1 } // default focus: the Search field
     const t = target && MENU.find(m => m.id === target)
@@ -208,6 +209,7 @@ function RootPage({ focus }: { focus: number }) {
   // Focusing the account/search group shows the top; a category scrolls the header away (208 px)
   // so all six categories fill the 624 px viewport.
   const scroll = focus >= 2 ? 208 : 0
+  const MENU = getMenu()
   return (
     <div className="as-root">
       <div className="as-root__list" style={{ transform: `translateY(${-scroll}px)` }}>

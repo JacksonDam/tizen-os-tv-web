@@ -6,6 +6,9 @@ export type RemoteKey =
   | 'Up' | 'Down' | 'Left' | 'Right' | 'Enter' | 'Back' | 'Home' | 'Exit'
   | 'ChannelUp' | 'ChannelDown' | 'VolumeUp' | 'VolumeDown' | 'Mute'
   | 'Info' | 'Source' | 'ChannelList' | 'Settings' | 'Power'
+  | 'Guide'                              // XF86ChannelGuide
+  | 'More'                               // XF86More: the 123 / colour button (virtual numeric pad)
+  | 'Red' | 'Green' | 'Yellow' | 'Blue'  // colour keys
   | DigitKey
 
 // Keyboard mapping. Mirrors the QEMU setup used to drive the real firmware
@@ -35,6 +38,12 @@ const KEYMAP: Record<string, RemoteKey> = {
   l: 'ChannelList',
   q: 'Settings',
   p: 'Power',
+  g: 'Guide',
+  n: 'More',
+  F1: 'Red',
+  F2: 'Green',
+  F3: 'Yellow',
+  F4: 'Blue',
 }
 for (let d = 0; d <= 9; d++) KEYMAP[String(d)] = `Digit${d}` as DigitKey
 
@@ -66,9 +75,22 @@ export function isNavKey(key: RemoteKey) {
   return NAV_KEYS.has(key)
 }
 
+// Text entry: while a text field (the on-screen keyboard) has the focus, a physical keyboard types into
+// it. The capture function gets every keydown first and returns true when it used the key (printable
+// characters); arrows, Enter, Esc and the rest still reach the remote mapping.
+type TextCapture = (e: KeyboardEvent) => boolean
+let textCapture: TextCapture | null = null
+export function setTextCapture(fn: TextCapture | null) {
+  textCapture = fn
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('keydown', e => {
     if (e.metaKey || e.ctrlKey || e.altKey) return
+    if (textCapture?.(e)) {
+      e.preventDefault()
+      return
+    }
     const key = KEYMAP[e.key]
     if (!key) return
     e.preventDefault()

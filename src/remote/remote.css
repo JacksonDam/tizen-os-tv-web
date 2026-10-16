@@ -101,3 +101,11 @@
   .rc { display: none; }
   .rc-show { display: none; }
 }
+
+.rc-colours { justify-content: center; gap: 10px; }
+.rc .rc-colour { width: 26px; height: 14px; border-radius: 7px; flex: none; }
+.rc-btn--red { background: #d9433c; }
+.rc-btn--green { background: #3fa34d; }
+.rc-btn--yellow { background: #e0b62d; }
+.rc-btn--blue { background: #3a6fd8; }
+.rc .rc-colour:hover { filter: brightness(1.2); }
