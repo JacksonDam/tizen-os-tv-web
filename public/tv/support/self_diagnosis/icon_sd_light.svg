@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="67px" height="69px" viewBox="0 0 67 69" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_sd_light</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon_sd_light" transform="translate(0.000000, 0.000000)" stroke="#FFFFFF" stroke-width="3">
+            <circle id="Oval-Copy-5" cx="31" cy="29" r="13"></circle>
+            <line x1="30.5" y1="0.392857143" x2="30.5" y2="10.6071429" id="Line-6-Copy-4"></line>
+            <line x1="50" y1="8" x2="44" y2="14" id="Line-6-Copy-5"></line>
+            <line x1="17" y1="43" x2="11" y2="49" id="Line-6-Copy-6"></line>
+            <line x1="53.5" y1="22" x2="53.5" y2="33" id="Line-6-Copy-7" transform="translate(53.500000, 27.500000) rotate(-270.000000) translate(-53.500000, -27.500000) "></line>
+            <line x1="5.5" y1="22" x2="5.5" y2="33" id="Line-6-Copy-8" transform="translate(5.500000, 27.500000) rotate(-270.000000) translate(-5.500000, -27.500000) "></line>
+            <line x1="17" y1="14" x2="11" y2="8" id="Line-6-Copy-9"></line>
+            <g id="Group-14" transform="translate(40.835023, 49.563548) rotate(-297.000000) translate(-40.835023, -49.563548) translate(32.778897, 26.967501)">
+                <path d="M1.13686838e-13,7.26729308 C8.64298803,15.4583602 8.64298803,28.7335379 1.13686838e-13,36.9246049" id="Path"></path>
+                <path d="M6.02347078,0 C19.4751801,12.4772548 19.4751801,32.7148395 6.02347078,45.1920943" id="Path"></path>
+            </g>
+        </g>
+    </g>
+</svg>

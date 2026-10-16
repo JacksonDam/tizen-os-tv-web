@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="16px" viewBox="0 0 40 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>oobe_icon_network_connect_3</title>
+    <g id="oobe_icon_network_connect_3" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-6">
+            <rect id="Rectangle-Copy-18" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="40" height="16"></rect>
+            <path d="M37,8 C37,9.6562963 35.6568889,11 34,11 C32.3431111,11 31,9.6562963 31,8 C31,6.34311111 32.3431111,5 34,5 C35.6568889,5 37,6.34311111 37,8" id="Fill-1-Copy-4" fill="#1357E2"></path>
+            <path d="M23,8 C23,9.6562963 21.6568889,11 20,11 C18.3431111,11 17,9.6562963 17,8 C17,6.34311111 18.3431111,5 20,5 C21.6568889,5 23,6.34311111 23,8" id="Fill-4-Copy-4" fill="#1357E2"></path>
+            <path d="M9,8 C9,9.6562963 7.6557037,11 6,11 C4.34251852,11 3,9.6562963 3,8 C3,6.34311111 4.34251852,5 6,5 C7.6557037,5 9,6.34311111 9,8" id="Fill-6-Copy-4" fill="#1357E2"></path>
+        </g>
+        <rect id="Rectangle" fill-opacity="0" fill="#D8D8D8" x="0" y="0" width="40" height="16"></rect>
+    </g>
+</svg>

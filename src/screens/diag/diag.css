@@ -1,0 +1,305 @@
+/* Device Care sub-views and the Self Diagnosis test apps (spec3/diag.md). Stage pixels at 1920x1080;
+   1 FLUX unit = 8 px. Colour chips from PRINCIPLE/COLOR_TABLE/principle_colortable.json. */
+
+/* ---- FLUX full-screen app background ---- */
+.sd-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  background: #090f16 url('/tv/support/i_img_bg_tile.webp') repeat-x;
+  background-size: 40px 100%;
+  animation: sd-fade 200ms var(--ease-basic);
+}
+@keyframes sd-fade { from { opacity: 0; } }
+
+/* ---- SDOption Text2 row: 49 x 9 u buttons, gap 1 u, centred ---- */
+.sd-options { position: absolute; left: 0; width: 1920px; display: flex; justify-content: center; gap: 8px; }
+.sd-options__btn { position: relative; width: 392px; height: 72px; }
+
+/* ---- popups (spec/flux.md 5.12) ---- */
+.sd-popup { position: absolute; inset: 0; z-index: 100; }
+.sd-popup__dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); animation: sd-fade 200ms var(--ease-basic); }
+.sd-popup__area {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 968px;              /* P_PopupBasicBottom_02: 121 x 55 u */
+  min-height: 440px;
+  translate: -50% -50%;
+  box-sizing: border-box;
+  padding: 40px 48px 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  animation: sd-fade 200ms var(--ease-basic), sd-scale 500ms var(--ease-elastic);
+}
+@keyframes sd-scale { from { scale: 0.95; } }
+.sd-popup--leaving .sd-popup__dim,
+.sd-popup--leaving .sd-popup__area { opacity: 0; transition: opacity 200ms var(--ease-basic), scale 500ms var(--ease-out); }
+.sd-popup--leaving .sd-popup__area { scale: 0.95; }
+.sd-popup__message {
+  flex: 1;
+  width: 872px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8); /* CC_Basic180 */
+  white-space: pre-line;
+}
+.sd-popup__buttons { display: flex; gap: 8px; padding-top: 16px; }
+/* C_ButtonBasicText_02, CP_Plane_PopupBTN_FS: black plate, CC_Basic115 stroke, T24; 30 x 7 u */
+.sd-popup__button {
+  position: relative;
+  min-width: 240px;
+  height: 56px;
+  font-size: 24px;
+  background: #000;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+/* P_PopupLargeRight_01 + CustomList: 161 x 85 u, list 104 x 73 u, button column 34 x 7 u */
+.sd-popup__area--right { width: 1288px; height: 680px; flex-direction: row; align-items: flex-start; gap: 64px; }
+.sd-popup__list {
+  width: 832px;
+  height: 584px;
+  box-sizing: border-box;
+  padding: 24px 0 0 24px;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+.sd-popup__row {
+  display: flex;
+  align-items: center;
+  height: 72px;              /* TextTileSingleLine 9 u */
+  width: 784px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  font-size: 28px;
+  font-weight: 600;
+  transition: scale 500ms var(--ease-out);
+}
+.sd-popup__row-main { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sd-popup__row-sub { font-weight: 400; color: rgba(255, 255, 255, 0.8); }
+.sd-popup__row.is-focused { background: #e8e8e8; color: #000; font-weight: 700; scale: 1.02; }
+.sd-popup__row.is-focused .sd-popup__row-sub { color: rgba(0, 0, 0, 0.8); }
+.sd-popup__buttons--column { flex-direction: column; padding-top: 0; justify-content: flex-start; }
+.sd-popup__buttons--column .sd-popup__button { width: 272px; }
+.sd-popup__area--custom { min-height: 0; }
+.sd-popup__area--small { width: 712px; min-height: 0; padding: 56px 48px; gap: 24px; } /* P_PopupSmallBottom_01 */
+
+/* ---- toast (P_PopupToast_03) ---- */
+.sd-toast {
+  position: absolute;
+  z-index: 110;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  min-width: 312px;
+  max-width: 880px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), var(--focus-shadow);
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  text-align: center;
+  animation: sd-fade 200ms var(--ease-basic);
+}
+
+/* ================= Self Diagnosis (SDSelfDiagnosisView) ================= */
+.sd { position: absolute; inset: 0; }
+.sd__title {
+  position: absolute; left: 204px; top: 104px; width: 1512px; height: 144px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 60px; font-weight: 700;
+}
+.sd__subtitle {
+  position: absolute; left: 204px; top: 248px; width: 1512px; height: 144px;
+  text-align: center; font-size: 28px; line-height: 48px; font-weight: 400;
+  color: rgba(255, 255, 255, 0.8);
+}
+.sd__summary { position: absolute; left: 44px; top: 418px; width: 480px; height: 440px; }
+.sd__ring { position: absolute; left: 88px; top: 8px; width: 304px; height: 304px; }
+.sd__ring svg { position: absolute; inset: 0; }
+.sd__ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.sd__ring-done { height: 88px; line-height: 88px; font-size: 60px; font-weight: 700; color: #33adff; } /* CP_Point3100 */
+.sd__ring-total { height: 56px; line-height: 56px; font-size: 40px; font-weight: 600; }
+.sd__legend { position: absolute; left: 0; top: 328px; width: 480px; }
+.sd__legend-row { display: flex; justify-content: center; gap: 8px; height: 40px; line-height: 40px; font-size: 24px; font-weight: 600; }
+.sd__legend-label { width: 304px; text-align: right; white-space: nowrap; }
+.sd__legend-num { width: 40px; text-align: left; }
+.sd__legend-num--normal { color: #0271ff; }  /* CC_Point8100 */
+.sd__legend-num--action { color: #e02f3e; }  /* CC_Point5100 */
+.sd__legend-left { height: 32px; line-height: 32px; text-align: center; font-size: 20px; font-weight: 400; color: rgba(255, 255, 255, 0.5); }
+.sd__divider { position: absolute; left: 559px; top: 426px; width: 2px; height: 424px; background: rgba(255, 255, 255, 0.1); }
+.sd__grid { position: absolute; left: 596px; top: 418px; width: 1256px; height: 496px; overflow: hidden; }
+.sd__grid-track { position: absolute; left: 72px; top: 48px; transition: transform 500ms var(--ease-scroll); }
+.sd__scrollbar { position: absolute; left: 72px; right: 24px; bottom: 16px; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.1); }
+.sd__scrollbar-thumb { position: absolute; top: 0; height: 4px; border-radius: 2px; background: rgba(255, 255, 255, 0.5); transition: left 500ms var(--ease-scroll); }
+
+/* C_ImageTileBottom_06: 22 x 20 u; round ImageTileBasic 13 u plate (CP_Plane220_Tile_FS), 8 u icon
+   tinted CP_Info1100, 4 u badge at the plate's top right, T24 label (stays white when focused) */
+.sd-tile { position: absolute; width: 176px; height: 160px; }
+.sd-tile__plate {
+  position: absolute; left: 36px; top: 4px; width: 104px; height: 104px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1);
+  transition: scale 500ms var(--ease-out);
+}
+.sd-tile__icon {
+  position: absolute; left: 20px; top: 20px; width: 64px; height: 64px;
+  background: #fff;
+  mask-size: contain; mask-repeat: no-repeat; mask-position: center;
+  -webkit-mask-size: contain; -webkit-mask-repeat: no-repeat; -webkit-mask-position: center;
+}
+.sd-tile__badge { position: absolute; right: 0; top: 0; width: 32px; height: 32px; }
+.sd-tile__label {
+  position: absolute; left: 0; top: 112px; width: 176px; height: 40px; line-height: 40px;
+  text-align: center; font-size: 24px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.sd-tile.is-focused .sd-tile__plate { background: #e8e8e8; box-shadow: var(--focus-shadow); scale: 1.08; transition-timing-function: var(--ease-elastic); }
+.sd-tile.is-focused .sd-tile__icon { background: #000; }
+.sd-tile.is-focused .sd-tile__label { font-weight: 700; }
+
+/* ================= SelfDiagnosisAll (SDSelfDiagnosisAllView) ================= */
+.sda { position: absolute; inset: 0; }
+.sda__step { position: absolute; left: 780px; top: 24px; height: 56px; display: flex; gap: 8px; font-size: 32px; font-weight: 700; line-height: 56px; }
+.sda__step-current { width: 160px; text-align: right; color: #33adff; }
+.sda__step-slash { width: 24px; text-align: center; }
+.sda__step-total { width: 160px; }
+.sda__name {
+  position: absolute; left: 204px; top: 104px; width: 1512px; height: 144px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 60px; font-weight: 700;
+}
+.sda__ring { position: absolute; left: 800px; top: 376px; width: 320px; height: 320px; }
+.sda__ring svg { position: absolute; inset: 0; }
+.sda__percent { position: absolute; left: 0; top: 108px; width: 320px; height: 104px; line-height: 104px; text-align: center; font-size: 72px; font-weight: 600; }
+.sda__guide {
+  position: absolute; left: 204px; top: 720px; width: 1512px; height: 120px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 28px; line-height: 48px; font-weight: 500; white-space: pre-line;
+}
+.sda__mark { position: absolute; left: 880px; top: 376px; width: 160px; height: 160px; }
+.sda__guide--pass { top: 584px; }
+.sda__guide--fail { top: 584px; height: 344px; align-items: flex-start; }
+
+/* ================= Manage Storage (SDManageStorageView) ================= */
+.ms { position: absolute; inset: 0; }
+.ms__header {
+  position: absolute; left: 0; top: 0; width: 1920px; height: 128px;
+  background: #1b2c42;
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.3), inset 0 -4px 0 rgba(255, 255, 255, 0.2);
+}
+.ms__title { position: absolute; left: 80px; top: 20px; height: 88px; line-height: 88px; font-size: 56px; font-weight: 700; white-space: nowrap; }
+/* C_ProgressBarStack_01 49 x 11 u: 1 u bar, then T20 rows (current 600 CC_Basic180 / total 400 CC_Basic150) */
+.ms__bar { position: absolute; left: 1000px; top: 20px; width: 392px; height: 88px; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+.ms__bar-track { position: relative; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+.ms__bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #33adff; }
+.ms__bar-row { display: flex; justify-content: space-between; height: 24px; line-height: 24px; font-size: 20px; }
+.ms__bar-cur { font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+.ms__bar-tot { font-weight: 400; color: rgba(255, 255, 255, 0.5); }
+.ms__figures { position: absolute; left: 1424px; top: 32px; display: flex; gap: 32px; }
+.ms__figure { width: 136px; }
+.ms__figure-name, .ms__figure-value { height: 32px; line-height: 32px; font-size: 20px; white-space: nowrap; }
+.ms__figure-name { font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+.ms__figure-value { font-weight: 400; color: rgba(255, 255, 255, 0.5); }
+.ms__subheader { position: absolute; left: 0; top: 128px; width: 1920px; height: 80px; background: rgba(0, 0, 0, 0.1); }
+.ms__selected { position: absolute; left: 80px; top: 16px; height: 48px; line-height: 48px; font-size: 28px; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+.ms__fn { top: 8px; width: 304px; height: 64px; }
+.ms__fn.is-disabled { color: rgba(255, 255, 255, 0.2); }
+.ms__fn.is-disabled.is-focused { color: rgba(0, 0, 0, 0.4); }
+.ms__list { position: absolute; left: 0; top: 336px; width: 1920px; height: 600px; }
+/* C_ImageTileBottom_05: 38 x 50 u, 38 u image + 12 u double-line text; focus scale 1.08 */
+.ms-card { position: absolute; top: 64px; width: 304px; height: 400px; transition: scale 500ms var(--ease-out); }
+.ms-card.is-focused { scale: 1.08; transition-timing-function: var(--ease-elastic); }
+.ms-card__image { position: relative; width: 304px; height: 304px; border-radius: 16px; background: rgba(0, 0, 0, 0.2); overflow: hidden; }
+.ms-card__image > img:first-child { position: absolute; left: 76px; top: 76px; width: 152px; height: 152px; object-fit: contain; }
+.ms-card__check { position: absolute; left: 16px; top: 16px; width: 48px; height: 48px; }
+.ms-card__title { height: 48px; line-height: 48px; padding: 0 8px; font-size: 24px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ms-card__size { height: 32px; line-height: 32px; padding: 0 8px; font-size: 20px; color: rgba(255, 255, 255, 0.8); }
+.ms-card.is-focused .ms-card__title { font-weight: 700; }
+.ms__details { top: 496px; width: 304px; height: 72px; }
+.ms__disclaimer { position: absolute; left: 96px; top: 984px; width: 1504px; height: 64px; display: flex; align-items: center; font-size: 20px; font-weight: 500; color: rgba(255, 255, 255, 0.6); }
+.ms-details { width: 872px; display: flex; flex-direction: column; gap: 8px; }
+.ms-details__head { display: flex; align-items: center; gap: 24px; height: 112px; }
+.ms-details__icon { width: 112px; height: 112px; object-fit: contain; border-radius: 16px; background: rgba(255, 255, 255, 0.05); }
+.ms-details__title { font-size: 48px; font-weight: 600; }
+.ms-details__divider { height: 2px; margin: 0 24px; background: rgba(255, 255, 255, 0.1); }
+.ms-details__row { display: flex; justify-content: space-between; height: 80px; align-items: center; padding: 0 24px; font-size: 28px; font-weight: 600; }
+.ms-details__row--total { font-size: 32px; font-weight: 700; }
+
+/* ================= test apps (TestFrame) ================= */
+/* info text: m_SetInfoLabelText, SamsungOneUI_400 #FFFFFFAF (inferred size T32) */
+.tf__message {
+  position: absolute; left: 204px; top: 376px; width: 1512px; min-height: 160px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+  font-size: 32px; line-height: 52px; font-weight: 400; color: rgba(255, 255, 255, 0.69);
+}
+.tf__message--low { top: 600px; min-height: 0; font-size: 28px; line-height: 48px; }
+.tf__value { color: #29c6ff; }
+.pt__image { position: absolute; inset: 0; width: 1920px; height: 1080px; object-fit: cover; z-index: 5; animation: sd-fade 300ms var(--ease-basic); }
+.st__info { position: absolute; left: 204px; top: 376px; width: 1512px; text-align: center; font-size: 32px; line-height: 56px; font-weight: 500; }
+.st__label { color: rgba(255, 255, 255, 0.6); }
+.st__value { color: #fff; font-weight: 600; }
+
+/* Smart Hub Connection Test: TV - router - internet (ug-SystemSetupNetworkUG-efl art, 1080p sizes) */
+.shc__picture { position: absolute; left: 0; top: 340px; width: 1920px; height: 160px; display: flex; align-items: center; justify-content: center; gap: 32px; }
+.shc__tv { width: 176px; height: 144px; }
+.shc__lan { width: 144px; height: 104px; }
+.shc__earth { width: 104px; height: 104px; }
+.shc__link { width: 80px; height: 32px; }
+.shc__error { position: absolute; left: 1004px; top: 40px; width: 32px; height: 32px; }
+.shc__step { font-size: 24px; color: rgba(255, 255, 255, 0.6); }
+.shc__ok { color: #46d67b; } /* CC_Point1100 */
+
+/* HDMI Troubleshooting (wizard type B/C) */
+.ht__step { position: absolute; left: 0; top: 112px; width: 1920px; text-align: center; font-size: 24px; color: rgba(255, 255, 255, 0.6); }
+.ht__title { position: absolute; left: 141px; top: 180px; width: 1638px; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 60px; font-weight: 700; }
+.ht__subtitle { position: absolute; left: 281px; top: 300px; width: 1358px; text-align: center; font-size: 32px; line-height: 48px; font-weight: 400; color: rgba(255, 255, 255, 0.8); }
+.ht__message { position: absolute; left: 281px; top: 440px; width: 1358px; text-align: center; font-size: 28px; line-height: 44px; color: rgba(255, 255, 255, 0.7); }
+.ht__message--pip { top: 800px; font-size: 24px; line-height: 36px; }
+.ht__pip { position: absolute; left: 631px; top: 413px; width: 658px; height: 370px; background: #000; box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2); overflow: hidden; }
+.ht__pip video { width: 100%; height: 100%; object-fit: cover; }
+.ht__list { position: absolute; left: 660px; top: 420px; width: 600px; display: flex; flex-direction: column; gap: 16px; }
+.ht__device { position: relative; height: 104px; border-radius: 16px; background: rgba(0, 0, 0, 0.5); box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 24px; padding: 0 32px; transition: scale 500ms var(--ease-out); }
+.ht__device img { width: 60px; height: 60px; }
+.ht__device-name { font-size: 32px; font-weight: 600; }
+.ht__device-sub { margin-left: auto; font-size: 24px; color: rgba(255, 255, 255, 0.6); }
+.ht__device.is-focused { background: #e8e8e8; color: #000; scale: 1.04; box-shadow: var(--focus-shadow); transition-timing-function: var(--ease-elastic); }
+.ht__device.is-focused .ht__device-name { font-weight: 700; }
+.ht__device.is-focused .ht__device-sub { color: rgba(0, 0, 0, 0.6); }
+.ht__progress { position: absolute; left: 560px; top: 480px; width: 800px; display: flex; align-items: center; gap: 24px; }
+.ht__track { position: relative; flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+.ht__fill { position: absolute; left: 0; top: 0; bottom: 0; background: #33adff; }
+.ht__percent { width: 96px; font-size: 28px; font-weight: 600; }
+.ht__check { width: 64px; height: 64px; }
+.ht__button { top: 928px; height: 84px; }
+
+/* Signal Information: the settings card over the picture */
+.si { z-index: 55; }
+.si .as-row { position: absolute; }
+.si__bar { position: absolute; right: 32px; bottom: 24px; width: 200px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+.si__bar-fill { position: absolute; left: 0; top: 0; bottom: 0; background: #33adff; }
+.as-row.is-focused .si__bar { background: rgba(0, 0, 0, 0.2); }
+.as-row.is-focused .si__bar-fill { background: #0099ff; }
+.si__history { padding: 24px 40px; font-size: 26px; line-height: 40px; color: rgba(255, 255, 255, 0.8); }
+.si__hint { position: absolute; left: 80px; top: 976px; width: 760px; font-size: 24px; line-height: 36px; color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8); }
+
+/* Smart Hub reset: waiting popup, then the white toast (C_PopupToast_White) */
+.shr { min-height: 0; padding: 48px; gap: 16px; }
+.shr__ring { width: 88px; height: 88px; }
+.shr__text { flex: none; }
+.sd-toast--white { background: #fff; color: #000; box-shadow: var(--focus-shadow); }

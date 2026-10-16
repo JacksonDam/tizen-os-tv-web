@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="45px" height="65px" viewBox="0 0 45 65" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_sd_remote</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="icon_sd_remote" transform="translate(2.000000, 2.000000)">
+            <rect id="Rectangle" stroke="#FFFFFF" stroke-width="3" x="11" y="25" width="19" height="36" rx="0.99000001"></rect>
+            <g id="Group" stroke="#FFFFFF" stroke-width="3">
+                <path d="M7.27419355,16 C14.5748387,8.73454623 26.4251613,8.73454623 33.7258065,16" id="Path"></path>
+                <path d="M0,8.85030322 C11.3212903,-2.95010107 29.6787097,-2.95010107 41,8.85030322" id="Path"></path>
+            </g>
+            <g id="Group" transform="translate(16.000000, 32.000000)" fill="#FFFFFF" fill-rule="nonzero">
+                <g id="Oval">
+                    <ellipse cx="1.875" cy="1.9" rx="1.875" ry="1.9"></ellipse>
+                    <ellipse cx="8.125" cy="1.9" rx="1.875" ry="1.9"></ellipse>
+                </g>
+                <g transform="translate(0.000000, 7.600000)" id="Oval">
+                    <ellipse cx="1.875" cy="1.9" rx="1.875" ry="1.9"></ellipse>
+                    <ellipse cx="8.125" cy="1.9" rx="1.875" ry="1.9"></ellipse>
+                </g>
+                <g transform="translate(0.000000, 15.200000)" id="Oval">
+                    <ellipse cx="1.875" cy="1.9" rx="1.875" ry="1.9"></ellipse>
+                    <ellipse cx="8.125" cy="1.9" rx="1.875" ry="1.9"></ellipse>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
