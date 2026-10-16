@@ -33,9 +33,10 @@ export function MarkerLottie({ src, className, range, loop = true, still, onDone
   useEffect(() => {
     const a = anim.current
     if (!a) return
+    // the raw markers: lottie-web parses "name:s" comments as key/value payloads, losing the name
     const markerFrame = (name: string) => {
-      const m = (a as unknown as { markers: { payload: { name: string }; time: number }[] }).markers?.find(x => x.payload.name === name)
-      return m ? m.time : undefined
+      const raw = (a as unknown as { animationData?: { markers?: { cm: string; tm: number }[] } }).animationData?.markers
+      return raw?.find(x => x.cm === name)?.tm
     }
     const onComplete = () => {
       if (!range) return

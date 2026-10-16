@@ -137,22 +137,6 @@ export function FluxPopup({ message, custom, rows, buttons, focusButton = 0, onS
   )
 }
 
-// ---- P_PopupToast_03 at the screen centre for 3 s ----
-export function useToast(): [ReactNode, (text: string) => void] {
-  const [toast, setToast] = useState<{ text: string; seq: number } | null>(null)
-  useEffect(() => {
-    if (!toast) return
-    const t = setTimeout(() => setToast(null), 3000)
-    return () => clearTimeout(t)
-  }, [toast])
-  const node = toast ? (
-    <div key={toast.seq} className="sd-toast">
-      {toast.text}
-    </div>
-  ) : null
-  return [node, (text: string) => setToast(t => ({ text, seq: (t?.seq ?? 0) + 1 }))]
-}
-
 // A key handler placed in the tree: React runs effects child-first, so a parent's own useRemote ends up
 // above its children's on mount. Rendering this as the first child keeps the handler below the views
 // that follow it (they see the keys first and pass on what they don't use). Keep it active: re-activating

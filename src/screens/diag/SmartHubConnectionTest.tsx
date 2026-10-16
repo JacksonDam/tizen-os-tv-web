@@ -5,7 +5,8 @@ import { TV } from '../../assets'
 import type { AppProps } from '../../apps/registry'
 import { shell } from '../../tv/shell'
 import { FluxPopup, OptionRow } from './ui'
-import { TestFrame, finishTest } from './TestFrame'
+import { TestFrame } from './TestFrame'
+import { finishTest } from './testFlow'
 
 // Smart Hub Connection Test (org.tizen.smarthub-connection-test, spec3/diag.md 4.3): the start page,
 // then five steps (network connection, gateway, DNS, ISP blocking, Samsung server; netdiag.xml pings

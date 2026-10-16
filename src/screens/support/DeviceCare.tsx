@@ -5,11 +5,11 @@ import { TV } from '../../assets'
 import type { AppProps } from '../../apps/registry'
 import { DEVICE_CARE as D } from './supportData'
 import { SelfDiagnosis } from '../diag/SelfDiagnosis'
-import { SelfDiagnosisAll, prepareRun, type SDAllMode } from '../diag/SelfDiagnosisAll'
+import { SelfDiagnosisAll, type SDAllMode } from '../diag/SelfDiagnosisAll'
 import { ManageStorage } from '../diag/ManageStorage'
 import { KeyLayer } from '../diag/ui'
 import { SmartHubReset } from '../diag/SmartHubReset'
-import { SD_APP_ID, type SDItem } from '../diag/sdData'
+import { SD_APP_ID, prepareRun, type SDItem } from '../diag/sdData'
 import './device-care.css'
 
 // Device Care (com.samsung.SelfDiagnosis, spec2/device-sources-home.md A.5, spec3/diag.md): full-screen

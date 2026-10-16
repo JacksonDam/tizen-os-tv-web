@@ -5,7 +5,7 @@ import { SOURCES, getTv, setTv, useSetting, useTv, type SourceId } from '../../t
 import { TV } from '../../assets'
 import type { AppProps } from '../../apps/registry'
 import { FluxScreen, KeyLayer } from './ui'
-import { finishTest } from './TestFrame'
+import { finishTest } from './testFlow'
 
 // HDMI Troubleshooting (com.samsung.tv.hdmi-troubleshooting: a wizard-api app running the ug-hdmicec
 // pages from config/HDMITroubleshooting.json, spec3/diag.md 4.4). Four step groups:

@@ -4,7 +4,8 @@ import { useMoveSound } from '../../tv/sound'
 import { TV } from '../../assets'
 import type { AppProps } from '../../apps/registry'
 import { OptionRow } from './ui'
-import { TestFrame, finishTest, supportInfo } from './TestFrame'
+import { TestFrame } from './TestFrame'
+import { finishTest, supportInfo } from './testFlow'
 
 // Picture Test (org.tizen.picture-test 0.3, spec3/diag.md 4.1): CMessageView "The test photo will now be
 // shown..." [OK] -> CTestImageView: the test photo full screen for 5 s -> "Does the test picture look

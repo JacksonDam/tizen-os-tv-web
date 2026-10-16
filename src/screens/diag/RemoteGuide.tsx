@@ -6,7 +6,7 @@ import type { AppProps } from '../../apps/registry'
 import { RG, type RGPage } from './remoteGuideData'
 import { MarkerLottie } from './MarkerLottie'
 import { FluxScreen, KeyLayer, OptionRow } from './ui'
-import { fromSD, finishTest } from './TestFrame'
+import { fromSD, finishTest } from './testFlow'
 import { SD } from './sdData'
 
 // Remote Control Guide (com.samsung.tv.remoteguide 1.5.4, spec3/diag.md 5): data-driven pages from
@@ -29,6 +29,7 @@ const BUTTON = [T.COM_SID_CLOSE, T.TV_SID_ASSISTANT_CAMAR_GOT_IT, T.TV_SID_REMOT
   T.COM_SID_ACCESSIBILITY_CAFEB_OK, 'Cancel', T.COM_SID_CLOSE, T.COM_SID_SKIP]
 
 const PAGES: RGPage[] = RG.categories.flatMap(c => c.pages)
+const main = (c: { pages: RGPage[] }) => c.pages.filter(p => !p.sub) // the index buttons (isSubPage false)
 
 // Tooltip anchor: KeyPosDef (u from the 64 u remote frame top); x is the frame's left edge (XOffset 0)
 function tooltipTop(page: RGPage, selfDiag: boolean) {
@@ -81,15 +82,15 @@ function Guide({ onExit }: AppProps) {
         else if (key === 'Enter') onExit('settings')
       } else if (key === 'Left' && col > 0) {
         setCol(col - 1)
-        setRow(r => Math.min(r, RG.categories[col - 1].pages.length - 1))
+        setRow(r => Math.min(r, main(RG.categories[col - 1]).length - 1))
       } else if (key === 'Right' && col < RG.categories.length - 1) {
         setCol(col + 1)
-        setRow(r => Math.min(r, RG.categories[col + 1].pages.length - 1))
+        setRow(r => Math.min(r, main(RG.categories[col + 1]).length - 1))
       } else if (key === 'Up') setRow(Math.max(0, row - 1))
       else if (key === 'Down') {
-        if (row < cat.pages.length - 1) setRow(row + 1)
+        if (row < main(cat).length - 1) setRow(row + 1)
         else setOnButton(true)
-      } else if (key === 'Enter') go(PAGES.indexOf(cat.pages[row]))
+      } else if (key === 'Enter') go(PAGES.indexOf(main(cat)[row]))
       else if (key === 'Back') onExit('settings')
       return true
     }
@@ -118,7 +119,7 @@ function Guide({ onExit }: AppProps) {
           {RG.categories.map((c, ci) => (
             <div key={c.title} className="rg__column">
               <div className="rg__category">{c.title}</div>
-              {c.pages.map((pg, ri) => (
+              {c.pages.filter(pg => !pg.sub).map((pg, ri) => (
                 <div key={pg.file} className={`flux-btn rg__page-btn ${!onButton && ci === col && ri === row ? 'is-focused' : ''}`}>
                   {pg.name}
                 </div>

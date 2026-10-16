@@ -4,7 +4,7 @@ import { useMoveSound } from '../../tv/sound'
 import { getTv } from '../../tv/store'
 import { TV } from '../../assets'
 import { ABOUT_TV } from '../support/supportData'
-import { SD, SD_ITEMS, getResult, getRun, setResult, setRun, type SDItem, type SDResult } from './sdData'
+import { SD, SD_ITEMS, getRun, setResult, setRun, type SDItem, type SDResult } from './sdData'
 import { FluxPopup, OptionRow, Ring, type ListRow } from './ui'
 
 // SelfDiagnosisAll (SDSelfDiagnosisAllView, spec3/diag.md 2.4): runs Automatic items with a percentage
@@ -62,7 +62,7 @@ export function SelfDiagnosisAll({ mode, onClose, onLaunch, onSignalInfo, onUpda
   const [result, setResultState] = useState<SDResult | null>(null)
   const [popup, setPopup] = useState<null | 'skip' | 'history' | 'sw'>(null)
   const [focus, setFocus] = useState(0)
-  const [, setTick] = useState(0)
+  const [tick, setTick] = useState(0)
   const pending = useRef<SDResult | null>(null)
   useMoveSound(focus)
 
@@ -147,7 +147,7 @@ export function SelfDiagnosisAll({ mode, onClose, onLaunch, onSignalInfo, onUpda
     const ms = value >= 70 && !ready ? SLOW_TICK : TICK
     const t = setTimeout(() => setValue(v => v + 1), ms)
     return () => clearTimeout(t)
-  })
+  }, [phase, popup, value, item, all, tick])
 
   // "Complete" for 1 s, then the next item
   useEffect(() => {
@@ -261,18 +261,4 @@ export function SelfDiagnosisAll({ mode, onClose, onLaunch, onSignalInfo, onUpda
       )}
     </div>
   )
-}
-
-// SDSelfDiagnosisAllView.PrepareItemForDiagnosisAll: the untested items, Automatic first; HDMI Test is a
-// Manual hand-off here (no CEC line test on this TV) and goes first among the Manual ones.
-export function prepareRun() {
-  const auto: string[] = []
-  const manual: string[] = []
-  for (const it of SD_ITEMS) {
-    if (getResult(it.name)) continue
-    if (it.name === 'HDMITroubleshooting') manual.unshift(it.name)
-    else if (it.type === 'Automatic') auto.push(it.name)
-    else manual.push(it.name)
-  }
-  setRun({ auto, manual, total: auto.length + manual.length, done: 0 })
 }

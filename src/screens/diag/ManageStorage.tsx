@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { useRemote } from '../../input/remote'
 import { useMoveSound } from '../../tv/sound'
 import { TV } from '../../assets'
-import { FluxPopup, Ring, useToast } from './ui'
+import { FluxPopup, Ring } from './ui'
+import { useToast } from './toast'
 
 // Device Care > Manage Storage (SDManageStorageView, spec3/diag.md 3): C_Header_02 with the Used /
 // Available ProgressBarStack and the Deselect All / Delete function buttons, a horizontal list of
@@ -30,7 +31,7 @@ const TOTAL = 7.83 * GB   // user partition (Used + Available)
 const ROM = 16 * GB
 
 // SDStorageControl.ByteToHuman: "{x:F2} KB/MB/GB"
-export function human(b: number) {
+function human(b: number) {
   if (b >= GB) return `${(b / GB).toFixed(2)} GB`
   if (b >= MB) return `${(b / MB).toFixed(2)} MB`
   return `${(b / 1024).toFixed(2)} KB`

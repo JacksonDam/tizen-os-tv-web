@@ -117,3 +117,17 @@ export function setRun(r: TestAllRun | null) {
 // How a test app reports back (app_control extras launchedFrom / DiagnosisType / action).
 export type DiagArgs = { launchedFrom?: string; DiagnosisType?: 'Individual' | 'DiagnoseAll'; current?: string; total?: string }
 export const SD_APP_ID = 'com.samsung.SelfDiagnosis'
+
+// SDSelfDiagnosisAllView.PrepareItemForDiagnosisAll: the untested items, Automatic first; HDMI Test is a
+// Manual hand-off here (no CEC line test on this TV) and goes first among the Manual ones.
+export function prepareRun() {
+  const auto: string[] = []
+  const manual: string[] = []
+  for (const it of SD_ITEMS) {
+    if (getResult(it.name)) continue
+    if (it.name === 'HDMITroubleshooting') manual.unshift(it.name)
+    else if (it.type === 'Automatic') auto.push(it.name)
+    else manual.push(it.name)
+  }
+  setRun({ auto, manual, total: auto.length + manual.length, done: 0 })
+}

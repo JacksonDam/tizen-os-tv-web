@@ -324,7 +324,7 @@
 .rg__body { position: absolute; left: 88px; top: 296px; width: 816px; height: 520px; }
 .rg__remote { position: absolute; left: 204px; top: 4px; width: 408px; height: 512px; }
 .rg__tooltip {
-  position: absolute; right: 628px; translate: 0 -50%; max-width: 360px; padding: 12px 20px; border-radius: 12px;
+  position: absolute; right: 424px; translate: 0 -50%; max-width: 300px; padding: 12px 20px; border-radius: 12px;
   background: #0099ff; color: #fff; font-size: 22px; line-height: 30px; font-weight: 600; margin-top: 4px;
 }
 .rg__tooltip::after { content: ''; position: absolute; right: -10px; top: 50%; translate: 0 -50%; border: 10px solid transparent; border-right: 0; border-left-color: #0099ff; }

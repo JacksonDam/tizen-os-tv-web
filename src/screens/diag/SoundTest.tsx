@@ -5,7 +5,8 @@ import { useSetting, useTv } from '../../tv/store'
 import { TV } from '../../assets'
 import type { AppProps } from '../../apps/registry'
 import { OptionRow } from './ui'
-import { TestFrame, finishTest, supportInfo } from './TestFrame'
+import { TestFrame } from './TestFrame'
+import { finishTest, supportInfo } from './testFlow'
 
 // Sound Test (org.tizen.sound-test, spec3/diag.md 4.2): CMainView plays the app's test melody
 // (res/sounds/self.wav, 31 s, looped) through the current sound output, shows "Sound Output : <output>"
