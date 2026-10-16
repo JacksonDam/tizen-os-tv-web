@@ -22,19 +22,49 @@ type Props = {
 
 type Page = { item: MenuItem | null; focus: number } // item null = root page
 
+// Deep link (Quick Settings, search results): 'connection/network/networksettings' opens the pages down to
+// that row and focuses it; returns the row when it is not a sub-page (so a gadget row can be opened).
+function pathStack(menu: MenuItem[], path: string[]): { stack: Page[]; row?: MenuItem } {
+  const root: Page = { item: null, focus: 1 }
+  const cat = menu.find(m => m.id === path[0])
+  if (!cat) return { stack: [root] }
+  const stack: Page[] = [{ ...root, focus: 2 + menu.indexOf(cat) }, { item: cat, focus: 0 }]
+  let row: MenuItem | undefined
+  for (const id of path.slice(1)) {
+    const rows = (stack[stack.length - 1].item!.groups ?? []).flat()
+    const i = rows.findIndex(r => r.id === id)
+    if (i < 0) break
+    stack[stack.length - 1].focus = i
+    row = rows[i]
+    const submenu = row.groups?.length && !row.gadget && !row.popup && !row.launch && row.style === 'title'
+    if (submenu && id !== path[path.length - 1]) {
+      stack.push({ item: row, focus: 0 })
+      row = undefined
+    }
+  }
+  return { stack, row }
+}
+
 export function AllSettings({ target, onClose, onLaunchApp }: Props) {
   const MENU = getMenu()
-  const initial = useMemo<Page[]>(() => {
-    const root: Page = { item: null, focus: 1 } // default focus: the Search field
-    const t = target && MENU.find(m => m.id === target)
-    return t ? [{ ...root, focus: 2 + MENU.indexOf(t) }, { item: t, focus: 0 }] : [root]
+  const initial = useMemo(() => {
+    // default focus: the Search field; a category target opens its page, a deeper path focuses the row
+    const deep = target ? pathStack(MENU, target.split('/')) : { stack: [{ item: null, focus: 1 }] as Page[] }
+    if (deep.row?.groups?.length && deep.row.style === 'title' && !deep.row.gadget) {
+      deep.stack.push({ item: deep.row, focus: 0 })
+      return { stack: deep.stack, gadget: null }
+    }
+    return { stack: deep.stack, gadget: deep.row?.gadget && GADGETS[deep.row.gadget] ? deep.row : null }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target])
-  const [stack, setStack] = useState<Page[]>(initial)
+  const [stack, setStack] = useState<Page[]>(initial.stack)
   const [dir, setDir] = useState<'in' | 'out'>('in')
   const values = useTv(s => s.settings)
   const [picker, setPicker] = useState<{ item: MenuItem; focus: number; rowTop: number } | null>(null)
   const [toast, setToast] = useState<string | null>(null)
-  const [gadget, setGadget] = useState<MenuItem | null>(null)
+  const [gadget, setGadget] = useState<MenuItem | null>(initial.gadget)
+  // a gadget opened by a deep link (Quick Settings > Network Settings) closes the menu when it closes
+  const gadgetOnly = useRef(!!initial.gadget)
   const [popup, setPopup] = useState<MenuItem | null>(null)
 
   const page = stack[stack.length - 1]
@@ -69,14 +99,6 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
 
   useRemote(key => {
     if (!isNavKey(key)) return false // TV keys go on to tv-viewer
-    // a gadget or popup above takes the keys; anything it passes down stops here (Home closes Settings)
-    if (gadget || popup) {
-      if (key === 'Home' || key === 'Exit') {
-        onClose()
-        return false
-      }
-      return true
-    }
     if (toast && key !== 'Back') setToast(null)
     if (picker) {
       const opts = picker.item.options ?? []
@@ -106,6 +128,9 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
       if (key === 'Up') setFocus(Math.max(0, page.focus - 1))
       else if (key === 'Down') setFocus(Math.min(last, page.focus + 1))
       else if (key === 'Enter' && page.focus >= 2) push(MENU[page.focus - 2])
+      else if (key === 'Enter' && page.focus === 1 && GADGETS['settings-search']) {
+        setGadget({ id: 'search', title: 'Search', style: 'title', gadget: 'settings-search' })
+      }
       return true
     }
     // sub-page: -1 = back button
@@ -125,6 +150,7 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
       }
     } else if (key === 'Enter') {
       if (row.disabled) setToast(row.disabledReason ?? "This function isn't available.")
+      else if (row.popup && POPUPS[row.popup]) setPopup(row) // switches whose change chains a popup too
       else if (row.style === 'title.switch') setValue(row, Number(valueOf(row) ?? 0) ? 0 : 1)
       else if (row.style === 'option') {
         // options on an option page set the parent's value
@@ -135,12 +161,14 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
         setPicker({ item: row, focus: Math.max(0, cur), rowTop: rowTops[page.focus] - scroll })
       } else if (row.launch) {
         onLaunchApp(row.launch.app, row.launch.args, stack[1]?.item?.id)
-      } else if (row.popup && POPUPS[row.popup]) setPopup(row)
-      else if (row.gadget && GADGETS[row.gadget]) setGadget(row)
+      } else if (row.gadget && GADGETS[row.gadget]) setGadget(row)
       else if (row.groups?.length) push(row)
     }
     return true
-  })
+    // A gadget or popup takes the keys while it is up. A gadget opened by a deep link mounts before this
+    // handler would register (child effects run first), so stay out of the stack instead of covering it;
+    // the Home and Exit keys it passes on reach the TV layer, which closes Settings.
+  }, !gadget && !popup)
 
   // ---- layout of the sub-page list (panel-relative y, before scrolling) ----
   const { rowTops, rowHeights, groupBoxes, contentHeight } = useMemo(() => layoutGroups(page.item), [page.item])
@@ -149,7 +177,16 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
 
   const optionPageValue = page.item ? valueOf(page.item) : undefined
 
-  const host: SettingsHost = { launchApp: (app, args) => onLaunchApp(app, args, stack[1]?.item?.id), close: onClose }
+  const host: SettingsHost = {
+    launchApp: (app, args) => onLaunchApp(app, args, stack[1]?.item?.id),
+    close: onClose,
+    openPath: path => {
+      gadgetOnly.current = false
+      setGadget(null)
+      setDir('in')
+      setStack(pathStack(MENU, path).stack)
+    },
+  }
   const G = gadget ? GADGETS[gadget.gadget!] : null
   const P = popup ? POPUPS[popup.popup!] : null
 
@@ -158,7 +195,7 @@ export function AllSettings({ target, onClose, onLaunchApp }: Props) {
       <div className="as__panel" style={{ width: G ? G.width : 520 }}>
         {G && gadget ? (
           <div key={`gadget-${gadget.id}`} className="as__page as__page--in">
-            <G.component host={host} item={gadget} active={!popup} onClose={() => setGadget(null)} />
+            <G.component host={host} item={gadget} active={!popup} onClose={() => (gadgetOnly.current ? onClose() : setGadget(null))} />
           </div>
         ) : (
         <div key={stack.length + (page.item?.id ?? 'root')} className={`as__page as__page--${dir}`}>

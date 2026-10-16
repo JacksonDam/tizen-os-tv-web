@@ -1,6 +1,8 @@
 // Capture the web UI at exactly 1920x1080 with headless Chrome over CDP.
 // usage: node tools/shot.mjs <url> <out.png> [--keys Left,Down,...] [--wait ms] [--keywait ms]
-// Keys go through the app's window.__tv.press() hook, --keywait apart (default 400 ms), and the
+// Keys go through the app's window.__tv.press() hook ("type:text" / "kbd:Key" send keydown events instead,
+// "wait:ms" pauses),
+// --keywait apart (default 400 ms), and the
 // screenshot is taken --wait ms after the last key (default 1200 ms).
 import { spawn } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -66,7 +68,16 @@ try {
   await send('Runtime.evaluate', { expression: 'document.fonts.ready', awaitPromise: true })
   await sleep(500)
   for (const k of keys) {
-    await send('Runtime.evaluate', { expression: `window.__tv.press(${JSON.stringify(k)})` })
+    if (k.startsWith('wait:')) {
+      await sleep(+k.slice(5)) // "wait:3000" pauses between keys
+      continue
+    }
+    // "type:abc" types on a physical keyboard (keydown events), "kbd:Backspace" sends one raw key
+    const raw = k.startsWith('type:') ? [...k.slice(5)] : k.startsWith('kbd:') ? [k.slice(4)] : null
+    const expression = raw
+      ? `${JSON.stringify(raw)}.forEach(key => window.dispatchEvent(new KeyboardEvent('keydown', { key })))`
+      : `window.__tv.press(${JSON.stringify(k)})`
+    await send('Runtime.evaluate', { expression })
     await sleep(keywait)
   }
   await sleep(wait)

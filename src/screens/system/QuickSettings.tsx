@@ -5,6 +5,7 @@ import { BRIGHTNESS_ROWS, TILES, type SecondDepthRow, type Tile } from './quickS
 import './quick-settings.css'
 import { TV } from '../../assets'
 import { useMoveSound } from '../../tv/sound'
+import { connectionMenu, useConnectionTiles } from '../connections/qsTiles'
 
 // QLPanel Quick Settings (spec/settings.md sections 3, 5.1, 6.2-6.5): a blurred 416x560 card with a
 // 2x3 tile grid per page, level-2 lists, the Brightness gadget and edit mode.
@@ -52,7 +53,8 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
     return () => clearTimeout(t)
   }, [visible])
 
-  const tiles = order.filter(id => !(editing && id === 'edit')).map(id => TILES.find(t => t.id === id)!)
+  const live = useConnectionTiles() // Network / Bluetooth tiles follow the mocked connections
+  const tiles = order.filter(id => !(editing && id === 'edit')).map(id => live(TILES.find(t => t.id === id)!))
   const n = tiles.length
   const index = typeof focus === 'number' ? Math.min(focus, n - 1) : 0
   const page = Math.floor(index / PER_PAGE)
@@ -256,7 +258,7 @@ export function QuickSettings({ visible, active, onExitLeft, onHome, onHideHub, 
             active={active}
             onBack={backToL1}
             onHome={onHome}
-            onMenu={label => label === 'Network Settings' && onLaunch('network')}
+            onMenu={label => connectionMenu(label)}
           />
         )}
         {level === 'gadget' && <BrightnessGadget active={active} title={openTile?.title ?? ''} onBack={backToL1} onHome={onHome} />}

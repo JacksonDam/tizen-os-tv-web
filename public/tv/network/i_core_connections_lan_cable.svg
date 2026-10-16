@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="320px" height="160px" viewBox="0 0 320 160" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Component/C_ImageBox_01/Connect/i_core_connections_lan_cable</title>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="224" height="112"></rect>
+        <path d="M210,105 C210,162.988 162.988,210 105,210 C47.012,210 0,162.988 0,105 C0,47.012 47.012,0 105,0 C162.988,0 210,47.012 210,105 Z" id="path-3"></path>
+        <linearGradient x1="1.21479845%" y1="49.9969518%" x2="96.1899503%" y2="49.9969518%" id="linearGradient-5">
+            <stop stop-color="#A6B3BD" offset="0%"></stop>
+            <stop stop-color="#F0F3F6" offset="18%"></stop>
+            <stop stop-color="#E1E7EE" offset="38%"></stop>
+            <stop stop-color="#99A7B2" offset="60%"></stop>
+            <stop stop-color="#505965" offset="80%"></stop>
+            <stop stop-color="#606A76" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="11.1906556%" x2="50%" y2="74.4913338%" id="linearGradient-6">
+            <stop stop-color="#FFFFFF" stop-opacity="0.8" offset="0%"></stop>
+            <stop stop-color="#FCFCFD" stop-opacity="0.5" offset="71%"></stop>
+        </linearGradient>
+        <linearGradient x1="-4.62216774e-14%" y1="50.0080788%" x2="100%" y2="50.0080788%" id="linearGradient-7">
+            <stop stop-color="#9CAAB5" offset="0%"></stop>
+            <stop stop-color="#EEF3F9" offset="6%"></stop>
+            <stop stop-color="#E9EEF5" offset="94%"></stop>
+            <stop stop-color="#606A76" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="5.39830756%" y1="11.745605%" x2="112.912168%" y2="103.989547%" id="linearGradient-8">
+            <stop stop-color="#AFC0C6" offset="0%"></stop>
+            <stop stop-color="#828D9D" offset="55%"></stop>
+        </linearGradient>
+        <linearGradient x1="0%" y1="50%" x2="100%" y2="50%" id="linearGradient-9">
+            <stop stop-color="#07090A" offset="6%"></stop>
+            <stop stop-color="#1B2227" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Component/C_ImageBox_01/Connect/i_core_connections_lan_cable" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="i_core_connections_lan_cable" transform="translate(48.000000, 24.000000)">
+            <mask id="mask-2" fill="white">
+                <use xlink:href="#path-1"></use>
+            </mask>
+            <g id="overlay"></g>
+            <g id="Clipped" mask="url(#mask-2)">
+                <g transform="translate(118.993000, 56.000000) rotate(-90.000000) translate(-118.993000, -56.000000) translate(13.993000, -49.000000)">
+                    <mask id="mask-4" fill="white">
+                        <use xlink:href="#path-3"></use>
+                    </mask>
+                    <g id="Path" stroke="none" fill="none"></g>
+                    <g id="Group" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" mask="url(#mask-4)">
+                        <g transform="translate(83.216000, 88.669000)" fill-rule="nonzero">
+                            <rect id="Rectangle" fill="url(#linearGradient-5)" x="15.449" y="59.689" width="12.677" height="114.821"></rect>
+                            <rect id="Rectangle" fill="url(#linearGradient-6)" x="4.165" y="0.7" width="34.888" height="37.156"></rect>
+                            <path d="M38.353,1.4 L38.353,37.156 L4.865,37.156 L4.865,1.4 L38.353,1.4 M39.753,0 L3.465,0 L3.465,38.556 L39.753,38.556 L39.753,0 L39.753,0 L39.753,0 Z" id="Shape" fill="#FFFFFF"></path>
+                            <rect id="Rectangle" fill="#A83535" x="8.827" y="6.559" width="3.472" height="23.065"></rect>
+                            <rect id="Rectangle" fill="#3466AD" x="30.562" y="6.559" width="3.472" height="23.065"></rect>
+                            <rect id="Rectangle" fill="#EFAE0C" x="16.072" y="6.559" width="3.472" height="23.065"></rect>
+                            <rect id="Rectangle" fill="#28B228" x="23.317" y="6.559" width="3.472" height="23.065"></rect>
+                            <path d="M43.043,69.839 L43.043,29.309 C43.043,28.539 42.413,27.909 41.636,27.909 L1.4,27.909 C0.623,27.909 0,28.539 0,29.309 L0.035,69.545 C0.035,70.315 0.658,70.938 1.428,70.945 L41.629,71.232 C42.406,71.232 43.036,70.609 43.036,69.832 L43.043,69.839 Z" id="Path" fill="url(#linearGradient-7)"></path>
+                        </g>
+                    </g>
+                </g>
+            </g>
+            <g id="Group-2" mask="url(#mask-2)" fill-rule="nonzero">
+                <g transform="translate(20.027000, 55.944000) rotate(-90.000000) translate(-20.027000, -55.944000) translate(-3.962000, 35.700000)">
+                    <rect id="Rectangle" fill="url(#linearGradient-8)" x="0" y="0" width="47.978" height="40.488"></rect>
+                    <polygon id="Path" fill="url(#linearGradient-9)" points="32.27 8.841 32.27 1.708 15.414 1.708 15.414 8.841 4.557 8.841 4.557 37.24 43.134 37.24 43.134 8.841"></polygon>
+                    <rect id="Rectangle" fill="#C69E2E" x="10.024" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="13.748" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="17.472" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="21.203" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="24.927" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="28.658" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="32.382" y="28.28" width="1.848" height="5.537"></rect>
+                    <rect id="Rectangle" fill="#C69E2E" x="36.106" y="28.28" width="1.848" height="5.537"></rect>
+                </g>
+            </g>
+            <g id="Group-7" mask="url(#mask-2)" fill="#006DEF">
+                <g transform="translate(44.100000, 51.100000)">
+                    <path d="M55.3875,5.25 C55.3875,8.148 53.0362,10.5 50.1375,10.5 C47.2374,10.5 44.8875,8.148 44.8875,5.25 C44.8875,2.3513 47.2374,0 50.1375,0 C53.0362,0 55.3875,2.3513 55.3875,5.25" id="Fill-1"></path>
+                    <path d="M32.94375,5.25 C32.94375,8.148 30.59245,10.5 27.69375,10.5 C24.79365,10.5 22.44375,8.148 22.44375,5.25 C22.44375,2.3513 24.79365,0 27.69375,0 C30.59245,0 32.94375,2.3513 32.94375,5.25" id="Fill-3" fill-opacity="0.6"></path>
+                    <path d="M10.5,5.25 C10.5,8.148 8.1494,10.5 5.25,10.5 C2.3499,10.5 0,8.148 0,5.25 C0,2.3513 2.3499,0 5.25,0 C8.1494,0 10.5,2.3513 10.5,5.25" id="Fill-5" fill-opacity="0.3"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

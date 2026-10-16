@@ -1,0 +1,32 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="8.25" y="22" width="47" height="20" rx="2" fill="url(#paint0_linear_1_284)"/>
+<rect x="38" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="32.5" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="27" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="21.5" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="16" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="10.5" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="43.5" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="49" y="24" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="40.5" y="30" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="35" y="30" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="29.5" y="30" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="24" y="30" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="18.5" y="30" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="46" y="30" width="7" height="4" rx="0.5" fill="white"/>
+<rect x="10.5" y="30" width="6.5" height="4" rx="0.5" fill="white"/>
+<rect x="21.5601" y="36" width="20.5" height="4" rx="0.5" fill="white"/>
+<rect x="43.5601" y="36" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="49.0601" y="36" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="10.5601" y="36" width="4" height="4" rx="0.5" fill="white"/>
+<rect x="16.0601" y="36" width="4" height="4" rx="0.5" fill="white"/>
+<defs>
+<linearGradient id="paint0_linear_1_284" x1="31.75" y1="22" x2="31.75" y2="49.1429" gradientUnits="userSpaceOnUse">
+<stop stop-color="#D6D6D6"/>
+<stop offset="0.1" stop-color="#CFD1D3"/>
+<stop offset="0.44" stop-color="#ABACAD"/>
+<stop offset="0.85" stop-color="#808080"/>
+<stop offset="1" stop-color="#737373"/>
+</linearGradient>
+</defs>
+</svg>

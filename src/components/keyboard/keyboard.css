@@ -1,0 +1,82 @@
+/* Samsung on-screen keyboard (sboard-app), spec3/connections.md 1. Plate = ime_bg_dynamic.9 /
+   ime_bg_floating.9 (4K 9-patch: black 93-97 %, #363636 rim, r ~22 px at 1080p). */
+.kb {
+  position: absolute;
+  z-index: 60;
+  border-radius: 22px;
+  background: linear-gradient(rgba(0, 0, 0, 0.93), rgba(0, 0, 0, 0.97));
+  box-shadow: inset 0 0 0 2px rgba(54, 54, 54, 0.93), 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: kb-in 300ms var(--ease-basic);
+}
+@keyframes kb-in { from { opacity: 0; translate: 0 24px; } }
+
+/* keys: CC_ime_key_stroke #94AAC4 7 % rim on basic keys, CC_ime_sub_key #18202D function keys;
+   focused = FLUX plate #E8E8E8, black label (inferred from the colour chips, color_chip.json) */
+.kb-key {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 0 0 2px rgba(148, 170, 196, 0.07);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1;
+  transition: scale var(--dur-focus) var(--ease-out);
+}
+.kb-key--fn { background: #18202d; font-size: 24px; }
+.kb-key--done { font-weight: 600; }
+.kb-key.is-dim { color: rgba(255, 255, 255, 0.3); }
+.kb-key.is-dim.is-focused { color: rgba(0, 0, 0, 0.4); }
+.kb-key.is-focused {
+  z-index: 1;
+  background: var(--plate-focused);
+  color: #000;
+  font-weight: 700;
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;
+  transition-timing-function: var(--ease-elastic);
+}
+.kb-key__icon {
+  width: 40px;
+  height: 40px;
+  background: currentColor;
+  mask: center / contain no-repeat;
+  -webkit-mask: center / contain no-repeat;
+}
+.kb-key__icon--space { width: 64px; height: 24px; }
+.kb-key--shift-on .kb-key__icon { background: #33adff; } /* CC_ime_key_shift */
+.kb-key--shift-on.is-focused .kb-key__icon { background: #0099ff; }
+
+/* FLUX toast over the keyboard (TV_SID_THE_BOX_IS_FULL..., TV_SID_THIS_FUNCTION_ISNT_AVAILABLE) */
+.kb__toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 16px);
+  translate: -50% 0;
+  padding: 12px 24px;
+  border-radius: 16px;
+  background: #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 500;
+  white-space: nowrap;
+  animation: kb-in 200ms var(--ease-basic);
+}
+
+/* text inside a host's input field */
+.kb-text { white-space: pre; overflow: hidden; text-overflow: clip; }
+.kb-text__hint { opacity: 0.3; }
+.kb-text__caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin: 0 -1px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: kb-caret 1s steps(1) infinite;
+}
+@keyframes kb-caret { 50% { opacity: 0; } }
