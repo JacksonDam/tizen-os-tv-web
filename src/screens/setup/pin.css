@@ -1,0 +1,149 @@
+/* PIN popups (EnterPinPopup, ChangePinPopup) and the FLUX PIN line (spec3/setup.md 2). The popup frame
+   is P_PopupSmallBottom_01 / P_PopupBasicBottom_02 as in the Auto Tuning confirmation
+   (channels/auto-tuning-popup.css): 63 u view at x 88-592, bottom flush with the panel (y 952). */
+.pinp { position: absolute; inset: 0; z-index: 60; }
+
+/* All Settings dims its panel under a popup (rgba(19,29,34,.4), allsettings .as__dim) */
+.pinp__panel-dim {
+  position: absolute;
+  left: 80px;
+  top: 256px;
+  width: 520px;
+  height: 696px;
+  border-radius: 32px;
+  background: rgba(19, 29, 34, 0.4);
+  animation: pinp-fade 200ms var(--ease-basic);
+}
+.pinp__screen-dim { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.5); animation: pinp-fade 200ms var(--ease-basic); }
+
+.pinp__plate {
+  position: absolute;
+  width: 486px;
+  padding: 26px 31px 43px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  border-radius: 20px;
+  border: 2px solid #2c2c2c;
+  background: linear-gradient(to bottom, #000 calc(100% - 130px), rgba(0, 0, 0, 0.9));
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45);
+  transform-origin: 50% 100%;
+  animation:
+    pinp-fade 200ms var(--ease-basic),
+    pinp-scale 500ms var(--ease-elastic);
+}
+.pinp--panel .pinp__plate { left: 97px; bottom: 141px; }
+.pinp--screen .pinp__plate { left: 717px; bottom: 141px; }   /* (inferred) centred, panel-width popup */
+.pinp--leaving .pinp__plate,
+.pinp--leaving .pinp__panel-dim,
+.pinp--leaving .pinp__screen-dim {
+  opacity: 0;
+  transition: opacity 200ms var(--ease-basic), scale 500ms var(--ease-out);
+}
+.pinp--leaving .pinp__plate { scale: 0.95; }
+@keyframes pinp-fade { from { opacity: 0; } }
+@keyframes pinp-scale { from { scale: 0.95; } }
+
+.pinp__title {
+  height: 72px;
+  line-height: 72px;
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Pin1Line / Pin2Line rows: padding 2 u, item gap 1 u, message T28 500 CC_Basic1100 in a 6 u box */
+.pin-line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 0;
+}
+.pin-line + .pin-line { padding-top: 0; }
+.pin-line__msg {
+  width: 100%;
+  min-height: 48px;
+  line-height: 48px;
+  font-size: 28px;
+  font-weight: 500;
+  color: #fff;
+  text-align: center;
+}
+.pin-line__msg--multi { line-height: 40px; padding: 4px 0; }
+.pin-line__msg--dim { color: rgba(255, 255, 255, 0.4); }
+
+.pin-boxes { display: flex; gap: 8px; height: 56px; }
+.pin-box {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: #9daecd;                         /* CP_PlaneInputfield Normal: BG3100 */
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, 0.1); /* EnableInnerShadow: CC_Basic210 band */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: scale var(--dur-focus) var(--ease-out), background-color 200ms var(--ease-basic);
+}
+.pin-box.is-focused {
+  background: #fff;                            /* Focused: Basic1100 */
+  box-shadow: var(--focus-shadow);
+  scale: 1.08;                                 /* Constant.SCALE_FOCUS_IN */
+  transition-timing-function: var(--ease-elastic);
+}
+.pin-box__asterisk {
+  fill: #000;
+  animation: pin-asterisk 317ms cubic-bezier(0.32, 1.425, 0.3, 1) both;
+}
+@keyframes pin-asterisk { from { scale: 0; } }
+
+.pinp__buttons { display: flex; justify-content: center; gap: 16px; }
+.pinp__button {
+  position: relative;
+  width: 240px;
+  height: 56px;
+  font-size: 24px;
+  background: #000;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+.pinp__buttons--two .pinp__button { flex: 1; width: auto; }
+
+.pinp__message {
+  padding: 16px 0;
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  white-space: pre-line;
+}
+
+/* ProgressBarWide with its percentage (ResetProgressPopup) */
+.pinp__progress { display: flex; align-items: center; gap: 16px; padding: 8px 0 16px; }
+.pinp__progress-track { flex: 1; height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.2); overflow: hidden; }
+.pinp__progress-fill { height: 100%; border-radius: 4px; background: #fff; transition: width 300ms linear; }
+.pinp__progress-value { width: 72px; text-align: right; font-size: 24px; font-weight: 500; color: rgba(255, 255, 255, 0.8); }
+
+/* P_PopupToast_03 (spec/flux.md 5.13): black RoundRect r16, 2 px 20% white stroke, T28 500 */
+.pin-toast {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 61;
+  min-width: 312px;
+  max-width: 880px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #000;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2), var(--focus-shadow);
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 500;
+  text-align: center;
+  animation: pinp-fade 200ms var(--ease-basic);
+}
