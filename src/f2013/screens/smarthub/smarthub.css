@@ -168,8 +168,7 @@
   font-size: 64px;
   line-height: 84px;
   text-align: center;
-  color: #5ff9ff;
-  font-weight: 300; /* default system font (inferred: Samsung SVD Light) */
+  color: #5ff9ff; /* the wizard frame's default system font: Medium, as the reference footage looks (inferred) */
 }
 .sh-wiz__text {
   position: absolute;

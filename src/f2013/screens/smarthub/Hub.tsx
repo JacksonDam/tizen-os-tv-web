@@ -57,6 +57,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
   const startCentre = first + defaultCentre(list)
 
   const [centre, setCentre] = useState(startCentre)
+  const [focusPanel, setFocusPanel] = useState(startCentre) // panel whose button has the focus (-1 while moving)
   const centreRef = useRef(startCentre)
   const [focus, setFocus] = useState<'content' | 'top'>('content')
   const focusRef = useRef<'content' | 'top'>('content')
@@ -130,6 +131,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     playUi(UI_SOUND.MOVE_PANEL)
     centreRef.current = c2
     setCentre(c2)
+    setFocusPanel(-1)
     setPanels(ps => ps.map((p, i) => {
       const o = first + i
       // relative rotation, summed per step from slot to slot (GBHOME_ANI_PANEL_NORMAL_ROTATE_left/right:
@@ -178,6 +180,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     setArrows(a => ({ mode: 'out', seq: a.seq }))
     later(MOVE_MS, () => {
       setPanels(ps => ps.map((p, i) => ({ ...p, shown: stateOf(slotOf(first + i, c2)) < 2 })))
+      setFocusPanel(c2)
       setArrows(a => ({ mode: 'in', seq: a.seq + 1 }))
       phase.current = 'idle'
     })
@@ -296,7 +299,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
                   visibility: p.shown ? 'visible' : 'hidden',
                 }}
               >
-                <PromoPanel type={type} focused={focus === 'content' && first + i === centre} />
+                <PromoPanel type={type} focused={focus === 'content' && first + i === focusPanel} />
               </div>
             )
           })}
