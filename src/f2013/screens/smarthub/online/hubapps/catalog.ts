@@ -4,9 +4,15 @@ import { getSetting, setSetting, useSetting } from '../../../../tv/store'
 
 // What the TV's servers would have sent for the Apps and Games panels, and what the user has
 // installed. The apps and games are the museum's fictional catalogue (src/shared/fictional.ts);
-// installed state lives in the TV store's settings (so factory reset and Reset Smart Hub clear it):
-//   hubapps.installed  JSON array of app ids, in My Apps order (the order they were downloaded)
+// installed state lives in the TV store's settings (factory reset clears it; resetHubApps() is for
+// Menu > Smart Features > Reset Smart Hub):
+//   hubapps.installed  JSON array of downloaded app ids, in the order they were downloaded (More Apps)
+//   hubapps.myapps     JSON array of the app ids on the Apps panel's My Apps, in their order (at most 30;
+//                      a downloaded app is added at the end while there is room; More Apps > Options >
+//                      Edit My Apps changes it)
 //   hubapps.locked     JSON array of locked app ids (More Apps > Options > Lock/Unlock)
+//   hubapps.opened     JSON array of app ids, most recently opened first (More Apps, View: Recently Opened)
+//   hubapps.autoupdate 'on' | 'off' (More Apps > Options > Auto Update Apps)
 //   hubapps.games      JSON array of installed game ids
 // Downloads are simulated in memory (they are lost with a page reload, as an unfinished download is
 // with a power cut).
@@ -55,8 +61,16 @@ function parse(v: string | number, fallback: string[]): string[] {
 }
 
 const KEY_INSTALLED = 'hubapps.installed'
+const KEY_MYAPPS = 'hubapps.myapps'
 const KEY_LOCKED = 'hubapps.locked'
+const KEY_OPENED = 'hubapps.opened'
 const KEY_GAMES = 'hubapps.games'
+export const KEY_AUTOUPDATE = 'hubapps.autoupdate'
+export const MY_APPS_MAX = 30 // GBHOME_APPS_SUB_GRID_LAYOUT_DATA_NUM
+
+export function resetHubApps() {
+  for (const k of [KEY_INSTALLED, KEY_MYAPPS, KEY_LOCKED, KEY_OPENED, KEY_GAMES, KEY_AUTOUPDATE]) setSetting(k, '')
+}
 
 export function getInstalled(): string[] {
   return parse(getSetting<string>(KEY_INSTALLED, ''), DEFAULT_INSTALLED)
@@ -70,6 +84,35 @@ export function setInstalled(ids: string[]) {
 }
 export function isInstalled(id: string) {
   return id === SAMSUNG_APPS || getInstalled().includes(id)
+}
+
+export function getMyApps(): string[] {
+  return parse(getSetting<string>(KEY_MYAPPS, ''), getInstalled().slice(0, MY_APPS_MAX))
+}
+export function useMyApps(): string[] {
+  const raw = useSetting<string>(KEY_MYAPPS, '')
+  const installed = useInstalled()
+  return parse(raw, installed.slice(0, MY_APPS_MAX))
+}
+export function setMyApps(ids: string[]) {
+  setSetting(KEY_MYAPPS, JSON.stringify(ids.slice(0, MY_APPS_MAX)))
+}
+
+export function useOpened(): string[] {
+  return parse(useSetting<string>(KEY_OPENED, ''), [])
+}
+export function markOpened(id: string) {
+  const list = parse(getSetting<string>(KEY_OPENED, ''), [])
+  setSetting(KEY_OPENED, JSON.stringify([id, ...list.filter(x => x !== id)]))
+}
+
+// Deleting downloaded apps (More Apps > Options > Delete): gone from My Apps, the lock list too.
+export function deleteApps(ids: string[]) {
+  const del = new Set(ids)
+  const my = getMyApps()
+  setInstalled(getInstalled().filter(x => !del.has(x)))
+  setMyApps(my.filter(x => !del.has(x)))
+  setLocked(getLocked().filter(x => !del.has(x)))
 }
 
 export function useLocked(): string[] {
@@ -142,8 +185,10 @@ export function startDownload(id: string, kind: 'app' | 'game') {
     }
     downloads.delete(id)
     if (kind === 'app') {
+      const my = getMyApps()
       const list = getInstalled()
       if (!list.includes(id)) setInstalled([...list, id])
+      if (!my.includes(id) && my.length < MY_APPS_MAX) setMyApps([...my, id])
     } else {
       const list = getInstalledGames()
       if (!list.includes(id)) setInstalledGames([...list, id])

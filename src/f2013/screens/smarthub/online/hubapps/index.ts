@@ -4,19 +4,19 @@ import { openApp, registerApp } from '../../../../shell'
 import { APPS } from '../../data'
 import { registerOnlinePanel } from '../../panels'
 import { AppsPanel } from '../apps/AppsPanel'
+import { MoreApps } from '../apps/MoreApps'
 import { AppRunner } from './AppRunner'
 import { HubTest } from './HubTest'
 import './hubapps.css'
 
 registerApp({ id: 'hubapp', component: AppRunner, z: 210 })
+registerApp({ id: 'moreapps', component: MoreApps, z: 210 })
 
 registerOnlinePanel(APPS, AppsPanel, {
   // the Apps sub menu: item 0 "More Apps" (CHomeExecutor::m_GetSubMenuItemEnum(6, 0) = 2 -> app 0x4d)
   submenu: (index, launch) => {
     if (index !== 0) return false
-    launch(() => {
-      /* More Apps: next */
-    })
+    launch(() => openApp('moreapps', { from: APPS }))
     return true
   },
 })

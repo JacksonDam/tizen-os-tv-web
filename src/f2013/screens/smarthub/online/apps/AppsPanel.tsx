@@ -8,10 +8,11 @@ import { APPS } from '../../data'
 import type { OnlinePanelProps } from '../../panels'
 import { fw, LIGHT, MEDIUM } from '../hubapps/assets'
 import {
-  appById, PROMOTED, RECOMMENDED, SAMSUNG_APPS, startDownload, useDownloads, useInstalled, useLocked,
+  appById, PROMOTED, RECOMMENDED, SAMSUNG_APPS, startDownload, useDownloads, useInstalled, useLocked, useMyApps,
   type Download,
 } from '../hubapps/catalog'
 import { ScrollText } from '../hubapps/ScrollText'
+import { appIcon } from '../hubapps/icons'
 import type { RunParams } from '../hubapps/AppRunner'
 
 // The Apps panel online (CHomeAppServicePanel, panel id 3): two CHomeTableLayoutListControls drawn by
@@ -39,6 +40,10 @@ const ENLARGE_W = 12           // GBHOME_APPS_GRID_DATA_ENLARGED_WIDTH_DIFF
 const ENLARGE_H = 8            // GBHOME_APPS_MAIN/SUB_GRID_DATA_ENLARGED_HEIGHT_DIFF
 const FOCUS_OFF = 27           // GBHOME_APPS_GRID_FOCUS_IMAGE_X/Y_OFFSET (-27)
 const ANI_MS = 250             // GBHOME_COMMON_GRID_ANIMATION_DURATION
+// HomePanel bitmaps are drawn at 1.5x on the Full HD OSD (they are made for the 1280 OSD: the 19 px
+// badges fill GBHOME_APPS_ITEM_ICON_IMAGE_SIZE 28, the 9-slice corners APPCMHOME_HIGHLIGHT_IMAGE_W1 50
+// are 33 px of highlight_all.png)
+const HP = 1.5
 
 type Table = 'rec' | 'my'
 type Pos = { t: Table; i: number }
@@ -51,17 +56,11 @@ function cellRect(t: Table, i: number) {
   return { x: GRID_X + (i % COLS) * (CELL_W + GAP), y: SUB_Y + Math.floor(i / COLS) * (SUB_H + GAP), w: CELL_W, h: SUB_H }
 }
 
-// App icon: the server's 106x87 icon; here the stub artwork with the app's first word.
-export function appIcon(id: string, name: string) {
-  const word = id === SAMSUNG_APPS ? 'Samsung Apps' : name.split(' ')[0]
-  return stubArt(id, ICON_W, ICON_H, { label: word, size: word.length > 9 ? 14 : 18 })
-}
-
 export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
   const installed = useInstalled()
   const locked = useLocked()
   const downloads = useDownloads()
-  const myApps = installed.slice(0, SUB_ROWS * COLS)
+  const myApps = useMyApps()
   const [pos, setPos] = useState<Pos>({ t: 'rec', i: 0 })
   const posRef = useRef(pos)
   posRef.current = pos
@@ -132,8 +131,7 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
         return true
       case 'Up':
         if (t === 'rec') {
-          playUi(UI_SOUND.MOVE) // IfMoveOut up: 0x119012 with sound 16
-          exitUp()
+          exitUp() // IfMoveOut up: 0x119012 (the carousel plays sound 16)
           return true
         }
         if (i < COLS) {
@@ -155,8 +153,7 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
           move({ t, i: i + COLS })
           return true
         }
-        playUi(UI_SOUND.MOVE)
-        exitDown?.()
+        exitDown?.() // 0x119011 (sound 16 from the carousel)
         return true
       case 'Enter':
         enter()
@@ -258,7 +255,7 @@ function AppCell({ r, focused, kind, id, name, locked, download }: {
       <div className="hub-cell__bg" style={{ opacity: has ? 0.15 : 0.06 }} />
       {has && (
         <div className="hub-abs" style={{ left: ex, top: ey, width: r.w, height: r.h }}>
-          <img className="hub-cell__icon" src={appIcon(id!, name!)} alt="" style={{ left: 27, top: iconY, width: ICON_W, height: ICON_H }} />
+          <img className="hub-cell__icon" src={appIcon({ id: id!, name: name! })} alt="" style={{ left: 27, top: iconY, width: ICON_W, height: ICON_H }} />
           {/* title: CCTextAniDrawing 148x26 (GBHOME_APPS_MAIN_GRID_ITEM_TXT_WIDTH 160 - 2 x 6) at x 6, size 24,
               Light, centred; white, 0xfffdd911 and scrolling while focused */}
           <ScrollText
@@ -269,7 +266,7 @@ function AppCell({ r, focused, kind, id, name, locked, download }: {
           />
           {/* badges (GBHOME_APPS_ITEM_ICON_IMAGE_SIZE 28 boxes from the right edge, 4 px in): lock first */}
           {locked && !dl && (
-            <img className="hub-cell__badge" src={fw('HomePanel/apps/icon_apps_lock.png')} alt="" style={{ left: r.w - 4 - 28, top: 4 }} />
+            <img className="hub-cell__badge" src={fw('HomePanel/apps/icon_apps_lock.png')} alt="" style={{ left: r.w - 4 - 28, top: 4, width: 19 * HP, height: 19 * HP }} />
           )}
           {dl && (
             <>
@@ -279,7 +276,7 @@ function AppCell({ r, focused, kind, id, name, locked, download }: {
               <div className="hub-cell__dim" style={{ opacity: 0.7 }} />
               <div className="hub-progress" style={{ left: 32, top: kind === 'rec' ? 100 : 96, width: 96, height: 20, borderImage: `url(${fw('HomePanel/progress/apps_progress_wh_bg.png')}) 6 5 fill` }} />
               {dl.progress > 0 && (
-                <div className="hub-progress" style={{ left: 32, top: kind === 'rec' ? 100 : 96, width: Math.max(10, (96 * dl.progress) / 100), height: 20, borderImage: `url(${fw('HomePanel/progress/apps_progress.png')}) 6 5 fill` }} />
+                <div className="hub-progress" style={{ left: 32, top: kind === 'rec' ? 100 : 96, width: Math.max(15, (96 * dl.progress) / 100), height: 20, borderImage: `url(${fw('HomePanel/progress/apps_progress.png')}) 6 5 fill` }} />
               )}
             </>
           )}

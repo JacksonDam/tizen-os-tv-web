@@ -51,15 +51,16 @@
   position: absolute;
   box-sizing: border-box;
   border-style: solid;
-  border-width: 6px 5px;
+  border-width: 9px 7.5px; /* the 13 px bar images drawn x1.5 (slices 6 and 5 image px) */
 }
 
-/* the focus highlight: highlight_all.png, 9-sliced with APPCMHOME_HIGHLIGHT_IMAGE_W1..H3 = 50 */
+/* the focus highlight: highlight_all.png (102 px, drawn x1.5), 9-sliced with APPCMHOME_HIGHLIGHT_IMAGE_W1..H3
+   = 50 drawn px = 33.33 image px */
 .hub-focus {
   position: absolute;
   box-sizing: border-box;
   border: 50px solid transparent;
-  border-image-slice: 50 fill;
+  border-image-slice: 33.333 fill;
   border-image-width: 50px;
   pointer-events: none;
 }

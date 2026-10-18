@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { markOpened } from './catalog'
 import { stubArt } from '../../../../../shared/fictional'
 import { useRemote } from '../../../../../input/remote'
 import { openApp, type AppProps } from '../../../../shell'
@@ -36,12 +37,14 @@ export function AppRunner({ params, close }: AppProps) {
   const p = params as RunParams
   const [phase, setPhase] = useState<'black' | 'loading' | 'running'>('black')
   useEffect(() => {
+    markOpened(p.id)
     const a = setTimeout(() => setPhase('loading'), BLACK_MS)
     const b = setTimeout(() => setPhase('running'), BLACK_MS + LOADING_MS)
     return () => {
       clearTimeout(a)
       clearTimeout(b)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useRemote(key => {
