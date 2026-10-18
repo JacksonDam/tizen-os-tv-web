@@ -12,7 +12,7 @@ import { LauncherRow } from './agreed/LauncherRow'
 import { ContentRow } from './agreed/ContentRow'
 import { useLauncher, type LauncherItem } from './launcher'
 import { CONTENT_ROWS, PROMOS } from './serverContent'
-import { cancelLaunch, launchApp, LaunchLoading, useLaunching } from './appLaunch'
+import { cancelLaunch, launchApp, useLaunching } from './appLaunch'
 import './agreed/agreed.css'
 
 const NH = `${TV}/com.samsung.tv.coba.newhome`
@@ -290,7 +290,6 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
 
       {/* "Secured by Knox", fixed to the screen while the bottom row is visible. */}
       <img className={`knox ${knox ? 'is-shown' : ''}`} src={`${CS}/i_logo_knox_default.svg`} alt="" />
-      {launching && <LaunchLoading />}
     </div>
   )
 }

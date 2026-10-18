@@ -7,6 +7,7 @@ import './home.css'
 import { useAgreed } from '../../tv/online'
 import { SetupHome } from './SetupHome'
 import { AgreedHome } from './AgreedHome'
+import { LaunchLoading, useLaunching } from './appLaunch'
 
 // Where keys go: the page, the sidebar, or the system page (Connected Devices).
 type Mode = 'page' | 'sidebar' | 'system'
@@ -26,6 +27,7 @@ export function Home({ entry, onHideHub, onLaunch }: Props) {
   const onFocusItem = useCallback((id: SidebarItem) => setSidebarItem(id), [])
   const sidebarOpen = mode === 'sidebar'
   const agreed = useAgreed()
+  const launching = useLaunching()
   // the page keeps its focus while the sidebar or a system page is up; Home returns to the page
   const [pageKey, setPageKey] = useState(0)
   const toDefaultFocus = () => setPageKey(k => k + 1)
@@ -84,6 +86,9 @@ export function Home({ entry, onHideHub, onLaunch }: Props) {
         }}
         onSearch={() => setSearchMsg(true)}
       />
+
+      {/* OnSelectLoadingView sits on the window's default layer, over the sidebar too */}
+      {launching && <LaunchLoading />}
 
       {searchMsg && (
         <MessageBox
