@@ -3,6 +3,7 @@ import { useForeground } from '../../../shell'
 import { currentSource, getTv, useTv } from '../../../tv/store'
 import { argb, img } from '../common'
 import { deviceName } from '../sources'
+import { dateTimeStr } from './info/model'
 import { emit, on } from './bus'
 
 // The source banner shown when the TV switches to an external input (banner 0x13, CViewerSource
@@ -14,14 +15,17 @@ import { emit, on } from './bus'
 // device type) in blue. Values in 1920 stage px.
 
 const WND = { x: 0, y: 0, w: 1920, h: 238 }                 // VIEWER_SOURCE_WND_*
-const TYPE = { x: 1450, y: 48, h: 80 }                      // CHANNEL_LABEL_SOURCE_TYPE_*
+const TYPE = { x: 54, y: 48, h: 80 }                        // CHANNEL_LABEL_SOURCE_TYPE_* (left-to-right layout)
+const TIME = { x: 1472, y: 18, w: 400, h: 32 }              // SOURCE_LABEL_TIME_*, right-aligned (2, 4)
 const GAP = 16                                              // INFO_LABEL_GAP_8 (16 at 1920): the name label sits after the type
 const FONT_14 = 52                                          // VIEWER_FONT_SIZE_14
+const FONT_2 = 30                                           // VIEWER_FONT_SIZE_2
 const COLOR = {
   type: argb(0xffffffff),      // BUTTON_FOCUS_FONT_COLOR
   name: argb(0xffb1ccf1),      // INFO_TOPLINE_BLUE_COLOR
   shadow75: argb(0xbf000000),  // SHADOW_FONT_BLACK_COLOR_TRANSPANENCY_75_PER, offset INFO_TXT_SHADOW (0, -2)
   shadow85: argb(0xd8000000),  // ..._85_PER, offset (0, 2)
+  time: argb(0xffbdbdbd),
 }
 const HIDE_MS = 3000           // (inferred) same display time as the channel banner
 
@@ -81,6 +85,10 @@ export function SourceBanner() {
       <img src={img('TVViewer/info_mini_top_bg.bmp')} alt="" style={{ position: 'absolute', left: 0, top: 0, width: WND.w, height: WND.h, opacity: 0xcc / 255 }} />
       <div ref={typeRef} style={{ ...label, left: TYPE.x, color: COLOR.type, textShadow: `0 -2px 0 ${COLOR.shadow75}` }}>
         {source.title}
+      </div>
+      {/* t_ReadSourceTime: GetDateTimeStr type 4 ("9:05 Sat 18 Oct") */}
+      <div style={{ ...label, left: TIME.x, top: TIME.y, width: TIME.w, height: TIME.h, lineHeight: `${TIME.h}px`, fontSize: FONT_2, textAlign: 'right', color: COLOR.time, textShadow: `0 2px 0 ${COLOR.shadow85}` }}>
+        {dateTimeStr(new Date())}
       </div>
       {name && (
         <div style={{ ...label, left: TYPE.x + typeW + GAP, color: COLOR.name, textShadow: `0 2px 0 ${COLOR.shadow85}` }}>

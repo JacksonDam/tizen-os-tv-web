@@ -18,7 +18,7 @@ import { PopupBg } from './PopupBg'
 const BIG = { x: 542, y: 430, w: 836, h: 220 }               // VIEWER_NOSIGNAL_BIG_WND_*
 const MSG = { x: 544, y: 474, w: 832, h: 132 }               // VIEWER_NOSIGNAL_WND_*
 const AUDIO = { x: 668, y: 441, w: 584, h: 198 }             // AUDIO_LABEL_OPERATION_*
-const TITLE = { x: 52, y: 36, w: 724, h: 48 }                // NOSIGNAL_LABEL_MESSAGE_*
+const TITLE = { x: 56, y: 36, w: 724, h: 48 }                // NOSIGNAL_LABEL_MESSAGE_*
 const SRC = { x: 56, y: 96, w: 724, h: 60 }                  // NOSIGNAL_LABEL_SOURCE_TYPE_*
 const DESC = { x: 56, y: 172, w: 724, h: 48, gap: 4 }        // NOSIGNAL_MULTILABEL_MESSAGE_X/_WITH_SOURCE_Y/W, LABEL_MESSAGE_H, _GAP
 const WITH_SOURCE_H = 264                                    // NOSIGNAL_MULTILABEL_MESSAGE_WITH_SOURCE_H
