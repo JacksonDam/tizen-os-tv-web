@@ -373,12 +373,20 @@ function MessageBoxes({ boxes, onClose, onExitMenu, onChange }: Props & { boxes:
       setFocus(0)
     } else onClose()
   }
+  // A button can hand over to a new set of boxes (onChange) while this component stays mounted:
+  // start again from its first box.
+  const [shown, setShown] = useState(boxes)
+  if (shown !== boxes) {
+    setShown(boxes)
+    setI(0)
+    setFocus(0)
+  }
   useEffect(() => {
     if (box && !box.buttons?.length) {
       const t = setTimeout(() => advance(-1), box.timeout ?? 3000)
       return () => clearTimeout(t)
     }
-  }, [i])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [i, boxes])  // eslint-disable-line react-hooks/exhaustive-deps
   useRemote((k: RemoteKey) => {
     const n = box?.buttons?.length ?? 0
     if ((k === 'Left' || k === 'Right') && n > 1) {
