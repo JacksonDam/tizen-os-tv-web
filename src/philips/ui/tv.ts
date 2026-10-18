@@ -6,6 +6,7 @@ import { openGuide } from './guide'
 import { openChannelList } from './chlist'
 import { openHome } from './home'
 import { openMenu } from './menu'
+import { registerInstallation } from './install'
 import { W } from '../fw/juice'
 import { repaint, show } from './screens'
 
@@ -15,6 +16,7 @@ let booted = false
 export function bootUi(j: Juice) {
   if (booted) return
   booted = true
+  registerInstallation(j)
   const q = new URLSearchParams(location.search)
   const at = q.get('menu')
   if (at !== null) openMenu(j, at ? at.split('.').map(Number) : [])

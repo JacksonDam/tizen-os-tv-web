@@ -47,6 +47,9 @@ export class TvEnv implements Env {
   statusValue(w: number) {
     return this.values.get(w)
   }
+  propNumber(prop: number) {
+    return this.overrides.get(prop)
+  }
   list(w: number) {
     return this.lists.get(w)
   }

@@ -51,6 +51,7 @@ export interface Env {
   range(prop: number, w: number): [number, number] // japiX_First / japiX_Last
   state(w: number): number                 // juicew__wid_State (> 1 drawn, > 3 children drawn)
   statusValue?(w: number): string | number | undefined // status controls of type 1/2/5
+  propNumber?(prop: number): number | undefined       // property values a screen supplies (type 1 numbers)
   list?(w: number): ListState | undefined
   textOverride?(w: number, alt: boolean): string | undefined
   allowed?(w: number, value: number): boolean // juiceappreg__japiX_ValueAllowed
@@ -627,7 +628,11 @@ export class Juice {
       let px = x
       let py = y
       if (!(flags & F.NOOFFSET)) { px = x + m.u16(v + 0xc); py = y + m.u16(v + 0xe) }
-      this.statusBody(w, px, py, flags, this.env.statusValue?.(w))
+      // a number status (control type 1) shows its property (japiX_Get) when the screen supplies it
+      const ctl = this.T.JuiceStatusControls + m.u16(this.T.JuiceStatuss + idxOf(w) * 0x3c + 0x36) * 0x18
+      const p = m.s32(ctl)
+      const val = this.env.statusValue?.(w) ?? (m.u8(ctl + 8) === 1 && p !== -1 ? this.env.propNumber?.(p) : undefined)
+      this.statusBody(w, px, py, flags, val)
     }
     if (flags & F.HELP) this.helpDraw(w, x, y)
     if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags & 0x2001, flags & 2), !!(flags & F.ALT))
@@ -817,6 +822,11 @@ export class Juice {
     if (first + rows < shown.length) {
       const dn = m.s16(a + 0x6e)
       if (dn > 0) this.drawBitmap(dn, xx, yy)
+    }
+    // FUN_008ccc08: the scroll bar (+0xa6, mode +0xa8 0: n by N) when +0x79 is set, at the items'
+    // origin: values shown, rows, first row shown
+    if (m.u8(a + 0x79) && m.s16(a + 0xa6) >= 0 && m.u8(a + 0xa8) === 0 && m.u8(a + 0x19) !== 1) {
+      this.scrollBarDraw(m.s16(a + 0xa6), x, y, flags, shown.length, rows, first)
     }
     // scroll indicators (jss at +0xca / +0xcc)
     const sst = stateStyle(this.env.ctrl(p, w), flags & 1, false)

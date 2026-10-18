@@ -185,6 +185,14 @@ export class NavCtl {
     const rows = this.rows()
     const start = current ? this.top : 0
     const vis = sh.slice(start, start + rows)
+    // juicenvc__nvcmv_MenuViewDraw: the scroll bar (+0x90, mode +0x92 0: n by N) of a column, at +0xa2 /
+    // +0xa4 for the current column and +0xa6 / +0xa8 for the preview
+    const sb = m.s16(a + 0x90)
+    if (sb >= 0 && m.u8(a + 0x92) === 0 && sh.length) {
+      const sx = current ? m.s16(a + 0xa2) : m.s16(a + 0xa6)
+      const sy = current ? m.s16(a + 0xa4) : m.s16(a + 0xa8)
+      j.scrollBarDraw(sb, x + sx, y + sy, 1, sh.length, rows, start)
+    }
     vis.forEach((e, r) => {
       const w = this.widget(e.n)
       let f = flags | F.NOBODY
