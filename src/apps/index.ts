@@ -7,3 +7,4 @@ import '../screens/connections/register'  // network, Bluetooth, on-screen keybo
 import '../screens/av/register'           // picture, sound, timers, accessibility in effect
 import '../screens/extras/register'       // 123 pad, notifications, Self Diagnosis, Game Bar
 import '../screens/diag/register'         // Device Care tests, Signal Information, Tips and User Guides
+import '../screens/home/register'         // placeholder for third-party apps launched from Home

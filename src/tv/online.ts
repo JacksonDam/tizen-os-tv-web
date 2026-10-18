@@ -75,3 +75,10 @@ export function useOnline(): boolean {
 // Legal and other documents come from Samsung's servers; the recreation shows this instead of them.
 export const SERVER_TEXT_STUB =
   'This text is supplied by the server when the TV is online. It is not part of this recreation.'
+
+// ?terms=0 opens the TV with the Smart Hub terms not agreed (the home before setup), ?terms=1 agreed.
+if (typeof location !== 'undefined') {
+  const q = new URLSearchParams(location.search).get('terms')
+  if (q === '0') setDisclaimer(NOT_AGREED)
+  else if (q === '1') setDisclaimer(AGREED)
+}

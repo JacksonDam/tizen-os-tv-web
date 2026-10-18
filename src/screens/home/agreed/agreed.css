@@ -1,0 +1,206 @@
+/* Smart Hub home with the terms agreed (AgreedHome.tsx): the immersive banner, launcher, server content
+   rows, the launch loading and the third-party app placeholder. Rows are positioned by AgreedHome
+   (top/height inline); shared row styles are in home.css. */
+
+/* ---- Row 1: immersive banner (TopImmersiveBannerLayerView / VPTopBannerImmersiveView) ---- */
+.hrow--ib { z-index: 0; }
+.home__page--agreed.is-spread .hrow--ib { z-index: 5; }
+.ib-slot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+.ib-slot.is-current { opacity: 1; }
+.ib-slot__media {
+  position: absolute;
+  left: 0;
+  top: -280px;                 /* mediaPositionY -35 u */
+  width: 1920px;
+  height: 1080px;
+  transition: top 250ms var(--ease-basic);
+}
+.ib-slot.is-spread .ib-slot__media { top: 0; }
+.ib-slot__media img,
+.ib-slot__video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ib-slot__video { opacity: 0; }
+.ib-slot.is-spread .ib-slot__video { opacity: 1; transition: opacity 500ms var(--ease-basic) 500ms; }
+.ib-slot__left { position: absolute; left: 0; top: 0; width: 384px; height: 1080px; }   /* 48 x 135 u */
+.ib-slot__bottom { position: absolute; left: 0; top: 896px; width: 1920px; height: 184px; } /* 23 u at 112 u */
+.ib-slot__dim { position: absolute; left: 0; top: 536px; width: 1920px; height: 1080px; background: #0b1214; } /* y 67 u */
+.ib-slot.is-spread .ib-slot__dim { display: none; }
+.ib-slot__button {
+  left: 1416px;                /* right padding 20 u, 43 x 9 u */
+  top: 304px;                  /* buttonUnfocusedPosY 38 u */
+  width: 344px;
+  height: 72px;
+  animation: ib-fade 250ms var(--ease-basic) both;
+}
+.ib-slot__button.is-focused { top: 864px; animation: ib-fade 200ms var(--ease-basic) 300ms both; } /* 108 u */
+@keyframes ib-fade { from { opacity: 0; } to { opacity: 1; } }
+.ib-slot__arrow {
+  position: absolute;
+  left: 936px;                 /* 6 x 6 u, centred, bottom padding 3 u */
+  top: 1008px;
+  width: 48px;
+  height: 48px;
+  rotate: 270deg;
+  animation: ib-fade 200ms var(--ease-basic) 300ms both;
+}
+.ib-pages {
+  position: absolute;
+  left: 1576px;                /* centred on 197 u */
+  top: 384px;                  /* 48 u */
+  height: 32px;
+  translate: -50% 0;
+  display: flex;
+  justify-content: center;
+  animation: ib-fade 200ms var(--ease-basic) 300ms both;
+}
+.ib-pages.is-spread { top: 928px; } /* 116 u */
+.ib-pages__dot { width: 32px; height: 32px; }
+
+/* the layer's own tile without server banners: TopBannerImageView */
+.ib-default { position: absolute; left: 0; top: 0; width: 1920px; height: 528px; }
+.ib-default__art { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ib-default__title {
+  position: absolute;
+  left: 232px;                 /* 182 u box centred in 240 u */
+  top: 80px;                   /* padding 10 u */
+  width: 1456px;
+  height: 176px;               /* 22 u, text at the bottom */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: center;
+  font-size: 60px;
+  line-height: 80px;
+  font-weight: 200;
+}
+.ib-default__subtitle {
+  position: absolute;
+  left: 232px;
+  top: 256px;
+  width: 1456px;
+  height: 96px;
+  text-align: center;
+  font-size: 28px;
+  line-height: 48px;
+  font-weight: 400;
+}
+
+/* the tab row's solid page colour under its gradient (TabNListLayerView bgLayout, 92 u from y 528) */
+.tab__solid { position: absolute; left: 0; top: 184px; width: 1920px; height: 736px; background: #0b1214; }
+
+/* ---- Row 4: launcher (applist02) ---- */
+.lr { position: absolute; left: 0; top: 28px; width: 1920px; height: 112px; }
+.lr-tile,
+.lr-edit {
+  position: absolute;
+  top: 0;
+  width: 112px;
+  height: 112px;
+  transform-origin: 0 50%;     /* push-back list: grows from its left edge */
+  transition: scale 500ms var(--ease-out), left 500ms var(--ease-out);
+}
+.lr-tile.is-current,
+.lr-edit.is-current { scale: 1.2; transition: scale 300ms var(--ease-basic), left 300ms var(--ease-basic); }
+.lr-tile__shape { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.2); }   /* CC_BG220 plane */
+.lr-tile__shape img { display: block; width: 100%; height: 100%; }
+.lr-tile.is-focused .lr-tile__shape { filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.85)); }
+.lr-tile__shape--livetv,
+.lr-tile__shape--source { background: #008088; }   /* CC_Home_Device */
+.lr-tile__icon { position: absolute; left: 24px; top: 8px; width: 64px !important; height: 64px !important; }
+.lr-tile__title {
+  position: absolute;
+  left: 12px;
+  bottom: 8px;
+  width: 88px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lr-tile__ring { position: absolute; inset: 0; opacity: 0; background-size: 100% 100%; pointer-events: none; }
+.lr-tile.is-focused .lr-tile__ring { opacity: 1; }
+.lr-edit__plate {
+  position: absolute;
+  left: 16px;
+  top: 16px;
+  width: 80px;                 /* 10 x 10 u image tile */
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);   /* CP_Plane110 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lr-edit.is-focused .lr-edit__plate { background: #fff; box-shadow: var(--focus-shadow); }
+.lr-edit__icon {
+  width: 48px;
+  height: 48px;
+  background: #fff;            /* CP_Info1100 */
+  mask: center / contain no-repeat;
+  -webkit-mask: center / contain no-repeat;
+}
+.lr-edit.is-focused .lr-edit__icon { background: #000; }
+.lr-tooltip {
+  position: absolute;
+  left: 56px;
+  top: 112px;
+  translate: -50% 0;
+  scale: 0.8333;
+  transform-origin: 50% 0;
+  margin-top: 8px;             /* arrow 1 u */
+  padding: 16px;
+  border-radius: 16px;
+  background: #0099ff;         /* CC_Point7100 */
+  font-size: 24px;
+  line-height: 40px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.lr-tooltip::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -8px;
+  translate: -50% 0;
+  border: 8px solid transparent;
+  border-top: 0;
+  border-bottom-color: #0099ff;
+}
+
+/* ---- server content rows (smallcontent02) ---- */
+.hrow--content .cr-card { top: 64px; }   /* title 7 u + list top padding 1 u */
+.hrow--content .group-title.is-current { scale: 1; translate: 0 -13px; }
+.cr-desc { top: 364px; }                 /* description band under the 44 u layer */
+.cr-progress { position: absolute; left: 0; right: 0; top: 218px; height: 4px; background: rgba(255, 255, 255, 0.2); }
+.cr-progress > div { height: 100%; background: var(--accent); }
+
+/* ---- OnSelectLoadingView: CC_Dim50 + C_Loading_01 (13 u) ---- */
+.launch-loading { position: absolute; inset: 0; z-index: 30; background: rgba(0, 0, 0, 0.5); }
+.launch-loading__icon { position: absolute; left: 908px; top: 488px; width: 104px; height: 104px; }
+
+/* ---- third-party app placeholder ---- */
+.stubapp { position: absolute; inset: 0; background: #000; }
+.stubapp__bg { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0.6; }
+.stubapp__icon { position: absolute; left: 848px; top: 360px; width: 224px; height: 224px; }
+.stubapp__name {
+  position: absolute;
+  left: 0;
+  top: 624px;
+  width: 1920px;
+  text-align: center;
+  font-size: 48px;
+  line-height: 64px;
+  font-weight: 700;
+}
