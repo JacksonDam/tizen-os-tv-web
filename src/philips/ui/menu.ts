@@ -2,8 +2,10 @@ import type { RemoteKey } from '../../input/remote'
 import { clsOf, CLS, F, idxOf, type Juice, W } from '../fw/juice'
 import { NavCtl } from '../fw/nav'
 import { getTv } from '../tv/store'
+import { pictureVideo } from './sources'
 import { getProp, setProp, type TvEnv } from './env'
 import { ABSENT_PROPS, P } from './props'
+import { DEMO_LIST, DEMO_PROP, DEMO_VALUES, demoStripDraw, startDemo } from './demo'
 import { hide, repaint, show, type Screen } from './screens'
 
 // TV menu (MENU > Television > TV menu): panel#15 with the navigator nav#1 (146 nodes: TV settings,
@@ -46,6 +48,9 @@ function smartPreset(v: number): Record<number, number> | undefined {
 }
 const PICTURE = [P.contrast, P.brightness, P.colour, P.sharpness]
 
+// Features > Demo (node 5, panel#28 with list#8): see demo.ts
+const DEMO_NODE = 5
+
 export type LeafHandler = (k: RemoteKey, ctl: MenuScreen) => boolean
 // actions for composite leaves (installation, reset, software info) registered by other modules
 const actions = new Map<number, (ctl: MenuScreen) => void>()
@@ -62,6 +67,7 @@ export class MenuScreen implements Screen {
   j: Juice
   onExit: () => void = () => hide('menu')
   smart = 0                              // Reset smart settings: focused preset (index in SMART_VALUES)
+  hidden = false                         // a demo runs: the TV menu is hidden (event 0x40f2 / 0x4148)
   smartSaved: Record<number, number> | null = null
 
   constructor(j: Juice) {
@@ -78,7 +84,14 @@ export class MenuScreen implements Screen {
   }
 
   draw(j: Juice, env: TvEnv) {
+    if (this.hidden) return
     env.hidden.add(W('panel', 22)) // PIN entry
+    // Features > Demo: the demos this set offers; the strip panel#29 while the list has the focus
+    const inDemo = this.nav.leaf && this.nav.focusedNode() === DEMO_NODE
+    env.allowedValues.set(DEMO_LIST, new Set(DEMO_VALUES))
+    if (!DEMO_VALUES.includes(getProp(DEMO_PROP))) setProp(DEMO_PROP, DEMO_VALUES[0])
+    const ids = j.listValueIds(DEMO_LIST)
+    env.lists.set(DEMO_LIST, { focus: Math.max(0, ids.indexOf(getProp(DEMO_PROP))), top: 0, expanded: true })
     // Software update > Current software info (panel#117): the version property 0x29, built by
     // cehtvversions__verstor_GetSwVersion as 5 characters, "_" and "%u.%u.%u.%u" (the NVM path;
     // characters and numbers of this update, Q522E 0.64.79.0); no release notes text (property 0x2a)
@@ -99,6 +112,7 @@ export class MenuScreen implements Screen {
     env.lists.set(W('list', 123), { focus: inSmart ? this.smart : 0, top: 0, expanded: true })
     this.prepareLeaf(env)
     j.draw(TV_MENU_PANEL, 0, 0, F.FOCUS)
+    if (inDemo) demoStripDraw(j)
   }
 
   // list leaves show their values with the current one marked; the focused row follows the cursor
@@ -151,7 +165,7 @@ export class MenuScreen implements Screen {
 
   // leaf widgets the exhibit can operate: lists and sliders of properties
   enterable(node: number) {
-    if (node === SMART_NODE) return true
+    if (node === SMART_NODE || node === DEMO_NODE) return true
     const w = this.nav.widget(node)
     const c = clsOf(w)
     return (c === CLS.list || c === CLS.slider) && !ABSENT_PROPS.has(this.j.prop(w))
@@ -162,6 +176,7 @@ export class MenuScreen implements Screen {
     const j = this.j
     const env = j.env as TvEnv
     if (this.nav.focusedNode() === SMART_NODE) return this.smartKey(k)
+    if (this.nav.focusedNode() === DEMO_NODE) return this.demoKey(k)
     if (k === 'Left' || k === 'Back' || k === 'Enter') {
       this.nav.back()
       return true
@@ -193,6 +208,24 @@ export class MenuScreen implements Screen {
     }
     return true
   }
+  // Features > Demo entered: Up / Down choose a demo (list#8), OK starts it (property 0x1c0), the
+  // red key ("Exit" on the strip) and Left / Back leave the list
+  demoKey(k: RemoteKey): boolean {
+    const i = Math.max(0, DEMO_VALUES.indexOf(getProp(DEMO_PROP)))
+    if (k === 'Up' || k === 'Down') setProp(DEMO_PROP, DEMO_VALUES[Math.max(0, Math.min(DEMO_VALUES.length - 1, i + (k === 'Down' ? 1 : -1)))])
+    else if (k === 'Enter') {
+      startDemo(getProp(DEMO_PROP), !!pictureVideo(getTv()), () => {
+        this.hidden = true
+      }, () => {
+        // the end event focuses the demo list and shows the strip again; the TV menu comes back
+        // with it (inferred)
+        this.hidden = false
+        repaint()
+      })
+    } else if (k === 'Red' || k === 'Left' || k === 'Back') this.nav.back()
+    return true
+  }
+
   smartKey(k: RemoteKey): boolean {
     if (!this.smartSaved) {
       this.smartSaved = Object.fromEntries(PICTURE.map(p => [p, getProp(p)]))

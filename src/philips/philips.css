@@ -47,6 +47,16 @@ html, body, #root {
   background: #000;
 }
 
+.ph-pp-off {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 49.88%; /* 425 of the OSD's 852 columns: the demo's dividing line (panel#40) */
+  height: 100%;
+  backdrop-filter: blur(1.2px) saturate(0.8) contrast(0.92);
+  pointer-events: none;
+}
+
 .ph-osd {
   position: absolute;
   inset: 0;

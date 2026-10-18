@@ -1,3 +1,4 @@
+import { currentChannel, type TvState } from '../tv/store'
 import { strings } from './env'
 
 // The set's inputs. The firmware builds its source table (LibHySource, ceapjagconfig__pgseldiv_
@@ -36,4 +37,14 @@ export function inputName(id: string) {
   if (id === 'TV') return strings.get(511)
   const inp = INPUTS.find(i => i.id === id)
   return inp ? strings.get(inp.name) : id
+}
+
+// The picture's stand-in loop for a TV state: the input's device or the channel's loop. Radio and
+// data services and inputs without a device have no picture; the shared lineup's HD services are
+// taken as MPEG-4 AVC broadcasts, which this MPEG-2 set cannot decode.
+export function pictureVideo(s: TvState): string {
+  if (s.source !== 'TV') return INPUTS.find(i => i.id === s.source)?.video ?? ''
+  const ch = currentChannel(s)
+  if (!ch || ch.kind !== 'tv' || (ch.hd && !ch.analogue)) return ''
+  return ch.video
 }
