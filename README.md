@@ -137,6 +137,7 @@ Automation hook: `window.__tv.press('Down')` sends a key. URL options:
 | `?remote=0` | hides the on-screen remote |
 | `?boot=0` | skips the cold boot (boot logo and power-on reveal) when the page opens |
 | `?setup=1` | starts first-time setup (`?setup=0` cancels a pending one) |
+| `?terms=0` or `?terms=1` | opens the TV with the Smart Hub terms not agreed (the home before setup) or agreed |
 | `?scanspeed=<n>` | runs the channel scan n times faster |
 | `?timerspeed=<n>` | runs the sleep, off and auto power-off timers n times faster |
 
@@ -145,10 +146,19 @@ local storage; General & Privacy > Factory data reset clears it and runs first-t
 
 ### What is here
 
-- **Smart Hub home** (`src/screens/home`): the page a signed-out TV shows before the Smart Hub terms are
-  agreed. Top banner with Set Up Now, Discover, Now Playing with the live picture auto-playing, the On Now
-  channel row, the sign-in banner, Media Options (Autoplay Sound), Move to top and the Knox logo, with the
-  TV's scrolling, row morphing and focus motion.
+- **Online** (`src/tv/online.ts`, `src/screens/connections/network.ts`): the TV starts connected to the
+  fictional Wi-Fi network "Harbour View" with the Smart Hub terms agreed, so the full Smart Hub shows at
+  once. Server content (banners, apps, films and shows) comes from the museum's fictional catalogue
+  (`src/shared/fictional.ts`) with generated artwork; legal texts are a placeholder.
+- **Smart Hub home** (`src/screens/home`), signed out: with the terms agreed, the immersive banner (server
+  banners that spread to full screen with their video, or the firmware's default banner offline), Discover,
+  Now Playing with the live picture auto-playing and the On Now channels, the app launcher (Live TV, the
+  set-top box and the catalogue's apps, with Edit: Move and Remove), Continue Watching and Recommended for
+  You rows, Media Options (Autoplay Sound), Move to top and the Knox logo. Before agreement it is the
+  "Welcome. Start your Smart Hub!" page with Set Up Now and the sign-in banner, which start the Smart Hub
+  setup (network if needed, then the terms). Launching an app shows the Smart Hub's loading screen, then a
+  placeholder with the app's artwork and name (third-party apps are not in the firmware); Return comes back
+  to the Smart Hub, Exit to the picture.
 - **Sidebar** (`src/screens/sidebar`): Search, Home, Connected Devices and Settings, with the TV's
   open/close motion.
 - **Connected Devices** (`src/screens/system/ConnectedDevices.tsx`): TV, HDMI 1 (Game Console) and HDMI 2
@@ -174,9 +184,10 @@ local storage; General & Privacy > Factory data reset clears it and runs first-t
   tunes), and the Schedule Manager. Programmes come from a deterministic full-day schedule in
   `src/tv/channels.ts`.
 - **First-time setup** (`src/screens/setup`): the 2025 setup wizard with its music (language, country,
-  connected devices, network, Smart Hub agreement, TV source, channel scan) ending with the end-of-setup
-  movie, after which the Smart Hub fades in with its Home sound. It runs after Factory data reset or with
-  `?setup=1`.
+  connected devices, Wi-Fi network list and password, Smart Hub agreement, TV source, channel scan) ending
+  with the end-of-setup movie, after which the Smart Hub fades in with its Home sound. It starts from a
+  factory TV (no network, nothing agreed) and runs after Factory data reset or with `?setup=1`. Device
+  Care > Reset Smart Hub withdraws the Smart Hub agreement.
 - **PIN** (`src/screens/setup`): PIN-protected settings ask for it (default 0000); Change PIN and Factory
   data reset are in General & Privacy.
 - **On-screen keyboard** (`src/components/keyboard`): the TV's keyboard, used by Settings search, Wi-Fi
