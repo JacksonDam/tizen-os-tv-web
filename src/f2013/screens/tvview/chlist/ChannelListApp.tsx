@@ -25,7 +25,13 @@ const sortKey = (mode: ChMode) => `chlist.sort.${mode}`
 
 type Edge = { kind: EdgeKind; focus: number; leaving: boolean } | null
 
-export function ChannelListApp({ close }: AppProps) {
+// openApp('chlist', { returnTo: { id, params } }) from another application (e.g. the Menu's
+// Broadcasting > Channel List): RETURN and the time-out go back there, as ReturnToPreviousApp does
+// for CChannelListUtil::m_fromAppId 0x21/0x23/0x2e; opened from the TV, they exit to the picture.
+type Params = { returnTo?: { id: string; params?: unknown } } | undefined
+
+export function ChannelListApp({ close, params }: AppProps) {
+  const returnTo = (params as Params)?.returnTo
   const channels = useTv(s => s.channels)
   const current = useTv(s => (s.source === 'TV' ? s.channel : -1))
   const [mode, setMode] = useState<ChMode>(() => getSetting<ChMode>('tv.chMode', 'all'))
@@ -59,12 +65,16 @@ export function ChannelListApp({ close }: AppProps) {
     setPhase('out')
     setTimeout(close, HIDE_MS)
   }
-  const exitRef = useRef(exitList)
-  exitRef.current = exitList
+  const returnToPrevious = () => {
+    if (returnTo && openApp(returnTo.id, returnTo.params)) return
+    exitList()
+  }
+  const backRef = useRef(returnToPrevious)
+  backRef.current = returnToPrevious
   // 60 s without a key: m_OnTimeOutExitAlarmCallback -> ReturnToPreviousApp.
   const resetTimeout = () => {
     clearTimeout(timer.current)
-    timer.current = setTimeout(() => exitRef.current(), TIMEOUT_MS)
+    timer.current = setTimeout(() => backRef.current(), TIMEOUT_MS)
   }
   useEffect(() => {
     resetTimeout()
@@ -114,7 +124,8 @@ export function ChannelListApp({ close }: AppProps) {
     if (it.key === 'editfav') {
       // m_ModeItemPress: Edit Favourites hands over to the Menu's Edit Favourites screen
       // (0x1b40 -> CTaskManager::RunApp(0x1f, 0x50001, 0x4da)).
-      if (openApp('menu', { from: 'chlist', item: 'Edit Favourites', firmwareItem: 0x4da })) return
+      // Without a Menu application registered, nothing happens.
+      openApp('menu', { from: 'chlist', item: 'Edit Favourites', firmwareItem: 0x4da })
       return
     }
     // SetNavigationMode(mode, sub) changes the TV's channel mode, then UpdateList.
@@ -152,7 +163,7 @@ export function ChannelListApp({ close }: AppProps) {
       return true
     }
     if (key === 'Exit') {
-      exitList()
+      exitList() // KEY_EXIT (0x2d): ExitChannelList
       return true
     }
     resetTimeout()
@@ -219,7 +230,7 @@ export function ChannelListApp({ close }: AppProps) {
         openEdge('mode')
         return true
       case 'Back':
-        exitList()
+        returnToPrevious() // KEY_RETURN (0x58): ReturnToPreviousApp
         return true
       // Registered by m_RegisterKey but unused by the list: swallowed.
       case 'Red':
