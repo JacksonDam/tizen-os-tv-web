@@ -103,6 +103,7 @@
 /* help window */
 .m13-help-host { position: absolute; }
 .m13-help { position: absolute; inset: 0; }
+.m13-help-img { position: absolute; left: 0; top: 0; width: 294px; height: 208px; }
 .m13-help-text {
   position: absolute;
   font-size: 22px;

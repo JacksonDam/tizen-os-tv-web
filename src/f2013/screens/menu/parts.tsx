@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { F13 } from '../../assets'
 import { depthOffset, OSD, panelW } from './osd'
+import { HELP_IMAGE } from './helpimg.gen'
 import type { MenuItem } from './types'
 import { getValue, optionText } from './values'
 
@@ -217,19 +218,23 @@ export function Help({ item, dim }: { item?: MenuItem; dim: boolean }) {
   }, [item])
   if (!item) return null
   const subs = (item.k ?? []).map(k => k.t)
-  const subTop = (item.h ? OSD.HELP_TOP_GAP + textH : 0) + OSD.HELP_TEXT_SUB_GAP + OSD.HELP_SUB_MARGIN_H
+  // image (if any) at the top, OSD.HELP_IMAGE_H tall, centred; the text starts 4 px below it
+  const img = HELP_IMAGE[item.id]
+  const textTop = img ? OSD.HELP_IMAGE_H + OSD.HELP_IMAGE_TEXT_GAP : OSD.HELP_TOP_GAP
+  const subTop = (item.h ? textTop + textH : textTop) + OSD.HELP_TEXT_SUB_GAP + OSD.HELP_SUB_MARGIN_H
   const max = Math.max(0, Math.floor((OSD.HELP_H - subTop - OSD.HELP_SUB_BOTTOM_GAP) / OSD.HELP_SUB_H))
   return (
     <div className="m13-help" style={{ opacity: dim ? OSD.ALPHA_THIRTY : 1 }}>
+      {img && <img className="m13-help-img" src={`${IMG}/help/${img}`} alt="" />}
       {item.h && (
-        <div ref={ref} className="m13-help-text" style={{ left: OSD.HELP_MARGIN, top: OSD.HELP_TOP_GAP, width: OSD.HELP_W - 2 * OSD.HELP_MARGIN }}>
+        <div ref={ref} className="m13-help-text" style={{ left: OSD.HELP_MARGIN, top: textTop, width: OSD.HELP_W - 2 * OSD.HELP_MARGIN }}>
           {item.h}
         </div>
       )}
       {subs.slice(0, max).map((s, i) => (
         <div key={i} className="m13-help-sub" style={{ top: subTop + i * OSD.HELP_SUB_H }}>
           <img src={`${IMG}/icon_help_dot.png`} style={{ left: OSD.HELP_SUB_BELT_X }} alt="" />
-          <div style={{ left: OSD.HELP_SUB_TEXT_X, width: OSD.HELP_SUB_W - OSD.HELP_SUB_TEXT_X + OSD.HELP_SUB_BELT_X }}>{s}</div>
+          <div style={{ left: OSD.HELP_SUB_TEXT_X, width: OSD.HELP_SUB_W }}>{s}</div>
         </div>
       ))}
     </div>
