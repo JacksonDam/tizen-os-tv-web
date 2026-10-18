@@ -1,0 +1,277 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { RemoteKey } from '../../../input/remote'
+import { useRemote } from '../../../input/remote'
+import type { AppProps } from '../../shell'
+import { closeApp, openApp } from '../../shell'
+import { playUi, UI_SOUND } from '../../tv/sound'
+import { useTv } from '../../tv/store'
+import { OSD, panelX, TRANSPARENCY_ALPHA } from './osd'
+import { CAT_ICON, CategoryIcon, findItem, Help, IMG, Panel } from './parts'
+import { CATEGORIES } from './tree.gen'
+import type { MenuItem } from './types'
+import { getValue } from './values'
+import { Widgets, type Widget } from './widgets'
+
+// The 2013 Menu (exeDSP CMenuApp / CMenuMainWindowAni). Category list on the left, menu list panels
+// ("blue windows") stacked to its right, help window on the far right while a list has the focus.
+//   category focus: Up/Down move, Right/OK enter the list, Left/Return/Exit/MENU close
+//   list focus:     Up/Down move, Right/OK run the item, Left/Return back, Exit/MENU close
+// (CMenuMainWindow::t_OnCategoryKeyPress / t_OnMenuListKeyPress)
+
+type Level = { item: MenuItem; focus: number; top: number }
+
+// CCAnimation acceleration types (1,1)/(0,2)/(2,0) with factor 0.3 (inferred curves)
+const EASE_INOUT = 'cubic-bezier(0.3,0,0.7,1)'
+const EASE_OUT = 'cubic-bezier(0,0,0.7,1)'
+
+export type MenuParams = { page?: string; from?: string }
+
+function visible(items: MenuItem[]) {
+  return items
+}
+
+export function MenuApp({ params }: AppProps) {
+  const p = (params ?? {}) as MenuParams
+  const transparency = useTv(s => s.settings['menu.958'])
+  const settingsSeq = useTv(s => s.settings)
+  const cats = CATEGORIES
+  const [cat, setCat] = useState(0)
+  const [area, setArea] = useState<'cat' | 'list'>('cat')
+  const [levels, setLevels] = useState<Level[]>([])
+  const [phase, setPhase] = useState<0 | 1 | 2 | 3>(0)  // 0 hidden, 1 bg+panel fade in at START_X, 2 panel moving to STOP_X, 3 open
+  const [anim, setAnim] = useState<{ x0: number; dur: number; ease: string }>({ x0: OSD.PANEL_START_X, dur: OSD.BLUE_START_ALPHA_MS, ease: EASE_INOUT })
+  const [busy, setBusy] = useState(false)
+  const [helpOn, setHelpOn] = useState(false)
+  const [widget, setWidget] = useState<Widget | null>(null)
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const later = useCallback((ms: number, f: () => void) => {
+    timers.current.push(setTimeout(f, ms))
+  }, [])
+  useEffect(() => () => timers.current.forEach(clearTimeout), [])
+
+  const level0 = useMemo<Level>(() => ({ item: cats[cat], focus: 0, top: 0 }), [cats, cat])
+  const stack = levels.length ? levels : [level0]
+  const depth = levels.length ? levels.length - 1 : 0
+  const cur = stack[depth]
+  const curItems = visible(cur.item.k ?? [])
+  const focusedItem = area === 'list' ? curItems[cur.focus] : undefined
+  void settingsSeq
+
+  // ---- opening (CMenuMainWindowAni::t_ProcessShowMainWindow) ----
+  useEffect(() => {
+    requestAnimationFrame(() => requestAnimationFrame(() => setPhase(1)))
+    later(OSD.BLUE_ALPHA_POS_GAP_MS, () => {
+      setAnim({ x0: OSD.PANEL_STOP_X, dur: OSD.BLUE_START_POS_MS, ease: EASE_INOUT })
+      setPhase(2)
+    })
+    later(OSD.BLUE_ALPHA_POS_GAP_MS + OSD.BLUE_START_POS_MS, () => setPhase(3))
+    if (p.page === 'network-settings') {
+      const ni = cats.findIndex(c => c.id === 3)
+      if (ni >= 0) setCat(ni)
+    }
+  }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const close = useCallback(() => {
+    closeApp('menu')
+    if (p.from === 'smarthub') openApp('smarthub')
+  }, [p.from])
+
+  // ---- focus changes ----
+  const enterList = () => {
+    // CMenuMainWindowAni::t_AfterFocusChangeCategoryToMenuList: panel STOP_X -> START_X (256 ms)
+    setArea('list')
+    setLevels([{ ...level0 }])
+    setBusy(true)
+    setAnim({ x0: OSD.PANEL_START_X, dur: OSD.BLUE_NORMAL_POS_MS, ease: EASE_INOUT })
+    later(OSD.BLUE_NORMAL_POS_MS, () => {
+      setBusy(false)
+      setHelpOn(true)
+    })
+  }
+  const backToCategory = () => {
+    // t_AfterFocusChangeMenuListToCategory: panel START_X -> STOP_X, help hides
+    setArea('cat')
+    setHelpOn(false)
+    setLevels([])
+    setBusy(true)
+    setAnim({ x0: OSD.PANEL_STOP_X, dur: OSD.BLUE_NORMAL_POS_MS, ease: EASE_INOUT })
+    later(OSD.BLUE_NORMAL_POS_MS, () => setBusy(false))
+  }
+  const enterChild = (it: MenuItem) => {
+    if (depth >= 4 || !it.k) return
+    setLevels(ls => [...(ls.length ? ls : [level0]), { item: it, focus: Math.max(0, it.k!.findIndex(k => k.en !== false)), top: 0 }])
+    setBusy(true)
+    later(OSD.BLUE_NORMAL_POS_MS, () => setBusy(false))
+  }
+  const backToParent = () => {
+    setLevels(ls => ls.slice(0, -1))
+    setBusy(true)
+    later(OSD.BLUE_NORMAL_POS_MS, () => setBusy(false))
+  }
+  const move = (d: number) => {
+    const items = curItems
+    const f = cur.focus + d
+    if (f < 0 || f >= items.length) return
+    // CSingleLineListWidget skips items whose focus is unavailable? dimmed items stay focusable.
+    let top = cur.top
+    if (f < top) top = f
+    if (f >= top + OSD.VISIBLE) top = f - OSD.VISIBLE + 1
+    setLevels(ls => ls.map((l, i) => (i === ls.length - 1 ? { ...l, focus: f, top } : l)))
+    playUi(UI_SOUND.MOVE)
+  }
+  const runItem = (it: MenuItem) => {
+    playUi(UI_SOUND.SELECT)
+    if (it.en === false) {
+      setWidget({ kind: 'dimreason', item: it })
+      return
+    }
+    const ok = it.ok ?? ''
+    if (ok === 'child' && it.k?.length) return enterChild(it)
+    setWidget({ kind: 'item', item: it })
+  }
+
+  useRemote((key: RemoteKey) => {
+    if (widget) return false
+    if (phase < 3 || busy) return key !== 'VolumeUp' && key !== 'VolumeDown'
+    if (key === 'Exit' || key === 'Settings') {
+      close()
+      return true
+    }
+    if (area === 'cat') {
+      if (key === 'Up' || key === 'Down') {
+        const n = cat + (key === 'Up' ? -1 : 1)
+        if (n >= 0 && n < cats.length) {
+          setCat(n)
+          playUi(UI_SOUND.MOVE)
+        }
+        return true
+      }
+      if (key === 'Right' || key === 'Enter') {
+        if (key === 'Enter') playUi(UI_SOUND.SELECT)
+        if ((cats[cat].k ?? []).length) enterList()
+        return true
+      }
+      if (key === 'Left' || key === 'Back') {
+        close()
+        return true
+      }
+      return key !== 'Home' ? true : false
+    }
+    if (key === 'Up' || key === 'Down') {
+      move(key === 'Up' ? -1 : 1)
+      return true
+    }
+    if (key === 'Right' || key === 'Enter') {
+      const it = curItems[cur.focus]
+      if (it) runItem(it)
+      return true
+    }
+    if (key === 'Left' || key === 'Back') {
+      if (depth < 1) backToCategory()
+      else backToParent()
+      return true
+    }
+    return key !== 'Home' ? true : false
+  })
+
+  const alphaBg = TRANSPARENCY_ALPHA[Number(transparency ?? 1)] ?? TRANSPARENCY_ALPHA[1]
+  const listFocused = area === 'list'
+  const dimmed = !!widget && widget.kind !== 'dimreason' ? true : !!widget
+
+  return (
+    <div className="m13-osd">
+      <div className="m13-scene" style={{ left: OSD.SCENE_X, top: OSD.SCENE_Y, width: OSD.SCENE_W, height: OSD.SCENE_H }}>
+        {/* back panel */}
+        <div className="m13-back" style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity ${OSD.MAIN_BG_ALPHA_MS}ms ${EASE_INOUT}` }}>
+          <div className="m13-back-shadow" style={{ left: OSD.BACK_IMG_X, top: OSD.BACK_IMG_Y, width: OSD.BACK_IMG_W, height: OSD.BACK_IMG_H }} />
+          <div
+            className="m13-back-frame"
+            style={{ left: OSD.BACK_IMG_X + OSD.BACK_IMG_GAP, top: OSD.BACK_IMG_Y + OSD.BACK_IMG_GAP, width: OSD.BACK_IMG_W - 2 * OSD.BACK_IMG_GAP, height: OSD.BACK_IMG_H - 2 * OSD.BACK_IMG_GAP }}
+          />
+          <div
+            className="m13-back-black"
+            style={{
+              left: OSD.BACK_IMG_X + OSD.BACK_IMG_GAP + OSD.MENU_3_UNIT, top: OSD.BACK_IMG_Y + OSD.BACK_IMG_GAP + OSD.MENU_3_UNIT,
+              width: OSD.BACK_IMG_W - 2 * (OSD.BACK_IMG_GAP + OSD.MENU_3_UNIT), height: OSD.BACK_IMG_H - 2 * (OSD.BACK_IMG_GAP + OSD.MENU_3_UNIT),
+              opacity: alphaBg,
+            }}
+          />
+        </div>
+
+        {/* category list */}
+        <div className="m13-cats" style={{ width: OSD.CAT_W, height: OSD.CAT_H, opacity: phase >= 3 ? 1 : 0, transition: `opacity ${OSD.CAT_TEXT_ALPHA_MS}ms` }}>
+          {area === 'cat' && !widget && (
+            <div className="m13-cat-hl" style={{ top: OSD.CAT_MARGIN_TOP + cat * itemH() + (itemH() - 68) / 2 }} />
+          )}
+          {cats.map((c, i) => {
+            const base = CAT_ICON[c.id]
+            const focused = i === cat
+            const disabled = c.en === false
+            const opaque = !!widget
+            const img = `${base}_${disabled ? 'dim' : focused && (area === 'list' || area === 'cat') ? 'selected' : 'normal'}${opaque ? '_opaque' : ''}`
+            const textColor = disabled || opaque ? OSD.SEMI_WHITE : focused && area === 'cat' ? OSD.YELLOW : OSD.WHITE
+            return (
+              <div key={c.id} className="m13-cat" style={{ top: OSD.CAT_MARGIN_TOP + i * itemH(), height: itemH() }}>
+                <div style={{ position: 'absolute', left: OSD.CAT_ICON_X, top: (itemH() - OSD.CAT_ICON) / 2 }}>
+                  <CategoryIcon base={base} img={img} state={focused && area === 'cat' && phase >= 3 && !widget ? 'focus' : 'idle'} />
+                </div>
+                <div
+                  className="m13-cat-text"
+                  style={{ left: OSD.CAT_TEXT_X, width: OSD.CAT_TEXT_W, height: itemH(), color: textColor, opacity: area === 'cat' ? 1 : 0, transition: `opacity ${OSD.CAT_TEXT_ALPHA_MS}ms ${area === 'cat' ? 'cubic-bezier(0.3,0,1,1)' : EASE_OUT}` }}
+                >
+                  {c.t}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* menu list panels */}
+        {stack.map((l, i) => {
+          const top = i === stack.length - 1
+          const x = i === 0 ? (top ? anim.x0 : panelX(0, false)) : top ? panelX(i, true) : panelX(i, false)
+          const state = !top ? 0 : area === 'list' ? (widget ? 0 : 1) : 3
+          return (
+            <Panel
+              key={`${i}:${l.item.id}`}
+              title={l.item.t}
+              items={visible(l.item.k ?? [])}
+              level={i}
+              focus={l.focus}
+              top={l.top}
+              state={state}
+              x={i === 0 ? x : x}
+              alpha={i === 0 ? (phase >= 1 ? 1 : 0) : 1}
+              contentAlpha={top ? 1 : 0}
+              ease={EASE_INOUT}
+              dur={i === 0 ? anim.dur : OSD.BLUE_NORMAL_POS_MS}
+              bgAlpha={top && dimmed ? OSD.ALPHA_THIRTY : 1}
+            />
+          )
+        })}
+
+        {/* help window */}
+        <div className="m13-help-host" style={{ left: OSD.HELP_X, top: OSD.HELP_Y, width: OSD.HELP_W, height: OSD.HELP_H }}>
+          {listFocused && helpOn && !busy && <Help item={focusedItem} dim={dimmed} />}
+        </div>
+
+        {widget && (
+          <Widgets
+            widget={widget}
+            level={depth}
+            row={cur.focus - cur.top}
+            onClose={() => setWidget(null)}
+            onExitMenu={close}
+            onValue={() => setWidget(w => (w ? { ...w } : w))}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
+function itemH() {
+  return (OSD.CAT_H - 2 * OSD.CAT_MARGIN_TOP) / OSD.CAT_COUNT
+}
+
+
