@@ -1,30 +1,32 @@
 import { VIDEO } from './assets'
-import { currentVideo, useTv } from './store'
+import { currentChannel, useTv } from './tv/store'
+import { getProp } from './ui/env'
+import { P } from './ui/props'
+import { INPUTS } from './ui/sources'
 
-// The TV picture: the current channel's or input's stand-in video loop, black when there is none
-// (radio, data services, unconnected inputs). Picture settings tint it, like the real set.
+// The picture: the current channel's or input's stand-in loop. Radio services and inputs without a
+// device have no picture; the shared lineup's HD services are taken as MPEG-4 AVC broadcasts, which
+// this MPEG-2 set cannot decode (it shows "Unsupported video format", as in the Polish footage).
+// Picture settings tint the loop like the menus' sliders would the panel.
+
+export function useVideo(): string {
+  return useTv(s => {
+    if (s.source !== 'TV') return INPUTS.find(i => i.id === s.source)?.video ?? ''
+    const ch = currentChannel(s)
+    if (!ch || ch.kind !== 'tv' || (ch.hd && !ch.analogue)) return ''
+    return ch.video
+  })
+}
+
 export function LiveTv() {
-  const video = useTv(currentVideo)
-  const power = useTv(s => s.power)
-  const contrast = useTv(s => s.settings[25] ?? 90)
-  const brightness = useTv(s => s.settings[26] ?? 48)
-  const color = useTv(s => s.settings[27] ?? 52)
-
-  if (power !== 'on') return <div className="ph-live ph-live--black" />
-  if (!video) return <div className="ph-live ph-live--black" />
-
-  // Map the menu sliders (0..100) to CSS filters, centred on the factory values.
-  const filter = `contrast(${0.7 + contrast / 150}) brightness(${0.75 + brightness / 120}) saturate(${color / 52})`
-  return (
-    <video
-      key={video}
-      className="ph-live"
-      style={{ filter }}
-      src={`${VIDEO}${video}`}
-      autoPlay
-      muted
-      loop
-      playsInline
-    />
-  )
+  const video = useVideo()
+  const props = useTv(s => s.props)
+  void props
+  const contrast = getProp(P.contrast)
+  const brightness = getProp(P.brightness)
+  const colour = getProp(P.colour)
+  if (!video) return <div className="ph-live" />
+  // the sliders around the factory values (100 / 50 / 50) map to CSS filters (inferred)
+  const filter = `contrast(${0.5 + contrast / 200}) brightness(${0.6 + brightness / 125}) saturate(${colour / 50})`
+  return <video key={video} className="ph-live" style={{ filter }} src={`${VIDEO}${video}`} autoPlay muted loop playsInline />
 }
