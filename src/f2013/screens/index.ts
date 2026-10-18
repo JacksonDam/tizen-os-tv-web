@@ -2,3 +2,4 @@
 // with ../shell; keep one line per module.
 import './smarthub'
 import './tvview'
+import './setup'

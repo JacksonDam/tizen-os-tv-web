@@ -1,0 +1,39 @@
+/* Boot loader logo (BootScreen.tsx): 1280x720 frame-buffer images scaled x1.5 */
+.boot {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.boot__logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 550.5px;   /* 367 x 1.5 */
+  height: 139.5px;  /* 93 x 1.5 */
+  transform: translate(-50%, -50%);
+}
+.boot__hexes {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  animation-name: boot-hex;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+.boot__hex {
+  position: absolute;
+  top: -57px;
+  width: 99px;      /* 66 x 1.5 */
+  height: 114px;    /* 76 x 1.5 */
+  background-size: 891px 114px;  /* 594x76 strip x 1.5 */
+  background-repeat: no-repeat;
+}
+/* ~150 ms ramps at both ends of the 1200 ms (sAmJMgr1va0 3.50-3.67 s, 5.07-5.23 s) */
+@keyframes boot-hex {
+  0% { opacity: 0; }
+  12.5% { opacity: 1; }
+  87.5% { opacity: 1; }
+  100% { opacity: 0; }
+}
