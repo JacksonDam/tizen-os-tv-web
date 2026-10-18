@@ -91,8 +91,11 @@ const APP_ITEMS: Record<number, () => void> = {
   0x1cf: () => openApp('autotune', { returnTo: 'menu', returnParams: { path: [0x1cf] } }),  // Auto Tuning
   0x21f: () => openApp('autotune', { returnTo: 'menu', returnParams: { path: [0x21f] }, mode: 'manual' }),  // Manual Tuning
   0x2b7: () => openApp('chlist', { from: 'menu' }),              // Channel List
-  0x2b9: () => openApp('chlist', { from: 'menu', page: 'edit' }), // Edit Channel
-  0x2ba: () => openApp('chlist', { from: 'menu', page: 'favourites' }),  // Edit Favourites
+  // Edit Channel / Edit Favourites run the Channel Manager (t_ActivateApplication; the Channel List's
+  // Edit Favourites goes there too: RunApp(0x1f, 0x50001, 0x4da)). The Channel Manager is not part of
+  // the Menu: app id 'chmanager' if one is registered, else the Channel List (stand-in).
+  0x2b9: () => { if (!openApp('chmanager', { from: 'menu', page: 'edit' })) openApp('chlist', { from: 'menu' }) },
+  0x2ba: () => { if (!openApp('chmanager', { from: 'menu', page: 'favourites' })) openApp('chlist', { from: 'menu' }) },
   0x237: () => openApp('guide', { from: 'menu' }),               // Guide
 }
 
