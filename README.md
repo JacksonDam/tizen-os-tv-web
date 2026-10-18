@@ -19,8 +19,8 @@ connecting and agreeing from a factory state.
 
 Built with Vite, React and TypeScript as a multi-page site: the lobby (`index.html`, `src/museum`) and
 one page per exhibit (`2013/index.html` with `src/f2013`, `2025/index.html` with the rest of `src`).
-There is also an unlisted exhibit (`philips/index.html`, `src/philips`): a 2008 Philips 42PFL5603D/27 (LC08 platform),
-rebuilt from its MediaTek firmware package, which the lobby opens when P is held for a second.
+There is also an unlisted exhibit (`philips/index.html`, `src/philips`): a 2008 European Philips 42PFL5603D/12
+(TV520 platform), rebuilt from its Q522E 0.64.79.0 software update, which the lobby opens when P is held for a second.
 Each TV is a fixed 1920x1080 stage that scales to the window, with an on-screen remote docked beside it
 (`src/stage`, `src/remote`). The exhibits share the key router (`src/input/remote.ts`), the channel
 lineup and programme guide (`src/tv/channels.ts`) and the stand-in video loops (`public/video`).
@@ -274,5 +274,6 @@ Unofficial and not affiliated with Samsung. The images, animations, sounds, musi
 fonts in `public/f13`, `public/tv` and `public/sounds` come from Samsung TV firmware, and the 2025
 end-of-setup movie
 (`public/video/oobe_ending_2160p60.mp4`) from a capture of a Samsung TV; they remain the property of Samsung
-Electronics. App logos shown in them belong to their respective owners. The images in `public/philips` come from
-Philips TV firmware and remain the property of their owners.
+Electronics. App logos shown in them belong to their respective owners. The bitmaps, widget tables, menu
+texts and the Philips Screen Font 4 in `public/philips` come from Philips TV firmware and remain the property
+of their owners.
