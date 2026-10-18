@@ -1,7 +1,7 @@
 // Capture the web UI at exactly 1920x1080 with headless Chrome over CDP.
 // usage: node tools/shot.mjs <url> <out.png> [--keys Left,Down,...] [--wait ms] [--keywait ms]
 // Keys go through the app's window.__tv.press() hook ("type:text" / "kbd:Key" send keydown events instead,
-// "wait:ms" pauses, "eval:expr" prints a page value),
+// "wait:ms" pauses, "eval:expr" prints a page value, "shot:file.png" saves a screenshot mid-sequence),
 // --keywait apart (default 400 ms), and the
 // screenshot is taken --wait ms after the last key (default 1200 ms).
 import { spawn } from 'node:child_process'
@@ -74,6 +74,14 @@ try {
   for (const k of keys) {
     if (k.startsWith('wait:')) {
       await sleep(+k.slice(5)) // "wait:3000" pauses between keys
+      continue
+    }
+    if (k.startsWith('shot:')) {
+      // "shot:/path/name.png" captures the screen at this point of the sequence (sweeps)
+      await sleep(wait)
+      const mid = await send('Page.captureScreenshot', { format: 'png' })
+      writeFileSync(k.slice(5), Buffer.from(mid.data, 'base64'))
+      console.log(k.slice(5))
       continue
     }
     if (k.startsWith('eval:')) {

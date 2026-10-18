@@ -68,7 +68,7 @@ export class NavCtl {
   }
   avail(node: number) {
     const w = this.widget(node)
-    return this.nodeAvail(node) && this.j.env.avail(this.j.prop(w), w) && this.j.env.state(w) > 1
+    return this.nodeAvail(node) && this.j.env.avail(this.j.prop(w), w) && this.j.wstate(w) > 1
   }
   shown(node: number) {
     return this.items(node).map((n, k) => ({ n, k })).filter(e => this.avail(e.n))
@@ -134,6 +134,12 @@ export class NavCtl {
   draw(j: Juice, x: number, y: number, flags: number) {
     const m = this.m
     const a = this.a
+    // an active navigator activates its node widgets whose properties are available and the
+    // nodes the TV application allows (FUN_008d92e4: message 1, else message 2)
+    for (let i = 0; i < this.nodeCount(); i++) {
+      const w = this.widget(i)
+      if (w && j.env.state(w) < 0 && this.nodeAvail(i) && j.env.avail(j.prop(w), w)) j.env.show?.(w)
+    }
     const h = m.s16(a + 0x20)
     const st = j.st(this.w, flags & 1)
     j.jss(m.s16(a + 0x96), m.s16(a + 0x54) + m.s16(a + 0x58), m.s16(a + 0x56) + m.s16(a + 0x5a), 0, h, st)
@@ -153,7 +159,7 @@ export class NavCtl {
     // right column: preview of the focused item's node, or the leaf widget
     if (nxt !== undefined && nxt >= 0 && m.u8(a + 100)) {
       const lw = this.widget(nxt)
-      if (j.env.state(lw) > 1 && j.env.avail(j.prop(lw), lw)) {
+      if (j.wstate(lw) > 1 && j.env.avail(j.prop(lw), lw)) {
         let f = (flags & 0xffcf) | F.ALT
         if (!(this.leaf && focus)) f &= ~F.FOCUS
         const rx = x + m.u16(a + 0x54)

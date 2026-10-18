@@ -45,4 +45,5 @@ export const ABSENT_PROPS = new Set<number>([
   0x56a, // PIP format
   0x32, // Internet upgrade
   P.hue, // Hue: NTSC only (the stand-in channels are PAL / DVB)
+  0x366, // Preferences list#50: its caption (string 1391) and values are empty in every language
 ])

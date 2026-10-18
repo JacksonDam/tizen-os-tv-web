@@ -49,7 +49,10 @@ export interface Env {
   ctrl(prop: number, w: number): boolean   // juiceappreg__japiX_IsControllable
   get(prop: number, w: number): number     // juiceappreg__japiX_Get
   range(prop: number, w: number): [number, number] // japiX_First / japiX_Last
-  state(w: number): number                 // juicew__wid_State (> 1 drawn, > 3 children drawn)
+  // a screen's explicit widget state: 0 hidden, 6 shown (juicew__wid_SetStateFunc by the TV
+  // application), -1 none (the toolkit's own activation decides, see Juice.wstate)
+  state(w: number): number
+  show?(w: number): void                   // a screen draws this widget as an active root
   statusValue?(w: number): string | number | undefined // status controls of type 1/2/5
   propNumber?(prop: number): number | undefined       // property values a screen supplies (type 1 numbers)
   list?(w: number): ListState | undefined
@@ -81,9 +84,57 @@ export class Juice {
       'JuiceStatusControls', 'JuiceLists', 'JuiceSliders', 'JuiceButtons', 'JuiceTexts', 'JuiceNavigators',
       'JuiceBel2s', 'JuiceStyleTexts', 'JuiceStateStyles', 'JuiceBitmapGroups', 'JuiceDynamicGrids',
       'JuiceNumericGroupEdits', 'JuiceIcons', 'JuiceAnimators', 'JuiceMultiLineStatuss', 'JuiceDateTimes',
-      'JuiceOrganizers', 'JuiceScrollBars', 'JuiceListVars']) {
+      'JuiceOrganizers', 'JuiceScrollBars', 'JuiceListVars', 'JuiceRadios', 'JuiceEncapsulations', 'JuiceLayouts']) {
       this.T[k] = m.addr(k)
     }
+    // the panel each widget is a child of (JuicePanels +0x30 / +0x34 child lists, which the panel's
+    // SetState walks)
+    const n = Math.floor(m.sym.JuicePanels[1] / 0x48)
+    for (let i = 0; i < n; i++) {
+      const p = W('panel', i)
+      for (const [c] of this.children(p)) if (!this.panelOf.has(c)) this.panelOf.set(c, p)
+    }
+  }
+
+  // ---------- widget states (juicew__wid_State) ----------
+  // States: 0/1 inactive (not drawn), 3 visible, 6 active. The TV application activates a screen's
+  // root (SetState 6); an active panel sends message 5 to its children (FUN_008e7e3c) and a child
+  // activates only when its auto-show flag is set and its property is available (the class message
+  // handlers, e.g. FUN_008e8be8 for panels: PanelControls+5, FUN_008cc2ac for lists: +0x49); the
+  // others stay inactive until the application shows them. A navigator activates its node widgets
+  // whose properties are available (FUN_008d92e4, message 1). Widgets outside panel child lists
+  // (grid cells, help widgets) follow the widget that draws them.
+  panelOf = new Map<number, number>()
+  depth = 0
+  autoShow(w: number): boolean {
+    const m = this.m
+    const i = idxOf(w)
+    const T = this.T
+    switch (clsOf(w)) {
+      case CLS.panel: return !!m.u8(T.JuicePanelControls + m.u16(T.JuicePanels + i * 0x48 + 0x36) * 0x10 + 5)
+      case CLS.status: return !!m.u8(T.JuiceStatusControls + m.u16(T.JuiceStatuss + i * 0x3c + 0x36) * 0x18 + 5)
+      case CLS.list: return !!m.u8(T.JuiceLists + i * 0xe0 + 0x49)
+      case CLS.multiline: return !!m.u8(T.JuiceMultiLineStatuss + i * 0x70 + 0x49)
+      case CLS.nav: return !!m.u8(T.JuiceNavigators + i * 0xb0 + 0x4d)
+      case CLS.dgrid: return !!m.u8(T.JuiceDynamicGrids + i * 0xc0 + 0x39)
+      case CLS.slider: return !!m.u8(T.JuiceSliders + i * 0xcc + 0x39)
+      case CLS.button: return !!m.u8(T.JuiceButtons + i * 0x74 + 0x39)
+      case CLS.text: return !!m.u8(T.JuiceTexts + i * 0x9c + 0x39)
+      case CLS.numgroup: return !!m.u8(T.JuiceNumericGroupEdits + i * 0x94 + 0x39)
+      case CLS.datetime: return !!m.u8(T.JuiceDateTimes + i * 0xa0 + 0x39)
+      case CLS.icon: return !!m.u8(T.JuiceIcons + i * 0x14 + 0xc)
+      case CLS.animator: return !!m.u8(T.JuiceAnimators + i * 0x54 + 0x13)
+      case CLS.organizer: return !!m.u8(T.JuiceOrganizers + i * 0x70 + 0x3d)
+      default: return true
+    }
+  }
+  wstate(w: number): number {
+    const s = this.env.state(w)
+    if (s >= 0) return s
+    const p = this.panelOf.get(w)
+    if (p === undefined) return 6
+    if (this.wstate(p) !== 6) return 1
+    return this.autoShow(w) && this.env.avail(this.prop(w), w) ? 6 : 1
   }
 
   // ---------- resources ----------
@@ -341,7 +392,7 @@ export class Juice {
   // juicewidgetcommon__jwc_Draw2 + FUN_008fe45c (the scrolling-caption path is drawn clipped)
   jwcDraw(w: number, x: number, y: number, st: number, alt: boolean) {
     const j = this.jwcOf(w)
-    if (!j || this.env.state(w) < 2) return
+    if (!j || this.wstate(w) < 2) return
     const m = this.m
     const bi = m.s16(j + (alt ? 2 : 0))
     if (bi < 0) return
@@ -416,7 +467,18 @@ export class Juice {
 
   // ---------- class draw functions ----------
   draw(w: number, x: number, y: number, flags = 0) {
-    if (!w || this.env.state(w) < 2) return
+    if (!w) return
+    // a screen's own draw call activates its root (the application's SetState 6)
+    if (this.depth === 0 && this.env.state(w) < 0) this.env.show?.(w)
+    if (this.wstate(w) < 2) return
+    this.depth++
+    try {
+      this.drawClass(w, x, y, flags)
+    } finally {
+      this.depth--
+    }
+  }
+  drawClass(w: number, x: number, y: number, flags: number) {
     switch (clsOf(w)) {
       case CLS.panel: return this.panelDraw(w, x, y, flags)
       case CLS.status: return this.statusDraw(w, x, y, flags)
@@ -447,7 +509,7 @@ export class Juice {
     let gy = y
     if (!(flags & F.NOOFFSET)) { gx += m.u16(a + 0x70); gy += m.u16(a + 0x72) }
     const g = this.env.grid?.(w)
-    if (!g || this.env.state(w) < 3) return
+    if (!g || this.wstate(w) < 3) return
     const rows = m.u8(a + 0x54)
     const vertical = m.u8(a + 0x44) === 0
     const pitch = vertical ? m.s16(a + 0x4c) : m.s16(a + 0x4e)
@@ -467,7 +529,7 @@ export class Juice {
       for (let c = 0; c < nc; c++) {
         const e = cells + 0x14 * c
         const cw = m.u32(e)
-        if (!(m.u8(e + 4) & 1) || this.env.state(cw) < 2) continue
+        if (!(m.u8(e + 4) & 1) || this.wstate(cw) < 2) continue
         this.cellDraw(cw, rx + m.s16(e + 6), ry + m.s16(e + 8), rf, row)
       }
       if (focused) {
@@ -599,13 +661,13 @@ export class Juice {
       const bmp = m.s16(v + 0x16)
       this.drawBitmap(bmp, px, py, this.bmpW(bmp), this.bmpH(bmp))
       this.jss(m.s16(v + 0x18), px, py, m.s16(v), m.s16(v + 2), st)
-      if (this.env.state(w) > 3) {
+      if (this.wstate(w) > 3) {
         // a panel whose control has +8 set draws one focused child (PanelVars+0xf, initially the
         // control's +9) last and with the focus; otherwise every child gets the panel's flags
         const fmode = m.u8(ctl + 8)
         const fi = fmode ? this.env.panelFocus?.(w) ?? m.u8(ctl + 9) : -1
         const kids = this.children(w)
-        const ok = (c: number) => this.env.state(c) > 1 && this.env.avail(this.prop(c), c)
+        const ok = (c: number) => this.wstate(c) > 1 && this.env.avail(this.prop(c), c)
         kids.forEach(([c, cx, cy], k) => {
           if (k === fi || !ok(c)) return
           this.draw(c, px + cx, py + cy, fmode ? 0 : flags & ~0xc)
@@ -753,7 +815,7 @@ export class Juice {
     const m = this.m
     const a = this.T.JuiceLists + idxOf(w) * 0xe0
     const n = this.listCount(w)
-    if (!n || this.env.state(w) < 4) return
+    if (!n || this.wstate(w) < 4) return
     const mode71 = m.u8(a + 0x71)
     if (mode71 !== 1 && mode71 !== 3) {
       // collapsed: only the current value (indicators such as the mute icon)
@@ -954,7 +1016,7 @@ export class Juice {
     this.jss(m.s16(a + 0x62), x, y, m.s16(a + 0xc), m.s16(a + 0xe), st)
     x += m.u16(a + 0x4c)
     y += m.u16(a + 0x4e)
-    if (this.env.state(w) < 4) return
+    if (this.wstate(w) < 4) return
     const bi = m.s16(a + 0x42)
     this.jss(m.s16(a + 0x60), x, y, m.s16(this.b2(bi) + 10), m.s16(this.b2(bi) + 8), st)
     this.bel2Draw(bi, x + m.s16(a + 0x48), y + m.s16(a + 0x4a), st, undefined, m.s16(a + 0x72))

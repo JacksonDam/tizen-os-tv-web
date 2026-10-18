@@ -62,6 +62,7 @@ export function paintAll(j: Juice) {
   for (const s of screens) {
     if (covered && (s.name === 'message' || s.name === 'banner')) continue
     env.hidden = new Set()
+    env.shown = new Set()
     env.disabled = new Set()
     env.overrides = new Map()
     env.values = new Map()
@@ -71,6 +72,7 @@ export function paintAll(j: Juice) {
     s.draw(j, env)
   }
   env.hidden = new Set()
+  env.shown = new Set()
 }
 
 // keys: topmost screen first

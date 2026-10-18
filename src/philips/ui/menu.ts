@@ -1,6 +1,7 @@
 import type { RemoteKey } from '../../input/remote'
 import { clsOf, CLS, F, idxOf, type Juice, W } from '../fw/juice'
 import { NavCtl } from '../fw/nav'
+import { getTv } from '../tv/store'
 import { getProp, setProp, type TvEnv } from './env'
 import { ABSENT_PROPS, P } from './props'
 import { hide, repaint, show, type Screen } from './screens'
@@ -81,6 +82,13 @@ export class MenuScreen implements Screen {
     // Software update > Current software info (panel#117): the version property 0x29, built by
     // cehtvversions__verstor_GetSwVersion as 5 characters, "_" and "%u.%u.%u.%u" (the NVM path;
     // characters and numbers of this update, Q522E 0.64.79.0); no release notes text (property 0x2a)
+    // Installation > Channel installation > Rearrange (panel#102): its channel grid dgrid#6 (property
+    // 0x347, cells status#279 number 0x349, status#281 name 0x312) is the only child the panel
+    // activates by itself; the legends, rename and recorder panels wait for the application
+    const chs = getTv().channels
+    env.gridState.set(W('dgrid', 6), { count: chs.length, focus: -1, top: 0 })
+    env.cells.set(W('status', 279), r => chs[r]?.number)
+    env.cells.set(W('status', 281), r => chs[r]?.name)
     env.values.set(W('status', 318), SW_VERSION)
     env.values.set(W('status', 319), '')
     // Reset smart settings: its legends and item text only while it is entered (inferred)

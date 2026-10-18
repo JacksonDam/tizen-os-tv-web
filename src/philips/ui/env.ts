@@ -13,6 +13,7 @@ export const strings = new Strings()
 
 export class TvEnv implements Env {
   hidden = new Set<number>()                       // widgets the drawing screen does not show
+  shown = new Set<number>()                        // widgets the drawing screen shows (SetState 6)
   values = new Map<number, string | number>()      // status controls' runtime values
   lists = new Map<number, ListState>()             // list widgets' focus / scroll
   texts = new Map<string, string>()                // caption overrides: `${widget}:${alt}`
@@ -30,6 +31,9 @@ export class TvEnv implements Env {
     return this.user
   }
   avail(prop: number) {
+    // Digital: Test reception shows the symbol rate (property 0x3ae) for cable installations only
+    // (inferred: DVB-T has no symbol rate)
+    if (prop === 0x3ae) return getProp(P.installMode) !== 1
     return !ABSENT_PROPS.has(prop)
   }
   ctrl(_prop: number, w: number) {
@@ -42,7 +46,10 @@ export class TvEnv implements Env {
     return [0, 100]
   }
   state(w: number) {
-    return this.hidden.has(w) ? 0 : 4
+    return this.hidden.has(w) ? 0 : this.shown.has(w) ? 6 : -1
+  }
+  show(w: number) {
+    this.shown.add(w)
   }
   statusValue(w: number) {
     return this.values.get(w)
