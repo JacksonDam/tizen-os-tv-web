@@ -121,7 +121,7 @@ export function GamesPanel({ active, exitUp, exitDown, launch }: OnlinePanelProp
         return (
           <div key={g.id} className="hub-cell" style={{ left: r.x - ex, top: r.y - ey, width: r.w + 2 * ex, height: r.h + 2 * ey, transition: `all ${ANI_MS}ms` }}>
             <img src={fw(big ? 'HomePanel/thumbnail/blank_games_hot.png' : 'HomePanel/thumbnail/blank_games_new.png')} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
-            <img src={stubArt(`game-${g.id}-${big ? 'hot' : 'new'}`, W, big ? H_BIG : H_SMALL, { label: g.name, size: big ? 40 : 30 })} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+            <img src={stubArt(`game-${g.id}-hot`, W, big ? H_BIG : H_SMALL, { label: g.name, size: big ? 40 : 30 })} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
             {NEW_GAMES.has(g.id) && <img src={fw('HomePanel/icon/g_bullet_new.png')} alt="" style={{ position: 'absolute', left: 323, top: -2, width: 53, height: 38 }} />}
             {isInstalled && !dl && <img src={fw('HomePanel/icon/g_icon_installed.png')} alt="" style={{ position: 'absolute', left: 337, top: big ? 401 : 170, width: 45, height: 45 }} />}
             {dl && (

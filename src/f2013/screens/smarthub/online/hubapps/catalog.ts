@@ -69,7 +69,8 @@ export const KEY_AUTOUPDATE = 'hubapps.autoupdate'
 export const MY_APPS_MAX = 30 // GBHOME_APPS_SUB_GRID_LAYOUT_DATA_NUM
 
 export function resetHubApps() {
-  for (const k of [KEY_INSTALLED, KEY_MYAPPS, KEY_LOCKED, KEY_OPENED, KEY_GAMES, KEY_AUTOUPDATE]) setSetting(k, '')
+  for (const k of [KEY_INSTALLED, KEY_MYAPPS, KEY_LOCKED, KEY_OPENED, KEY_GAMES, KEY_AUTOUPDATE, 'hubapps.played', 'hubapps.gamesautoupdate']) setSetting(k, '')
+  setSetting('hubapps.sort', 0) // More Apps' View: Date Downloaded
 }
 
 export function getInstalled(): string[] {

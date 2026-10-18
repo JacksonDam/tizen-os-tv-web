@@ -13,6 +13,7 @@ import {
 import { ScrollText } from '../hubapps/ScrollText'
 import { Nine, SHMenu, SHMessage, SHPage, SHProgress } from '../hubapps/sh'
 import { appIconSmall } from '../hubapps/icons'
+import { PinBox } from '../../../menu/widgets'
 
 // More Apps: the widget manager's DownloadedApp page (app 0x4d, opened by the Apps panel's sub menu item
 // "More Apps", CHomeExecutor::m_GetSubMenuItemEnum(6, 0) = 2). Layout from DownloadedApp::PutIn @01c0d40c
@@ -264,8 +265,9 @@ export function MoreApps({ params, close }: AppProps) {
         } else setPopup({ ...pp, digits: '', error: true })
         return true
       }
-      if (key === 'Back') {
-        playUi(UI_SOUND.BACK)
+      if (key === 'Back' || key === 'Enter') {
+        // RETURN, or Enter on the window's Cancel button
+        playUi(key === 'Back' ? UI_SOUND.BACK : UI_SOUND.SELECT)
         setPopup(null)
         return true
       }
@@ -564,24 +566,8 @@ function InfoArea({ app }: { app: HubApp }) {
   )
 }
 
-// "Enter your PIN." (InfoLink3 0x39) with four entry boxes; a wrong PIN shows 0x3c (LockPopup; layout
-// inferred).
-function PinPopup({ digits, error }: { digits: string; error: boolean }) {
-  return (
-    <div style={{ position: 'absolute', left: 0, top: 0, width: 1280, height: 720, background: 'rgba(0,0,0,0.4)' }}>
-      <div style={{ position: 'absolute', left: 340, top: 230, width: 600, height: 260 }}>
-        <div style={{ position: 'absolute', inset: 2, background: 'rgba(12,16,20,0.92)' }} />
-        <Nine src="InfoLink3/images/popup/message_popup_bg.png" slice={[20, 20, 20, 20]} x={0} y={0} w={600} h={260} />
-        <div style={{ position: 'absolute', left: 30, top: 34, width: 540, fontSize: 24, textAlign: 'center' }}>
-          {error ? 'Incorrect PIN. Please try again.' : 'Enter your PIN.'}
-        </div>
-        {[0, 1, 2, 3].map(i => (
-          <div key={i} style={{ position: 'absolute', left: 140 + i * 84, top: 110, width: 64, height: 64 }}>
-            <Nine src={`InfoLink3/images/inputBox/${i === digits.length ? 'pin_input_sel' : 'pin_input_nor'}.png`} slice={[20, 20, 20, 20]} x={0} y={0} w={64} h={64} />
-            <div style={{ position: 'absolute', inset: 0, lineHeight: '64px', textAlign: 'center', fontSize: 30 }}>{i < digits.length ? '*' : ''}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
+// "Enter your PIN." (InfoLink3 0x39); a wrong PIN shows 0x3c. Drawn with the TV's PIN window
+// (CPinNumberWidget, the Menu's PinBox) in the 1280x720 page (the LockPopup's own layout was not traced).
+export function PinPopup({ digits, error }: { digits: string; error: boolean }) {
+  return <PinBox text={error ? 'Incorrect PIN. Please try again.' : 'Enter your PIN.'} digits={digits.length} cancelFocus={false} />
 }

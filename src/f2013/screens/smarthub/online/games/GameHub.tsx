@@ -415,7 +415,7 @@ function Grid({ list, focus, installed, downloads, editing, checked }: {
           <div key={g.id} style={{ position: 'absolute', left: x, top: y, width: ITEM_W, height: ITEM_H, transform: f ? `scale(${(ITEM_W + 20) / ITEM_W}, ${(ITEM_H + 16) / ITEM_H})` : 'none', transition: 'transform 90ms', zIndex: f ? 1 : 0 }}>
             {/* focus: 00_h_comn_thumb_highlight.png around the item, GH_MYGAMESVIEW_LIST_ITEM_FOCUS_IMAGE_X_OFFSET -20 */}
             {f && <Nine src="GameHub/highlight/00_h_comn_thumb_highlight.png" slice={[30, 30, 30, 30]} x={-20} y={0} w={ITEM_W + 40} h={ITEM_H + 4} />}
-            <img src={stubArt(`game-${g.id}-shot`, ITEM_W, 147, { label: g.name, size: 22 })} alt="" style={{ position: 'absolute', left: 0, top: 19, width: ITEM_W, height: 147 }} />
+            <img src={stubArt(`game-${g.id}-hot`, ITEM_W, 147, { label: g.name, size: 22 })} alt="" style={{ position: 'absolute', left: 0, top: 19, width: ITEM_W, height: 147 }} />
             <div style={{ position: 'absolute', left: 0, top: 146, width: ITEM_W, height: 43, background: 'rgba(0,0,0,0.6)' }} />
             <ScrollText text={g.name} scroll={f} style={{ position: 'absolute', left: 8, top: 152, width: 241, height: 31, lineHeight: '31px', fontSize: 20, color: f ? '#fdd911' : '#fff' }} />
             {installed.includes(g.id) && !dl && <img src={fw('GameHub/game/g_icon_installed.png')} alt="" style={{ position: 'absolute', right: 4, top: 23, width: 27, height: 27 }} />}

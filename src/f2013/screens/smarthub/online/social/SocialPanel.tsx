@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { useRemote } from '../../../../../input/remote'
-import { openApp } from '../../../../shell'
+import { openApp, useForeground } from '../../../../shell'
 import { playUi, UI_SOUND } from '../../../../tv/sound'
 import { SOCIAL } from '../../data'
 import type { OnlinePanelProps } from '../../panels'
@@ -38,13 +38,16 @@ const GAP = 24
 const TEXT_CONTENT = 'Enjoy socialising over your TV by installing social network apps from Samsung Apps.\n\n*Supported apps: Facebook, Twitter' // 0x2f
 const TEXT_CALLS = 'Install the Skype app from Samsung Apps to use Video Call. Select the Install button to install.' // 0x2e
 
-// Requests from the sub menu (which has the keys while its item runs): the Social Settings window or
-// the Video Call message.
-type Request = 'settings' | 'videocall' | null
+// Requests from the panel and its sub menu (which has the keys while its item runs): the Social Settings
+// window or the Video Call message. Both are separate windows over the whole Smart Hub (the settings are
+// their own application, 200), so they are drawn by an overlay above it (SocialPopups), with the launch
+// motion of whoever asked.
+type Kind = 'settings' | 'videocall'
+type Request = { kind: Kind; launch?: (run: () => void) => void } | null
 let request: Request = null
 const subs = new Set<() => void>()
-export function requestSocial(r: Request) {
-  request = r
+export function requestSocial(kind: Kind | null, launch?: (run: () => void) => void) {
+  request = kind ? { kind, launch } : null
   subs.forEach(f => f())
 }
 function useRequest() {
@@ -63,12 +66,8 @@ function runSamsungApps(launch?: (run: () => void) => void) {
 export function SocialPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
   const [focus, setFocus] = useState<'main' | 'sub'>('main')
   const req = useRequest()
-  const [msgSel, setMsgSel] = useState(0)
   const ref = useRef(focus)
   ref.current = focus
-  useEffect(() => {
-    if (req === 'videocall') setMsgSel(0)
-  }, [req])
 
   useRemote(key => {
     switch (key) {
@@ -87,39 +86,13 @@ export function SocialPanel({ active, exitUp, exitDown, launch }: OnlinePanelPro
       case 'Enter':
         // NotifyKeyPress: PlayAudio, then the banner's action
         playUi(UI_SOUND.SELECT)
-        if (ref.current === 'main') requestSocial('settings')
+        if (ref.current === 'main') requestSocial('settings', launch)
         else runSamsungApps(launch)
         return true
       default:
         return false // Left/Right turn the carousel, RETURN/EXIT/SMART HUB go to it
     }
   }, active && !req)
-
-  // the Video Call message (event 0x11903b: CHomeWindowManager::m_ShowPopupMessage(0x2e, 0x33 Install,
-  // 0x16 Cancel)); drawn as the common message box (inferred: CHomePopupMessageBox's geometry was not
-  // traced)
-  useRemote(key => {
-    if (key === 'Left' || key === 'Right') {
-      const n = key === 'Right' ? 1 : 0
-      if (n !== msgSel) {
-        playUi(UI_SOUND.MOVE)
-        setMsgSel(n)
-      }
-      return true
-    }
-    if (key === 'Enter') {
-      playUi(UI_SOUND.SELECT)
-      requestSocial(null)
-      if (msgSel === 0) runSamsungApps(launch)
-      return true
-    }
-    if (key === 'Back' || key === 'Exit') {
-      playUi(UI_SOUND.BACK)
-      requestSocial(null)
-      return true
-    }
-    return key !== 'Home' && key !== 'VolumeUp' && key !== 'VolumeDown' && key !== 'Mute' && key !== 'Power'
-  }, req === 'videocall')
 
   const mainF = active && focus === 'main' && !req
   const subF = active && focus === 'sub' && !req
@@ -129,12 +102,58 @@ export function SocialPanel({ active, exitUp, exitDown, launch }: OnlinePanelPro
       <Title x={184} y={668} text="Recent Calls" />
       <Banner r={MAIN} img="HomePanel/social_cold_start_top.png" text={TEXT_CONTENT} focused={mainF} />
       <Banner r={SUB} img="HomePanel/social_cold_start_bottom.png" text={TEXT_CALLS} focused={subF} />
-      {req === 'settings' && <SocialSettings onClose={() => requestSocial(null)} launch={launch} />}
-      {req === 'videocall' && (
-        <div style={{ position: 'absolute', left: 0, top: 0, width: 1280, height: 720, transform: 'scale(1.5)', transformOrigin: '0 0' }}>
-          <MessageBox box={{ text: TEXT_CALLS, buttons: ['Install', 'Cancel'] }} focus={msgSel} />
-        </div>
-      )}
+    </div>
+  )
+}
+
+// The overlay drawing the requested window above the Smart Hub (registered in hubapps/index.ts).
+export function SocialPopups() {
+  const req = useRequest()
+  const fg = useForeground()
+  const onHub = fg?.id === 'smarthub'
+  useEffect(() => {
+    if (!onHub && request) requestSocial(null)
+  }, [onHub])
+  if (!req || !onHub) return null
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 250 }}>
+      {req.kind === 'settings' ? <SocialSettings onClose={() => requestSocial(null)} launch={req.launch} /> : <VideoCallMessage launch={req.launch} />}
+    </div>
+  )
+}
+
+// The Video Call message (event 0x11903b: CHomeWindowManager::m_ShowPopupMessage(0x2e, 0x33 Install,
+// 0x16 Cancel)); drawn as the common message box (inferred: CHomePopupMessageBox's geometry was not
+// traced).
+function VideoCallMessage({ launch }: { launch?: (run: () => void) => void }) {
+  const [sel, setSel] = useState(0)
+  const ref = useRef(sel)
+  ref.current = sel
+  useRemote(key => {
+    if (key === 'Left' || key === 'Right') {
+      const n = key === 'Right' ? 1 : 0
+      if (n !== ref.current) {
+        playUi(UI_SOUND.MOVE)
+        setSel(n)
+      }
+      return true
+    }
+    if (key === 'Enter') {
+      playUi(UI_SOUND.SELECT)
+      requestSocial(null)
+      if (ref.current === 0) runSamsungApps(launch)
+      return true
+    }
+    if (key === 'Back' || key === 'Exit') {
+      playUi(UI_SOUND.BACK)
+      requestSocial(null)
+      return true
+    }
+    return key !== 'Home' && key !== 'VolumeUp' && key !== 'VolumeDown' && key !== 'Mute' && key !== 'Power'
+  })
+  return (
+    <div style={{ position: 'absolute', left: 0, top: 0, width: 1280, height: 720, transform: 'scale(1.5)', transformOrigin: '0 0' }}>
+      <MessageBox box={{ text: TEXT_CALLS, buttons: ['Install', 'Cancel'] }} focus={sel} />
     </div>
   )
 }

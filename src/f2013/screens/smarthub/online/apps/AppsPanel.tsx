@@ -1,9 +1,10 @@
-import { useRef, useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import { stubArt } from '../../../../../shared/fictional'
 import { useRemote } from '../../../../../input/remote'
-import { openApp } from '../../../../shell'
+import { openApp, useForeground } from '../../../../shell'
 import { playUi, UI_SOUND } from '../../../../tv/sound'
 import { getSetting } from '../../../../tv/store'
+import { PinPopup } from './MoreApps'
 import { APPS } from '../../data'
 import type { OnlinePanelProps } from '../../panels'
 import { fw, LIGHT, MEDIUM } from '../hubapps/assets'
@@ -61,6 +62,7 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
   const locked = useLocked()
   const downloads = useDownloads()
   const myApps = useMyApps()
+  const pin = usePin()
   const [pos, setPos] = useState<Pos>({ t: 'rec', i: 0 })
   const posRef = useRef(pos)
   posRef.current = pos
@@ -78,8 +80,10 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
     const app = appById(id)
     if (!app) return
     const go = () => openApp('hubapp', { id, name: app.name, from: APPS } satisfies RunParams)
-    if (launch) launch(go)
-    else go()
+    const start = () => (launch ? launch(go) : go())
+    // a locked app asks for the PIN first, as in More Apps (inferred for the panel)
+    if (locked.includes(id)) askPin(start)
+    else start()
   }
 
   function enter() {
@@ -167,7 +171,7 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
       default:
         return false
     }
-  }, active)
+  }, active && !pin)
 
   // the focus stays where it was while the top menu or the sub menu has the keys, and is shown again
   // when the body gets them back (CHomeTableLayoutListControl SetPrevFocusFlag / HasPrevFocusFlag)
@@ -305,5 +309,64 @@ function PiaCell({ r, focused, label }: { r: R; focused: boolean; label: string 
         {label}
       </div>
     </>
+  )
+}
+
+// The PIN entry for a locked app, drawn by an overlay above the whole Smart Hub (registered in
+// hubapps/index.ts) with More Apps' PIN window.
+type PinRequest = { then: () => void; digits: string; error: boolean } | null
+let pinReq: PinRequest = null
+const pinSubs = new Set<() => void>()
+function setPin(r: PinRequest) {
+  pinReq = r
+  pinSubs.forEach(f => f())
+}
+function askPin(then: () => void) {
+  setPin({ then, digits: '', error: false })
+}
+function usePin() {
+  return useSyncExternalStore(f => {
+    pinSubs.add(f)
+    return () => pinSubs.delete(f)
+  }, () => pinReq)
+}
+
+export function AppsPin() {
+  const req = usePin()
+  const fg = useForeground()
+  const onHub = fg?.id === 'smarthub'
+  useEffect(() => {
+    if (!onHub && pinReq) setPin(null)
+  }, [onHub])
+  useRemote(key => {
+    const r = pinReq
+    if (!r) return false
+    if (key.startsWith('Digit')) {
+      playUi(UI_SOUND.MOVE)
+      const d = r.digits + key.slice(5)
+      if (d.length < 4) setPin({ ...r, digits: d })
+      else if (d === String(getSetting<string>('menu.pin', '0000'))) {
+        setPin(null)
+        r.then()
+      } else setPin({ ...r, digits: '', error: true })
+      return true
+    }
+    if (key === 'Back' || key === 'Enter') {
+      // RETURN, or Enter on the window's Cancel button
+      playUi(key === 'Back' ? UI_SOUND.BACK : UI_SOUND.SELECT)
+      setPin(null)
+      return true
+    }
+    if (key === 'Exit') {
+      setPin(null)
+      return false
+    }
+    return key !== 'Home' && key !== 'VolumeUp' && key !== 'VolumeDown' && key !== 'Mute' && key !== 'Power'
+  }, !!req && onHub)
+  if (!req || !onHub) return null
+  return (
+    <div style={{ position: 'absolute', left: 0, top: 0, width: 1280, height: 720, transform: 'scale(1.5)', transformOrigin: '0 0', zIndex: 250, fontFamily: "'SamsungSVD', sans-serif", fontWeight: 500, color: '#fff' }}>
+      <PinPopup digits={req.digits} error={req.error} />
+    </div>
   )
 }
