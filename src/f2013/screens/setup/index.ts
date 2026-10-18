@@ -1,6 +1,6 @@
 // Power, boot and first-time setup: Plug & Play (app 'pnp') and Auto Tuning (app 'autotune').
 // See ~/workplace/samsung-tv-qemu/extract/f13/spec/setup.md.
-import { registerApp, registerHotkey, registerOverlay } from '../../shell'
+import { openApp, registerApp, registerHotkey, registerOverlay } from '../../shell'
 import { getTv, setTv } from '../../tv/store'
 import { AutoTuneApp } from './autotune/AutoTuneApp'
 import { BootScreen } from './BootScreen'
@@ -24,4 +24,9 @@ if (typeof location !== 'undefined') {
   const q = new URLSearchParams(location.search).get('setup')
   if (q === '1') setTv({ setupDone: false })
   else if (q === '0') setTv({ setupDone: true })
+}
+
+// Test hook for captures: window.__setup.open('autotune') etc.
+if (typeof window !== 'undefined') {
+  ;(window as unknown as { __setup: object }).__setup = { open: openApp, powerOn, powerOff }
 }

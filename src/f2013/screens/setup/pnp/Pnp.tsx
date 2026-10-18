@@ -7,7 +7,7 @@ import { ConfigurePage } from './ConfigurePage'
 import { LanguagePage } from './LanguagePage'
 import { startMusic, stopMusic } from './music'
 import { pnp, resetPnp } from './state'
-import { finishPnp, PNP_ANI_MS, PNP_STEP, type PnpPage } from './steps'
+import { finishPnp, lastPage, PNP_ANI_MS, PNP_STEP, saveLastPage, type PnpPage } from './steps'
 import { WelcomeMovie } from './WelcomeMovie'
 import './pnp.css'
 
@@ -50,6 +50,7 @@ export function Pnp({ params }: AppProps) {
   // (CPlugPlayUtilTV::StartPlugPlayBackgroundMusic on the welcome player's stop, 0x1824)
   useEffect(() => {
     if (page !== 'movie' && !fromMenu) startMusic()
+    if (!fromMenu) saveLastPage(page)
   }, [page, fromMenu])
   useEffect(() => () => stopMusic(), [])
   useEffect(() => () => clearTimeout(timer.current), [])
@@ -66,7 +67,7 @@ export function Pnp({ params }: AppProps) {
 
   return (
     <div className="pnp">
-      {page === 'movie' && <WelcomeMovie onEnd={() => setPage('language')} />}
+      {page === 'movie' && <WelcomeMovie onEnd={() => setPage(lastPage())} />}
       {page === 'language' && <LanguagePage hiding={hiding} go={go} />}
       {page === 'configure' && <ConfigurePage hiding={hiding} go={go} />}
       {page === 'autotune' && (

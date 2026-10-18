@@ -23,9 +23,34 @@ export type PageProps = {
 // the scan tuned (lowest number), or on the set-top box input. The music stops with the PnP state.
 export function finishPnp(stbSource?: string) {
   stopMusic()
+  saveLastPage(null)
   setTv({ setupDone: true })
   const s = getTv()
   if (stbSource) setTv(t => ({ source: stbSource, switchSeq: t.switchSeq + 1 }))
   else if (s.channels.length) tuneChannel(s.source === 'TV' ? s.channel : 0)
   closeApp('pnp')
+}
+
+// An interrupted run (power off during Plug & Play) resumes at its last page at the next power-on,
+// after the welcome movie (CMenuWindowManager::t_ConvertFirstPlugPlayItemID @02593a7c:
+// GetPlugPlayLastItemId; CViewerApp::t_ProcessNormalBoot @0245225c runs the welcome app first).
+const LAST_KEY = 'museum.2013.pnp.last'
+
+export function saveLastPage(page: PnpPage | null) {
+  try {
+    if (page && page !== 'movie') localStorage.setItem(LAST_KEY, page)
+    else localStorage.removeItem(LAST_KEY)
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function lastPage(): Exclude<PnpPage, 'movie'> {
+  try {
+    const v = localStorage.getItem(LAST_KEY)
+    if (v === 'configure' || v === 'autotune' || v === 'complete') return v
+  } catch {
+    /* storage unavailable */
+  }
+  return 'language'
 }

@@ -116,7 +116,7 @@ export function MessageBox({ text, buttons, focus: initial = 0, timeoutMs, onBut
 
   useEffect(() => {
     const el = textRef.current
-    if (el) setLines(Math.max(1, Math.round(el.scrollHeight / (36 * 1.2 + 13.5))))
+    if (el) setLines(Math.max(1, Math.round(el.scrollHeight / 49.5)))
   }, [text])
   useEffect(() => {
     if (!timeoutMs) return

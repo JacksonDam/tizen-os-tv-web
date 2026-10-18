@@ -215,7 +215,7 @@
   left: 90px;
   width: 636px;
   font-size: 36px;
-  line-height: 56.7px;  /* 36 + MESSAGEBOX_TEXT_ROW_GAP 9 x1.5 (approx. line box) */
+  line-height: 49.5px;  /* row pitch = COMMON_FONT_SIZE_18 24 + MESSAGEBOX_TEXT_ROW_GAP 9, x1.5 */
   color: #fff;
   text-align: center;
   white-space: pre-line;

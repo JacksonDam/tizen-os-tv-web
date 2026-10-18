@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   font-size: 40px;
-  line-height: 50px;
+  line-height: 60px;  /* DES_TEXT_SIZE 20 + MESSAGE_ROW_GAP 10, x2 */
   color: #fff;
 }
 
