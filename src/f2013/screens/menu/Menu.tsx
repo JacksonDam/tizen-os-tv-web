@@ -4,7 +4,7 @@ import { useRemote } from '../../../input/remote'
 import type { AppProps } from '../../shell'
 import { closeApp, openApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
-import { resetTv, setTv, useTv } from '../../tv/store'
+import { getTv, resetTv, setTv, useTv } from '../../tv/store'
 import { netContext } from './network'
 import { powerOff, powerOn } from '../setup/power'
 import { OSD, panelX, TRANSPARENCY_ALPHA } from './osd'
@@ -328,9 +328,19 @@ export function MenuApp({ params }: AppProps) {
 
 // Self Diagnosis > Reset (CMenuMainWidgetAgency::t_OnFactoryResetAlarmCallback): factory state, empty
 // channel list, then the TV turns off and on again and Plug & Play runs on that power-on.
+// The reset keeps the network settings and the Smart Hub data, as its own message says ("All settings,
+// except network settings, will return to factory defaults. Smart Hub, and your data stored there, will
+// not be affected.").
 function factoryReset() {
+  const { network, smartHub, settings } = getTv()
   resetTv()
-  setTv({ channels: [], setupDone: false })
+  setTv(s => ({
+    channels: [],
+    setupDone: false,
+    network,
+    smartHub,
+    settings: settings.networkType === undefined ? s.settings : { ...s.settings, networkType: settings.networkType },
+  }))
   powerOff()
   setTimeout(() => powerOn(), 1000)
 }

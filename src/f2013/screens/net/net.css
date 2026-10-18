@@ -382,3 +382,28 @@
   position: absolute;
   inset: 0;
 }
+
+/* ---- Plug & Play Software Update (footage positions, inferred) ---- */
+.n13-swu {
+  position: absolute;
+  inset: 0;
+}
+.n13-swu__loading {
+  position: absolute;
+  left: 912px;
+  top: 252px;
+  width: 64px;
+  height: 64px;
+  transform: scale(1.5);
+  transform-origin: 0 0;
+  background: url('/f13/menu/net/loading_48.png') 0 0 no-repeat;
+}
+.n13-swu__msg {
+  position: absolute;
+  left: 160px;
+  width: 1600px;
+  height: 56px;
+  text-align: center;
+  font-size: 40px;
+  line-height: 56px;
+}

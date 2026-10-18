@@ -7,7 +7,11 @@ import { ConfigurePage } from './ConfigurePage'
 import { LanguagePage } from './LanguagePage'
 import { startMusic, stopMusic } from './music'
 import { pnp, resetPnp } from './state'
-import { finishPnp, lastPage, PNP_ANI_MS, PNP_STEP, saveLastPage, type PnpPage } from './steps'
+import { finishPnp, lastPage, PNP_ANI_MS, PNP_SMARTHUB_STEP, PNP_STEP, PNP_TOTAL, saveLastPage, type PnpPage } from './steps'
+import { TermsPage } from '../../net/Terms'
+import { SwUpdatePage } from '../../net/SwUpdate'
+import { online } from '../../net/data'
+import { useSmartHub } from '../../../tv/online'
 import { WelcomeMovie } from './WelcomeMovie'
 import './pnp.css'
 
@@ -18,12 +22,18 @@ import './pnp.css'
 // a network the flow is Language -> Configure your TV -> Auto Tuning -> Setup complete!
 // (GetPlugPlayNextStep @023b3c24, m_GetNextClockStep @023b4bf8: no clock step for the United Kingdom,
 // steps 7-10 need the network). With Channel Source "Set-top box" Auto Tuning is skipped too.
+// Online (the mocked Wi-Fi connected on Configure your TV; spec/online-net2013.md): after Auto Tuning
+// m_GetNextClockStep @023b4bf8 goes to the Smart Hub T&C (id 7, app 0xbd: net/Terms.tsx, indicator 5),
+// then (CHomeWizardWindowManager::HandleEvent 0x119048) Software Update (id 10, app 0x4a: net/SwUpdate.tsx,
+// indicator 8) and Setup complete! with M 0x8e6 (window 0x782), whose OK opens the Smart Hub.
+// Privacy (id 8, app 0xbb) shows nothing for this set (inferred: the footage goes from the terms to
+// Software Update) and Universal remote (id 9) is only for a set-top box (not built).
 //
 // ?pnp=language|configure|autotune|complete opens a page directly (captures; skips the movie).
 
 function initialPage(): PnpPage {
   const q = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('pnp')
-  return q === 'language' || q === 'configure' || q === 'autotune' || q === 'complete' ? q : 'movie'
+  return q === 'language' || q === 'configure' || q === 'autotune' || q === 'terms' || q === 'swu' || q === 'complete' ? q : 'movie'
 }
 
 // params { from: 'menu' }: Plug & Play started from the Menu (t_bPlugPlayStartFromMenu): no movie and no
@@ -33,6 +43,7 @@ export function Pnp({ params }: AppProps) {
   // a new run starts from the defaults
   const [page, setPage] = useState<PnpPage>(() => (resetPnp(), fromMenu ? 'language' : initialPage()))
   const [hiding, setHiding] = useState(false)
+  const agreed = useSmartHub().agreed
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // PnP keeps every key (each page swallows what it does not use); volume and power stay with the
@@ -55,6 +66,10 @@ export function Pnp({ params }: AppProps) {
   useEffect(() => () => stopMusic(), [])
   useEffect(() => () => clearTimeout(timer.current), [])
 
+  // after Auto Tuning (or Configure your TV for a set-top box): the network decides
+  // (m_GetNextClockStep: the Smart Hub T&C when the network is enabled, else Setup complete!)
+  const afterTuning = (): PnpPage => (online() ? 'terms' : 'complete')
+
   // page change: the content plays its hide animation, then the next page shows
   const go = useCallback((next: PnpPage) => {
     clearTimeout(timer.current)
@@ -76,10 +91,38 @@ export function Pnp({ params }: AppProps) {
           step={PNP_STEP.autotune}
           hiding={hiding}
           onPrev={() => go('configure')}
+          onNext={() => go(afterTuning())}
+        />
+      )}
+      {page === 'terms' && (
+        <TermsPage
+          step={PNP_STEP.terms}
+          total={PNP_TOTAL}
+          smartHubStep={PNP_SMARTHUB_STEP}
+          hiding={hiding}
+          onPrev={() => go(pnp.channelSource === 'Set-top box' ? 'configure' : 'autotune')}
+          onNext={() => go('swu')}
+        />
+      )}
+      {page === 'swu' && (
+        <SwUpdatePage
+          step={PNP_STEP.swu}
+          total={PNP_TOTAL}
+          smartHubStep={PNP_SMARTHUB_STEP}
+          hiding={hiding}
+          onPrev={() => go('terms')}
           onNext={() => go('complete')}
         />
       )}
-      {page === 'complete' && <CompletePage hiding={hiding} go={go} onDone={() => finishPnp(pnp.channelSource === 'Set-top box' ? pnp.stbSource : undefined)} />}
+      {page === 'complete' && (
+        <CompletePage
+          hiding={hiding}
+          go={go}
+          variant={!online() ? 'noNetwork' : agreed ? 'network' : 'notAgreed'}
+          onPrev={() => go(online() ? (agreed ? 'swu' : 'terms') : pnp.channelSource === 'Set-top box' ? 'configure' : 'autotune')}
+          onDone={() => finishPnp(pnp.channelSource === 'Set-top box' ? pnp.stbSource : undefined, online() && agreed)}
+        />
+      )}
     </div>
   )
 }
