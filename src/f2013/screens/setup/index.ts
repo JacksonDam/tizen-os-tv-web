@@ -1,0 +1,25 @@
+// Power, boot and first-time setup: Plug & Play (app 'pnp') and Auto Tuning (app 'autotune').
+// See ~/workplace/samsung-tv-qemu/extract/f13/spec/setup.md.
+import { registerApp, registerHotkey, registerOverlay } from '../../shell'
+import { getTv, setTv } from '../../tv/store'
+import { BootScreen } from './BootScreen'
+import { Pnp } from './pnp/Pnp'
+import { powerOff, powerOn } from './power'
+
+registerOverlay({ id: 'boot', z: 0, component: BootScreen })
+registerApp({ id: 'pnp', component: Pnp, z: 500 })
+
+// POWER toggles between standby and a cold boot.
+registerHotkey('Power', () => {
+  if (getTv().power === 'on') powerOff()
+  else powerOn()
+  return true
+})
+
+// ?setup=1 runs Plug & Play at this page load (the boot hands over to it), ?setup=0 cancels a pending
+// one. A factory reset (Menu) sets setupDone false, so the next power-on runs it.
+if (typeof location !== 'undefined') {
+  const q = new URLSearchParams(location.search).get('setup')
+  if (q === '1') setTv({ setupDone: false })
+  else if (q === '0') setTv({ setupDone: true })
+}
