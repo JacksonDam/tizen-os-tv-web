@@ -60,8 +60,21 @@ export function getValue(it: MenuItem): number {
   return getSetting<number>(`menu.${it.id}`, defaultValue(it))
 }
 
+// Settings other modules read under their own keys (Tools, boot, setup)
+const MIRROR: Record<number, (it: MenuItem, v: number) => [string, string | number]> = {
+  0x16: (it, v) => ['picture.mode', optionText(it, v)],
+  0xa4: (it, v) => ['picture.size', optionText(it, v)],
+  0x363: (it, v) => ['system.sleepTimer', optionText(it, v)],
+  0x4a8: (_it, v) => ['bootLogo', v ? 1 : 0],
+}
+
 export function setValue(it: MenuItem, v: number) {
   setSetting(`menu.${it.id}`, v)
+  const m = MIRROR[it.id]
+  if (m) {
+    const [k, mv] = m(it, v)
+    setSetting(k, mv)
+  }
 }
 
 export function optionText(it: MenuItem, v = getValue(it)): string {

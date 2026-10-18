@@ -3,7 +3,7 @@ import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getSetting } from '../../tv/store'
-import { OSD } from './osd'
+import { OSD, TRANSPARENCY_ALPHA } from './osd'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
 import { getValue, optionText, setValue } from './values'
@@ -180,7 +180,7 @@ function SublistActionWindow({ item, onClose, onExitMenu, onValue }: Props & { i
     <div className="m13-aw" style={{ ...pos, width: W, height: H }}>
       <div className="m13-aw-bar" style={{ top: 339, width: W, height: 74 }} />
       <div className="m13-aw-title" style={{ left: 50, top: 339, width: 346, height: 74, fontSize: 26 }}>{item.t}</div>
-      <PopupList options={opts} current={getValue(item)} focus={focus} x={W - POPUP_W} y={H - 5 - ph} />
+      <PopupList options={opts} current={orig.current} focus={focus} x={W - POPUP_W} y={H - 5 - ph} />
     </div>
   )
 }
@@ -344,6 +344,7 @@ function MessageBox({ box, focus }: { box: MsgBox; focus: number }) {
   return (
     <div className="m13-msg" style={{ left: (1280 - W) / 2, top: (720 - H) / 2, width: W, height: H }}>
       <div className="m13-msg-shadow" style={{ left: -10, top: -10, width: W + 21, height: H + 21 }} />
+      <div className="m13-msg-alpha" style={{ opacity: transparencyAlpha() }} />
       <div className="m13-msg-bg" />
       <div ref={ref} className="m13-msg-text" style={{ top: Y, textAlign: rows > 1 ? 'left' : 'center' }}>{box.text}</div>
       {btns.map((b, i) => (
@@ -396,6 +397,11 @@ function MessageBoxes({ boxes, onClose, onExitMenu, onChange }: Props & { boxes:
 // ---------------------------------------------------------------------------------------------
 // CPinNumberWidget (AppMWOSDInfo PINNUMBERWIDGET_*): 608x397 centred, title + contents text,
 // four PIN boxes, Cancel button. The TV's PIN is 0000 until changed (menu.pin).
+
+// CMessageBox::m_CreateAlphaDrawing: BG_ALPHA_COLOR rectangle at the OSD transparency (Menu Transparency)
+function transparencyAlpha() {
+  return TRANSPARENCY_ALPHA[Number(getSetting<number>('menu.958', 1))] ?? TRANSPARENCY_ALPHA[1]
+}
 
 export function currentPin() {
   return String(getSetting<string>('menu.pin', '0000'))

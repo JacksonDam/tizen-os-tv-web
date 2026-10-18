@@ -175,6 +175,7 @@
 .m13-menubar-bg { inset: 0; background: rgba(0, 0, 0, 0.929); }
 
 .m13-msg-shadow { border: 23px solid transparent; border-image: url('/f13/menu/cm_act_popup_shadow.png') 23 fill stretch; }
+.m13-msg-alpha { inset: 0; background: #000; }
 .m13-msg-bg { inset: 0; border-style: solid; border-width: 72px 27px 27px 27px; border-color: transparent; border-image: url('/f13/menu/cm_message_popup_bg.png') 72 27 27 27 fill stretch; }
 .m13-msg-text { left: 60px; right: 60px; font-size: 24px; line-height: 33px; color: #fff; white-space: pre-wrap; }
 .m13-btn { display: flex; align-items: center; justify-content: center; border: 26px solid transparent; border-image: url('/f13/menu/btn_normal.png') 26 fill stretch; }

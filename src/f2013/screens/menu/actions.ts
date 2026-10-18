@@ -85,8 +85,8 @@ function messages(it: MenuItem, ctx: Ctx, picMode: () => string): MsgBox[] | nul
 }
 
 const APP_ITEMS: Record<number, () => void> = {
-  0x1cf: () => openApp('autotune', { returnTo: 'menu' }),        // Auto Tuning (Auto Store)
-  0x21f: () => openApp('autotune', { returnTo: 'menu', mode: 'manual' }),  // Manual Tuning
+  0x1cf: () => openApp('autotune', { returnTo: 'menu', returnParams: { path: [0x1cf] } }),  // Auto Tuning
+  0x21f: () => openApp('autotune', { returnTo: 'menu', returnParams: { path: [0x21f] }, mode: 'manual' }),  // Manual Tuning
   0x2b7: () => openApp('chlist', { from: 'menu' }),              // Channel List
   0x2b9: () => openApp('chlist', { from: 'menu', page: 'edit' }), // Edit Channel
   0x2ba: () => openApp('chlist', { from: 'menu', page: 'favourites' }),  // Edit Favourites
