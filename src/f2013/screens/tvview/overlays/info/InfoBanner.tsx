@@ -199,7 +199,6 @@ export function InfoBanner() {
   useFontsReady()
   const fg = useForeground()
   const source = useTv(s => s.source)
-  const tunedIndex = useTv(s => s.channel)
   const channels = useTv(s => s.channels)
   const [phase, setPhase] = useState<'hidden' | 'shown' | 'hiding'>('hidden')
   const [layers, setLayers] = useState<Layer[]>([])
@@ -357,7 +356,6 @@ export function InfoBanner() {
   const detailText = 'Information' // TVViewer string 180 (t_ReadRedInfo 0x0246e290, icon_enter id 388)
   const detailTextW = measure(detailText, FONT.small)
   const updown = navList(getTv()).length > 1 // t_ReadUpDownChannelEnable (inferred: more than one channel)
-  void tunedIndex
 
   return (
     <div className={`f13-info ${phase === 'hiding' ? 'f13-info-hide' : 'f13-info-show'}`} style={{ position: 'absolute', left: 0, top: 0, width: 1920, height: WND_H }}>
