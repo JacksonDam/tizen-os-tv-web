@@ -204,3 +204,35 @@
   line-height: 64px;
   font-weight: 700;
 }
+
+/* launcher tile menu (LauncherMenu) and Move mode arrows; sizes are of the 1.2x tile's parent (the menu
+   is counter-scaled so it keeps its 38 u) */
+.lr-menu {
+  position: absolute;
+  left: 56px;
+  top: 106px;                  /* tile centre 56 + focused half height 8.4 u ... + 4 u, in tile units */
+  translate: -50% 0;
+  scale: 0.8333;
+  transform-origin: 50% 0;
+  width: 304px;                /* 38 u */
+  padding: 16px 24px;          /* 2 u, 3 u */
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: #1f3959;         /* CC_BG4100 */
+  box-shadow: var(--focus-shadow);
+  animation: lr-menu-in 200ms var(--ease-basic) both;
+}
+@keyframes lr-menu-in { from { opacity: 0.5; } to { opacity: 1; } }
+.lr-menu__item {
+  height: 80px;                /* 10 u */
+  line-height: 80px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-size: 24px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.lr-menu__item.is-focused { background: var(--plate-focused); color: #000; box-shadow: var(--focus-shadow); }
+.lr-arrow { position: absolute; top: 40px; width: 32px; height: 32px; }
+.lr-arrow--prev { left: -36px; }   /* i_icon_arrow_s points left */
+.lr-arrow--next { right: -36px; rotate: 180deg; }

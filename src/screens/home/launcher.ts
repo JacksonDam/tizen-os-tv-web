@@ -80,10 +80,10 @@ export function removeLauncherItem(id: string) {
   save(snapshot.filter(x => x !== id))
 }
 
-export function moveLauncherItem(id: string, to: number) {
-  const list = snapshot.filter(x => x !== id)
-  list.splice(Math.max(0, Math.min(to, list.length)), 0, id)
-  save(list)
+// Move mode's result: the visible tiles in their new order (hidden ones, e.g. Live TV without channels,
+// keep their place at the end).
+export function setLauncherOrder(visible: string[]) {
+  save([...visible, ...snapshot.filter(x => !visible.includes(x))])
 }
 
 function useOrder() {

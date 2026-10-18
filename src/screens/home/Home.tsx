@@ -7,7 +7,8 @@ import './home.css'
 import { useAgreed } from '../../tv/online'
 import { SetupHome } from './SetupHome'
 import { AgreedHome } from './AgreedHome'
-import { LaunchLoading, useLaunching } from './appLaunch'
+import { useLaunching } from './appLaunch'
+import { LaunchLoading } from './LaunchLoading'
 
 // Where keys go: the page, the sidebar, or the system page (Connected Devices).
 type Mode = 'page' | 'sidebar' | 'system'

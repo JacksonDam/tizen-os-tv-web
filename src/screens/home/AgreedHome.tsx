@@ -10,7 +10,8 @@ import { NowPlayingRow } from './NowPlayingRow'
 import { ImmersiveBanner, MOVE_SLOT_MS } from './agreed/ImmersiveBanner'
 import { LauncherRow } from './agreed/LauncherRow'
 import { ContentRow } from './agreed/ContentRow'
-import { useLauncher, type LauncherItem } from './launcher'
+import { removeLauncherItem, setLauncherOrder, useLauncher, type LauncherItem } from './launcher'
+import { MessageBox } from '../../components/MessageBox'
 import { CONTENT_ROWS, PROMOS } from './serverContent'
 import { cancelLaunch, launchApp, useLaunching } from './appLaunch'
 import './agreed/agreed.css'
@@ -47,7 +48,7 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
   const online = useOnline()
   const promos = online ? PROMOS : []
   const contentRows = online ? CONTENT_ROWS : []
-  const launcher = useLauncher()
+  const launcherReal = useLauncher()
   const channels = useTv(s => s.channels)
   const onNow = channels.slice(0, ON_NOW_MAX)
   const autoplaySound = useSetting<number>('home-autoplay-sound', 1) === 1
@@ -63,7 +64,15 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
   const [cItems, setCItems] = useState<number[]>(restored?.content ?? CONTENT_ROWS.map(() => 0))
   const [banner, setBanner] = useState({ index: 0, dir: 1 as 1 | -1 })
   const launching = useLaunching()
+  // the launcher tile's menu (LauncherMenu: Move = EditMenuItem, Remove = LauncherMenuRemove), Move mode
+  // (the tile follows Left/Right until OK) and the remove confirmation
+  const [menu, setMenu] = useState<{ focus: number } | null>(null)
+  const [moving, setMoving] = useState<{ ids: string[]; at: number } | null>(null)
+  const [removeAsk, setRemoveAsk] = useState<LauncherItem | null>(null)
 
+  const launcher = moving
+    ? moving.ids.map(id => launcherReal.find(x => x.id === id)!).filter(Boolean)
+    : launcherReal
   const rows: Row[] = [
     { id: 'banner', height: 344, scroll: 'top', morph: BANNER_SPREAD },
     { id: 'tab', height: 184, scroll: 'top', morph: 0 },
@@ -137,6 +146,43 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
       if (key !== 'Home') return true
       cancelLaunch()
     }
+    if (removeAsk) return true
+    if (menu) {
+      if (key === 'Up' || key === 'Down') setMenu({ focus: key === 'Up' ? 0 : 1 })
+      else if (key === 'Enter') {
+        const it = launcher[item('launcher')]
+        setMenu(null)
+        if (menu.focus === 0 && it) {
+          // Move (EditMenuItem -> MoveMode): Left/Right carry the tile, OK drops it
+          setMoving({ ids: launcher.map(x => x.id), at: item('launcher') })
+        } else if (it) setRemoveAsk(it)
+      } else if (key === 'Back' || key === 'Left' || key === 'Right') setMenu(null)
+      else if (key === 'Home') {
+        setMenu(null)
+        toDefaultFocus()
+      }
+      return true
+    }
+    if (moving) {
+      const at = moving.at
+      if (key === 'Left' || key === 'Right') {
+        const to = at + (key === 'Left' ? -1 : 1)
+        if (to >= 0 && to < moving.ids.length) {
+          const ids = [...moving.ids]
+          ;[ids[at], ids[to]] = [ids[to], ids[at]]
+          setMoving({ ids, at: to })
+          setLItem(to)
+        }
+      } else if (key === 'Enter') {
+        setLauncherOrder(moving.ids)
+        setMoving(null)
+      } else if (key === 'Back' || key === 'Home') {
+        setLItem(launcherReal.findIndex(x => x.id === moving.ids[at]))
+        setMoving(null)
+        if (key === 'Home') toDefaultFocus()
+      }
+      return true
+    }
     const move = (d: number) => {
       let j = ri + d
       while (rows[j] && !focusable(rows[j])) j += d
@@ -179,9 +225,10 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
           const i = item(row)
           if (i < launcher.length) openLauncherItem(launcher[i])
           else {
-            // Edit (CompEdit.OnSelected): the guide toast, then the menu of the last launcher tile
+            // Edit (CompEdit.OnSelected): the guide toast, then RequestMenu on the last launcher tile
             showToast('Choose an item to edit.') // TV_SID_HOME_CEFEB_CHOOSE_AN_ITEM_TO_EDIT
             setLItem(launcher.length - 1)
+            setMenu({ focus: 0 })
           }
         } else if (row.startsWith('content')) {
           const it = contentRows[+row.slice(7)].items[item(row)]
@@ -247,7 +294,14 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
             case 'launcher':
               return (
                 <section key={r.id} className="hrow hrow--launcher" style={style(i)}>
-                  <LauncherRow items={launcher} focus={item('launcher')} current={row === 'launcher'} focused={pageFocus('launcher')} />
+                  <LauncherRow
+                    items={launcher}
+                    focus={item('launcher')}
+                    current={row === 'launcher'}
+                    focused={pageFocus('launcher')}
+                    menu={pageFocus('launcher') ? menu?.focus ?? null : null}
+                    moving={!!moving}
+                  />
                 </section>
               )
             case 'options':
@@ -287,6 +341,28 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
           }
         })}
       </div>
+
+      {removeAsk && (
+        // LauncherMenuRemove.ShowRemoveTilePopup (ResourceBaseComponent.MessageBoxContent): Remove / Cancel,
+        // then the "Removed successfully." toast
+        <MessageBox
+          title="Remove"
+          message={`Do you want to remove ${removeAsk.title} from the home screen?\n${
+            removeAsk.kind === 'webapp'
+              ? 'You can add it again later by going to the Apps menu.'
+              : 'You can add it again later by going to the Home > Connected Devices menu.'
+          }`}
+          buttons={['Remove', 'Cancel']}
+          onClose={b => {
+            if (b === 0) {
+              removeLauncherItem(removeAsk.id)
+              setLItem(i => Math.max(0, Math.min(i, launcherReal.length - 2)))
+              showToast('Removed successfully.')
+            }
+            setRemoveAsk(null)
+          }}
+        />
+      )}
 
       {/* "Secured by Knox", fixed to the screen while the bottom row is visible. */}
       <img className={`knox ${knox ? 'is-shown' : ''}`} src={`${CS}/i_logo_knox_default.svg`} alt="" />

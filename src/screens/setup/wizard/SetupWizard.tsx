@@ -101,22 +101,24 @@ export function SmartHubSetup({ onExit }: AppProps) {
 }
 
 function Wizard({ mode, onExit }: { mode: WizardMode; onExit: AppProps['onExit'] }) {
-  // First-time setup: the factory network and no agreement (once; StrictMode mounts twice).
-  const [skipNetwork] = useState(() => {
-    if (mode === 'setup') {
-      setNet(s => ({ ...FACTORY, bt: s.bt }))
-      setDisclaimer(NOT_AGREED)
-      return false
-    }
-    return isConnected(getNet())
-  })
+  // The Smart Hub setup skips the network pages when the TV is already online (inferred from
+  // NetworkDummyStartPage).
+  const [skipNetwork] = useState(() => mode === 'smarthub' && isConnected(getNet()))
   const [st, setSt] = useState<WizState>(() => {
     const lang = LANGUAGES.find(l => l.locale === DEFAULT_LANGUAGE)!
     return {
       language: lang.locale, country: lang.country, source: 'antenna', agreed: false, languageSeen: false,
-      online: isConnected(getNet()),
+      online: mode === 'smarthub' && isConnected(getNet()),
     }
   })
+  // First-time setup starts from the factory network and no agreement.
+  const factoryDone = useRef(false)
+  useEffect(() => {
+    if (mode !== 'setup' || factoryDone.current) return
+    factoryDone.current = true
+    setNet(s => ({ ...FACTORY, bt: s.bt }))
+    setDisclaimer(NOT_AGREED)
+  }, [mode])
   const [index, setIndex] = useState(0)
   const [leaving, setLeaving] = useState(false)
   const pages = flow(st, mode, skipNetwork)

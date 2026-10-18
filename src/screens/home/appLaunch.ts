@@ -1,6 +1,4 @@
 import { useSyncExternalStore } from 'react'
-import { TV } from '../../assets'
-import { Lottie } from '../../components/Lottie'
 import { shell } from '../../tv/shell'
 import type { StubApp } from '../../shared/fictional'
 
@@ -43,13 +41,5 @@ export function useLaunching(): boolean {
       return () => subs.delete(f)
     },
     () => launching !== null,
-  )
-}
-
-export function LaunchLoading() {
-  return (
-    <div className="launch-loading">
-      <Lottie className="launch-loading__icon" src={`${TV}/flux/i_img_loading.json`} playing loop />
-    </div>
   )
 }

@@ -2,6 +2,7 @@ import { TV } from '../../../assets'
 import { stubArt } from '../../../shared/fictional'
 import type { LauncherItem } from '../launcher'
 import { squircleClip, squircleRing } from './squircle'
+import { Lottie } from '../../../components/Lottie'
 
 // Row 4 of the agreed home: d/launcher (layer_type applist, style applist02 = MediaAppsLineDetail02:
 // 21 u layer + 7 u gap, 14 u content centred, item gap 2 u, focused scale 1.2, push-back list, focus
@@ -32,15 +33,25 @@ const NH = `${TV}/com.samsung.tv.coba.newhome`
 const VD = `${TV}/VD_ICONS`
 
 export const EDIT_TOOLTIP = 'List Edit'   // TV_SID_HOME_CBAUG_LIST_EIDT
+// LauncherMenu items (ResourceEdenView Move = COM_SID_MOVE_FS_DEU, ResourceBaseComponent MenuRemove =
+// IDWS_MOIP_SKYPE_REMOVE_KR_LIST)
+const MENU = ['Move', 'Remove']
+const FLUX = `${TV}/flux`
 
 type Props = {
   items: LauncherItem[]
   focus: number          // 0..items.length-1 apps, items.length = Edit
   current: boolean       // the row has the page focus (the tile keeps 1.2x while the sidebar is open)
   focused: boolean       // remote focus on the focused tile (ring, shadow, tooltip)
+  menu: number | null    // the focused tile's menu is open, this item focused
+  moving: boolean        // Move mode: the focused tile follows Left/Right
 }
 
-export function LauncherRow({ items, focus, current, focused }: Props) {
+// The menu (LauncherMenu: 38 u wide, 10 u items, padding 2 u top / 3 u left, plate CC_BG4100 #1F3959,
+// T24 600 items) hangs under the focused tile, attached to it (FSNList.AttachToFocusView; y = centre +
+// focused height / 2 + 4 u) and fades in from 0.5. Move mode shows the list's edit arrows (4 x 4 u) on
+// both sides of the tile (arrow art inferred: i_icon_arrow_s).
+export function LauncherRow({ items, focus, current, focused, menu, moving }: Props) {
   const n = items.length
   const x = (i: number) => LIST_X + i * PITCH + (current && i > focus ? GROW : 0)
   return (
@@ -68,6 +79,19 @@ export function LauncherRow({ items, focus, current, focused }: Props) {
               )}
             </div>
             <div className="lr-tile__ring" style={{ backgroundImage: ring }} />
+            {cur && focused && moving && (
+              <>
+                <Lottie className="lr-arrow lr-arrow--prev" src={`${FLUX}/i_icon_arrow_s.json`} />
+                <Lottie className="lr-arrow lr-arrow--next" src={`${FLUX}/i_icon_arrow_s.json`} />
+              </>
+            )}
+            {cur && focused && menu !== null && (
+              <div className="lr-menu">
+                {MENU.map((m, k) => (
+                  <div key={m} className={`lr-menu__item ${menu === k ? 'is-focused' : ''}`}>{m}</div>
+                ))}
+              </div>
+            )}
           </div>
         )
       })}
