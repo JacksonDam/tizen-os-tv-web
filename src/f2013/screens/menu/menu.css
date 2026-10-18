@@ -234,3 +234,9 @@
 .m13-eq-title { left: 42px; top: 0; height: 50px; display: flex; align-items: center; font-size: 24px; white-space: nowrap; }
 .m13-eq-mark { top: 0; width: 53px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
 .m13-eq-icon { top: 18px; width: 13px; height: 13px; }
+
+/* signal information (siginfo.tsx): title at MENU_ACTION_WINDOW_ITEM_TITLE_X_OFFSET 48, value right-aligned in
+   MENU_ACTION_WINDOW_VALUE_TEXT_X 328 + W 226 (inferred renderer mapping) */
+.m13-sig-row > span { position: absolute; top: 0; height: 48px; display: flex; align-items: center; font-size: 24px; color: #fff; white-space: nowrap; }
+.m13-sig-title { left: 48px; }
+.m13-sig-value { left: 328px; width: 226px; justify-content: flex-end; }

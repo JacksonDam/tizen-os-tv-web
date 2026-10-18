@@ -10,6 +10,7 @@ import type { Widget } from './widgets'
 import { NetworkSettings, NetworkStatus } from './network'
 import { PictureTest, SoundTest } from './selftest'
 import { Equaliser } from './equaliser'
+import { SignalInformation } from './siginfo'
 
 // CMenuActionWindowBase on CDefaultWindow (AppMWOSDInfo / MenuOSDInfo, 1280x720 OSD space):
 //  - background AppCM/act_window_bg 9-slice (DEFAULTWND_BG_POSITION 2/24/139: corners 24 wide, top
@@ -186,6 +187,8 @@ export function actionWindow(it: MenuItem): Widget | null {
       return { kind: 'custom', item: it, render: p => <Equaliser {...p} /> }
     case 0x6ea:  // Self Diagnosis > Picture Test
       return { kind: 'custom', item: it, hideMenu: true, render: p => <PictureTest item={it} {...p} /> }
+    case 0x6ed:  // Self Diagnosis > Signal Information
+      return { kind: 'custom', item: it, render: p => <SignalInformation item={it} {...p} /> }
     case 0x6ec:  // Self Diagnosis > Sound Test
       return { kind: 'custom', item: it, hideMenu: true, render: p => <SoundTest item={it} {...p} /> }
   }
