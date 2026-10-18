@@ -1,24 +1,107 @@
-# Tizen OS TV Web
+# Samsung TV interface museum
 
-A 1:1 web recreation of the Samsung 2025 TV interface (Tizen 9, firmware T-RSMFDEUC-0090), running the TV
-frontend at native speed in a browser for testing without the TV or an emulator. It mocks the TV's
-hardware: a tuner with a scanned channel lineup, two HDMI devices, a network, Bluetooth devices, volume
-and power.
+Working 1:1 recreations of Samsung TV interfaces, each rebuilt from its own firmware and running in the
+browser. Every exhibit mocks the TV's hardware (a tuner with a fictional channel lineup, HDMI devices,
+volume, power) so the whole interface can be used with the on-screen remote or the keyboard.
 
 **Live:** https://jacksondam.com/tizen-os-tv-web/
 
-Built with Vite, React and TypeScript on a fixed 1920x1080 stage that scales to the window, with an
-on-screen remote docked beside it.
+| Exhibit | Page | Firmware |
+|---|---|---|
+| 2013 Smart Hub (F series, UE40F6400) | [`/2013/`](https://jacksondam.com/tizen-os-tv-web/2013/) | T-MST12DEUC 2130.0 |
+| 2025 Tizen 9 (Neo QLED) | [`/2025/`](https://jacksondam.com/tizen-os-tv-web/2025/) | T-RSMFDEUC-0090 |
+
+Built with Vite, React and TypeScript as a multi-page site: the lobby (`index.html`, `src/museum`) and
+one page per exhibit (`2013/index.html` with `src/f2013`, `2025/index.html` with the rest of `src`).
+Each TV is a fixed 1920x1080 stage that scales to the window, with an on-screen remote docked beside it
+(`src/stage`, `src/remote`). The exhibits share the key router (`src/input/remote.ts`), the channel
+lineup and programme guide (`src/tv/channels.ts`) and the stand-in video loops (`public/video`).
 
 ## Run it
 
 ```
 npm install
-npm run dev          # open the printed URL
+npm run dev          # the lobby at the printed URL, the TVs at /2013/ and /2025/
 npm run build        # static site in dist/
 ```
 
-## Remote
+Links from before the museum (the root URL with `?setup=`, `?boot=` and the other 2025 options) are
+forwarded to `/2025/`.
+
+## 2013: Smart Hub (F series)
+
+### Remote
+
+| Keyboard | 2013 remote |
+|---|---|
+| Arrow keys | Up / Down / Left / Right |
+| Enter, Space | ENTER |
+| Esc, Backspace | RETURN |
+| X | EXIT |
+| H, F5 | SMART HUB |
+| Q | MENU |
+| T | TOOLS |
+| I | INFO |
+| G | GUIDE |
+| L | CH LIST |
+| S | SOURCE |
+| R | PRE-CH |
+| Page Up / Page Down | Channel up / down |
+| + / - | Volume up / down |
+| M | MUTE |
+| 0-9 | Channel number |
+| F1, F2, F3, F4 | A, B, C, D |
+| P | POWER |
+
+The PIN is 0000. URL options: `?remote=0` hides the on-screen remote, `?boot=0` skips the boot logo and
+start-up wait, `?setup=1` runs Plug & Play (`?setup=0` cancels a pending one), `?scanspeed=<n>` runs the
+channel scan n times faster. State is kept in the browser's local storage, separately from the 2025 TV.
+
+### What is here
+
+- **Power and boot** (`src/f2013/screens/setup`): every power-on shows the boot loader's "SMART TV" logo
+  and five hexagons, then the TV's start-up wait. POWER toggles standby.
+- **Plug & Play**: the welcome movie, Language, Configure your TV (country, channel source, network
+  type), Auto Tuning with a mocked scan and Setup complete!, with the firmware's setup music. Without a
+  network the Smart Hub terms are never agreed, so setup ends on live TV, as on the real set. It runs
+  after a factory reset or with `?setup=1`.
+- **Smart Hub** (`src/f2013/screens/smarthub`): what a TV that has never been online shows. The firmware
+  falls back to a default panel list per country (UK: Games, Apps, Photos Videos & Music) on its 3D
+  carousel, with the panel-move sound, the top menu and side arrows; each panel offers Set Up Smart Hub,
+  which leads to the Welcome page and Network Settings.
+- **Menu** (`src/f2013/screens/menu`): Picture, Sound, Broadcasting, Network, Smart Features, System and
+  Support with their icon animations and help images; 208 items taken from the firmware's menu code for a
+  UK DVB-T/T2 set, with popups, sliders, PIN, message boxes and timers. Picture settings tint the live
+  picture. Network screens show no cable and no router in range; Self Diagnosis has the Picture Test,
+  Sound Test, Signal Information and Reset (factory reset, then Plug & Play); Software Update and the
+  Smart Hub items show the TV's offline messages; Contact Samsung shows the real software version.
+- **Watching TV** (`src/f2013/screens/tvview`): channel banner with its dial, volume and mute OSDs,
+  number entry, PRE-CH, No Signal, the radio screen, the INFO banner, Source (the F6400's nine inputs;
+  HDMI1 has a game console and HDMI2/DVI a set-top box), Channel List, Guide and Tools.
+- **UI sounds** (`src/f2013/tv/sound.ts`): the firmware's 48 kHz PCM sounds, addressed by its own sound
+  ids, one at a time.
+
+Not included: Smart Interaction (voice, gesture, camera), the web browser and apps, Samsung account,
+the e-Manual (its content is on a partition the update doesn't carry), the Channel Manager, recording
+and Anynet+.
+
+### How it was made
+
+The 2013 interface is drawn by one native ARM program, exeDSP, with its own 2D toolkit and a small 3D
+engine for the Smart Hub. Its C++ symbol names survive, so each screen was rebuilt from Ghidra
+decompilations of its window classes, the per-app image and text tables, and the layout constants
+(some read by emulating the firmware's own set-up functions). Screens were compared with footage of real
+2013 TVs, which is not included. Values not read from the firmware are marked "(inferred)" in the code.
+The fonts (Samsung SVD) are subset to Latin. The F-series Fox-P firmware (T-FXPDEUC) could not be used
+because its key has never been published; this exhibit uses the MStar F-series update instead.
+
+## 2025: Tizen 9
+
+A recreation of the Samsung 2025 TV interface (Tizen 9, firmware T-RSMFDEUC-0090), running the TV
+frontend at native speed in a browser. It mocks a tuner with a scanned channel lineup, two HDMI devices,
+a network, Bluetooth devices, volume and power.
+
+### Remote
 
 Use the on-screen remote or the keyboard:
 
@@ -60,7 +143,7 @@ Automation hook: `window.__tv.press('Down')` sends a key. URL options:
 State (settings, channels, volume, input, network, schedules, notifications) is kept in the browser's
 local storage; General & Privacy > Factory data reset clears it and runs first-time setup.
 
-## What is here
+### What is here
 
 - **Smart Hub home** (`src/screens/home`): the page a signed-out TV shows before the Smart Hub terms are
   agreed. Top banner with Set Up Now, Discover, Now Playing with the live picture auto-playing, the On Now
@@ -127,7 +210,7 @@ Feature modules plug into the shell through registries rather than editing it: `
 `registerMenuPatch` (`src/screens/allsettings/menu.ts`), and `registerOverlay`, `registerTvKeyHandler`,
 `registerPowerOnHook`, `registerPinPrompt` and the `shell` API (`src/tv/shell.ts`).
 
-## How it was made
+### How it was made
 
 The TV's UI apps are .NET (NUI/DALi) and native EFL programs built on Samsung's FLUX component library.
 They were decompiled from the firmware, and the layout, colours, fonts, timings, curves and sounds were
@@ -145,7 +228,7 @@ are marked "(inferred)" in the code where a value was not read from it.
 ## Comparing with screenshots
 
 ```
-node tools/shot.mjs "http://localhost:5173/?sub=0&remote=0" web.png --keys Left,Down
+node tools/shot.mjs "http://localhost:5173/2025/?sub=0&remote=0" web.png --keys Left,Down
 python3 tools/diff.py reference.png web.png diff.png
 python3 tools/boxes.py reference.png web.png tools/regions/home-initial.json
 ```
@@ -158,7 +241,8 @@ element bounding boxes. Reference screenshots come from the firmware running in 
 
 ## Disclaimer
 
-Unofficial and not affiliated with Samsung. The images, animations, sounds, music and SamsungOne fonts in
-`public/tv` and `public/sounds` come from Samsung TV firmware, and the end-of-setup movie
+Unofficial and not affiliated with Samsung. The images, animations, sounds, music, welcome movie and
+fonts in `public/f13`, `public/tv` and `public/sounds` come from Samsung TV firmware, and the 2025
+end-of-setup movie
 (`public/video/oobe_ending.mp4`) from a capture of a Samsung TV; they remain the property of Samsung
 Electronics. App logos shown in them belong to their respective owners.

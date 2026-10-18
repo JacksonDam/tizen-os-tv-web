@@ -3,9 +3,9 @@ import react from '@vitejs/plugin-react'
 
 // The museum is a multi-page site: the lobby at the root and one page per exhibit (a TV generation).
 // Builds use an absolute base so every page, however deep, resolves the shared public/ assets; it is
-// the GitHub Pages project path (https://jacksondam.com/tizen-os-tv-web/).
-export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/tizen-os-tv-web/' : '/',
+// the GitHub Pages project path (https://jacksondam.com/tizen-os-tv-web/), also used by `vite preview`.
+export default defineConfig(({ command, isPreview }) => ({
+  base: command === 'build' || isPreview ? '/tizen-os-tv-web/' : '/',
   plugins: [react()],
   build: {
     rollupOptions: {

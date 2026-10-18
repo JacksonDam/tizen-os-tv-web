@@ -23,7 +23,7 @@ const keywait = +opt('--keywait', 400)
 const [pageUrl, out] = args
 // TV captures skip the page-load boot logo unless the URL sets boot= itself (not the museum lobby,
 // which forwards URLs with TV options to the 2025 exhibit)
-const isLobby = pageUrl && new URL(pageUrl).pathname.replace(/\/(index\.html)?$/, '').split('/').length <= 1
+const isLobby = pageUrl && !/\/20\d\d\/(index\.html)?$/.test(new URL(pageUrl).pathname)
 const url = pageUrl && !isLobby && !/[?&]boot=/.test(pageUrl) ? `${pageUrl}${pageUrl.includes('?') ? '&' : '?'}boot=0` : pageUrl
 if (!pageUrl || !out) {
   console.error('usage: node tools/shot.mjs <url> <out.png> [--keys K1,K2] [--wait ms] [--keywait ms]')
