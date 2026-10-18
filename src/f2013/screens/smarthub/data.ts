@@ -294,3 +294,9 @@ export const SUB_SHOW_MS = 250            // GBHOME_ANI_SUBMENU_SHOW_DURATION
 export const SUB_STAGGER_MS = 34          // GBHOME_ANI_SUBMENU_PRECEDENCE_TIME
 export const SUB_MOVE_LEAD_MS = 417       // GBHOME_ANI_SUBMENU_MOVE_SHOW_LEADTIME
 export const GRID_MS = 250                // GBHOME_COMMON_GRID_ANIMATION_DURATION
+
+// Clock text in the firmware's EU formats (CCountryUtil::GetDateTimeStr @018c6f50, target location
+// 3/4: format 2 = "%h:%N").
+export function hhmm(d: Date) {
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}

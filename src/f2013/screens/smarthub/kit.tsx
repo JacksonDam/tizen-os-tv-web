@@ -31,9 +31,3 @@ export function TextBox({ style, children }: { style: CSSProperties; children?: 
     </div>
   )
 }
-
-// Clock text in the firmware's EU formats (CCountryUtil::GetDateTimeStr @018c6f50, target location
-// 3/4: format 2 = "%h:%N").
-export function hhmm(d: Date) {
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}

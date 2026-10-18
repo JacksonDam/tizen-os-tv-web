@@ -5,8 +5,8 @@ import { VIDEO } from '../../assets'
 import { closeApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { currentChannel, currentSource, currentVideo, getTv, tuneChannel, useTv } from '../../tv/store'
-import { IMG, ONTV } from './data'
-import { Glow, hhmm, TextBox } from './kit'
+import { hhmm, IMG, ONTV } from './data'
+import { Glow, TextBox } from './kit'
 import { registerOnlinePanel, type OnlinePanelProps } from './panels'
 
 // On TV (CHomeSmartLivePanel, ETableListType 1) online: a 3 x 6 table (m_InitializeTableInfo @02bd88b4,

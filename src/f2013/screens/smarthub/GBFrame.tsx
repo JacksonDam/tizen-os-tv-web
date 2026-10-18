@@ -1,5 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
-import { colorTagColors } from './ColorTag'
+import { colorTagColors } from './tagColors'
 import { IMG } from './data'
 
 // The "GoldenBridge" frame the Smart Hub's content applications share (Photos, Videos & Music:

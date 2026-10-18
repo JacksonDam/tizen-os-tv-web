@@ -30,7 +30,7 @@ const GLOW_DX = -28, GLOW_DY = -31          // GBHOME_PREFERRED_GRID_FOCUS_IMAGE
 
 type Slot = { x: number; y: number; w: number; h: number; t: StubTitle }
 
-export function featuredSlots(): Slot[] {
+function featuredSlots(): Slot[] {
   const films = STUB_TITLES.filter(t => t.kind === 'movie')
   const shows = STUB_TITLES.filter(t => t.kind === 'show')
   return [

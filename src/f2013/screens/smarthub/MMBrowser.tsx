@@ -366,7 +366,6 @@ function PhotoPlayer({ list, index, onIndex, onReturn, onExit }: {
   useEffect(() => {
     poke()
     return () => clearTimeout(hideTimer.current)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index])
 
   useRemote(key => {

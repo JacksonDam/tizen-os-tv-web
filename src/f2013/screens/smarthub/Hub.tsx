@@ -4,7 +4,8 @@ import { isConnected } from '../../tv/online'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getSetting, getTv } from '../../tv/store'
 import { getForeground } from '../../shell'
-import { ColorTag, colorTagColors } from './ColorTag'
+import { ColorTag } from './ColorTag'
+import { colorTagColors } from './tagColors'
 import {
   ARROW_GONE_X, ARROW_INIT_X, ARROW_X, ARROW_Y, defaultCentre, defaultPanelList, ENTRANCE_MS, EXIT_BG_MS,
   EXIT_FIRST_MS, EXIT_ROTATE, EXIT_TOTAL_MS, HP_SCALE, iconSrc, IMG, INIT_ROTATE_CENTRE, INIT_SCALE,
