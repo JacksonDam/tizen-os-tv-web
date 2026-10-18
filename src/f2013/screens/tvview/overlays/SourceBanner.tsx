@@ -58,7 +58,8 @@ export function SourceBanner() {
   useEffect(() => {
     if (switchSeq === lastSeq.current) return
     lastSeq.current = switchSeq
-    if (!fg) show()
+    // a switch made from the Source list shows the banner too (under the list, visible once it closes)
+    if (!fg || fg.id === 'source') show()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [switchSeq])
   // emit('banner') on an external input (e.g. INFO) shows it again
@@ -70,7 +71,7 @@ export function SourceBanner() {
     return () => clearTimeout(t)
   }, [shown])
   useEffect(() => {
-    if (fg || source.id === 'TV') setShown(0)
+    if ((fg && fg.id !== 'source') || source.id === 'TV') setShown(0)
   }, [fg, source.id])
 
   useEffect(() => {
