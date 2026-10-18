@@ -465,3 +465,158 @@
 .mmp__text--scroll {
   text-overflow: clip;
 }
+
+/* ---- Photos, Videos & Music browser and player (MMBrowser.tsx) ---- */
+.mmb, .mmv {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+}
+.mmb__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mmb__top, .mmb__page {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+  white-space: nowrap;
+}
+.mmb__page { font-size: 27px; }
+.mmb__cell {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+}
+.mmb__cell img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mmb__title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 45px;
+  line-height: 45px;
+  padding: 0 15px;
+  background: rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 300;
+}
+.mmb__dur {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  font-size: 24px;
+  text-shadow: 0 1px 2px #000;
+}
+.mmb__focus, .mmb__dev-focus {
+  position: absolute;
+  inset: -16px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 24px;
+  border-image-slice: 16 16 16 16;
+  pointer-events: none;
+}
+.mmb__arrow {
+  position: absolute;
+  width: 58px;
+  height: 87px;
+}
+.mmb__info {
+  position: absolute;
+  left: 0;
+  width: 1920px;
+}
+.mmb__info div {
+  position: absolute;
+  left: 63px;
+  width: 1500px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mmb__empty {
+  position: absolute;
+  left: 0;
+  width: 1920px;
+  text-align: center;
+}
+.mmb__device {
+  position: absolute;
+  width: 290px;
+  text-align: center;
+  font-size: 36px;
+}
+.mmb__device img { display: block; }
+.mmb__device div { margin-top: 20px; }
+.mmb__dev-focus { inset: -16px -16px 40px -16px; }
+.mmv { background: #000; }
+.mmv video, .mmv__photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.mmv__banner, .mmv__pbanner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 180px;
+  transition: opacity 300ms linear;
+}
+.mmv__pbanner {
+  height: 120px;
+  background-size: 100% 100%;
+}
+.mmv__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mmv__banner img, .mmv__t {
+  position: absolute;
+}
+.mmv__t, .mmv__pt {
+  position: absolute;
+  height: 40px;
+  line-height: 40px;
+  font-size: 38px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mmv__pt { top: 20px; height: 42px; line-height: 42px; font-size: 36px; }
+.mmv__prog {
+  position: absolute;
+  height: 12px;
+  background-size: 100% 100%;
+  border-radius: 6px;
+}
+.mmv__prog i {
+  display: block;
+  height: 100%;
+  background-size: 100% 100%;
+  border-radius: 6px;
+}
+.mmv__prog img {
+  position: absolute;
+  top: -13px;
+  width: 38px;
+  height: 38px;
+}
