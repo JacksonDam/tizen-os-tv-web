@@ -37,7 +37,7 @@ export type OnlinePanelOptions = {
   submenu?: (index: number, launch: (run: () => void) => void) => boolean
 }
 
-export type SmartHubParams = { page?: 'welcome'; panel?: number }
+export type SmartHubParams = { page?: 'welcome' | 'terms' | 'complete'; panel?: number }
 
 const bodies = new Map<number, { body: ComponentType<OnlinePanelProps>; opts: OnlinePanelOptions }>()
 

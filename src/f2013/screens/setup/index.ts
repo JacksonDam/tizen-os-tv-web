@@ -23,7 +23,15 @@ registerHotkey('Power', () => {
 // one. A factory reset (Menu) sets setupDone false, so the next power-on runs it.
 if (typeof location !== 'undefined') {
   const q = new URLSearchParams(location.search).get('setup')
-  if (q === '1') setTv({ setupDone: false })
+  // out of the box: no network configured, Smart Hub terms not agreed, no account (online round)
+  if (q === '1') {
+    setTv(s => ({
+      setupDone: false,
+      network: { ...s.network, type: 'none', ssid: null },
+      smartHub: { agreed: false, account: null },
+      settings: { ...s.settings, networkType: 'Wireless' },
+    }))
+  }
   else if (q === '0') setTv({ setupDone: true })
   if (q === '1' || q === '0') saveLastPage(null)   // a fresh run / no run to resume
 }

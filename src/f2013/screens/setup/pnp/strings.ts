@@ -30,6 +30,9 @@ export const S = {
   noNetworkAdvice: "If you don't want to use a network, select No Network as the network type.", // M 0x909
   ok: 'OK',                                                                       // M 0x3fd
   completeTitle: 'Setup complete!',                                               // M 0x8ea
+  completeNetwork: 'Your Smart TV is now ready to use. The more you use your TV, the smarter it will get!', // M 0x8e6
+  completeNotAgreed:
+    'Smart Hub requires you to agree to the Smart Hub Terms & Conditions and Privacy Policy.\nPress the Smart Hub button (see the image below) to find and agree to the policies.', // M 0x8e9
   completeNoNetwork:
     'You can’t use Smart Hub until you set up a network connection.\nPress the Smart Hub button on your remote (see image below) to set up Smart Hub at any time.', // M 0x8e7
 }

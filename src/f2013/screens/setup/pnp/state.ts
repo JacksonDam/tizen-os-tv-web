@@ -1,4 +1,5 @@
 import { getSetting, setSetting } from '../../../tv/store'
+import { setNetType } from '../../net/data'
 import { COUNTRIES, LANGUAGES } from './strings'
 
 // What the Plug & Play pages chose. Kept for the run (going back shows the earlier choices) and written
@@ -32,7 +33,8 @@ export function saveLanguage() {
 
 export function saveConfigure() {
   setSetting('country', COUNTRIES[pnp.country])
-  setSetting('networkType', pnp.networkType)
+  // the network type: Wired / No Network leave the Wi-Fi unconnected (net/data.ts)
+  setNetType(pnp.networkType)
 }
 
 export function currentCountry() {
