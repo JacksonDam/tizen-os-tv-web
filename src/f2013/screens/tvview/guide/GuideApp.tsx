@@ -432,7 +432,7 @@ export function GuideApp({ close }: AppProps) {
         {popup !== 'quicknav' && markers.map(m => (
           <div key={m.mk.key} className="g13-abs" style={{ left: m.x, top: 0, height: L.HELP_H }}>
             <Pic src={m.mk.icon} x={0} y={(L.HELP_H - m.iw) / 2} nw={34} nh={34} />
-            <Text x={m.iw + L.HELP_IMGTXT_MARGIN} y={0} w={Math.ceil(m.tw) + 4} h={L.HELP_H} size={L.HELP_TEXT_SIZE} color={C.HELP_TEXT}>{m.mk.text}</Text>
+            <Text x={m.iw + L.HELP_IMGTXT_MARGIN} y={0} w={Math.ceil(m.tw) + 4} h={L.HELP_H} size={L.HELP_TEXT_SIZE} color={C.HELP_TEXT} style={{ overflow: 'visible' }}>{m.mk.text}</Text>
           </div>
         ))}
       </div>
