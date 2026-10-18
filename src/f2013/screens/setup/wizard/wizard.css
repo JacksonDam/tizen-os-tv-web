@@ -1,0 +1,243 @@
+/* Plug & Play wizard frame (Wizard.tsx). Firmware 1280x720 values x1.5. */
+.wiz {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* CWizardWidget::m_CreateBackgroundDrawing: AppCM/wizard_bg.bmp (1x720) stretched over the screen */
+  background: url('/f13/setup/wizard/wizard_bg.png') 0 0 / 100% 100% no-repeat, #1673cc;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* CWizardWidget::m_CreateTitle: box 40,64 1200x56, shadow_eu 42, #5FF9FF, centred */
+.wiz-title {
+  position: absolute;
+  left: 60px;
+  top: 96px;
+  width: 1800px;
+  height: 84px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 63px;
+  color: #5ff9ff;
+  white-space: nowrap;
+}
+
+/* step indicator: 30x30 circles / 40x37 icons at y 16; labels COMMON_FONT_SIZE_15 (20) */
+.wiz-step {
+  position: absolute;
+  top: 24px;
+  width: 45px;
+  height: 45px;
+  background-size: 100% 100%;
+  font-size: 30px;
+  line-height: 47px;
+  text-align: center;
+}
+.wiz-step--past { background-image: url('/f13/setup/wizard/step_past.png'); color: #936f00; }
+.wiz-step--present { background-image: url('/f13/setup/wizard/step_present.png'); color: #4b3f1c; }
+.wiz-step--future { background-image: url('/f13/setup/wizard/step_future.png'); color: #467fb5; }
+.wiz-step__icon {
+  position: absolute;
+  top: 24px;
+  width: 60px;
+  height: 55.5px;
+}
+
+/* navigation circles: 96x96 images, Previous 8,317 / Next 1176,317 / Skip, Close 1176,413 (509) */
+.wiz-nav {
+  position: absolute;
+  width: 144px;
+  height: 144px;
+  top: 475.5px;
+}
+.wiz-nav--prev { left: 12px; }
+.wiz-nav--next { left: 1764px; }
+.wiz-nav--skip, .wiz-nav--close { left: 1764px; top: 619.5px; }
+.wiz-close--low .wiz-nav--close { top: 763.5px; }
+
+/* text bubble: wizard_indi_textbox 58x53 as a 3-slice (28 | 2 | 28), height 53, text width + 58,
+   COMMON_FONT_SIZE_20 (26); flush left of the circle, 21 below its top (Previous: at 104,338) */
+.wiz-bubble {
+  position: absolute;
+  top: 507px;
+  height: 79.5px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0 42px;
+  padding: 0 1.5px;
+  border-image: url('/f13/setup/wizard/wizard_indi_textbox.png') 0 28 fill / 0 42px stretch;
+  display: flex;
+  align-items: center;
+  font-size: 39px;
+  color: #fff;
+  white-space: nowrap;
+}
+.wiz-bubble--next, .wiz-bubble--skip, .wiz-bubble--close { right: 156px; }
+.wiz-bubble--skip, .wiz-bubble--close { top: 651px; }
+.wiz-close--low .wiz-bubble--close { top: 795px; }
+.wiz-bubble--prev { left: 156px; }
+
+/* page content: show = from x +40, hide = to x -40, WIZARD_ANI_DURATION 250 ms (fade inferred) */
+.wiz-page {
+  position: absolute;
+  inset: 0;
+  animation: wiz-show 250ms ease-out both;
+}
+.wiz-page--hide {
+  animation: wiz-hide 250ms ease-in both;
+}
+@keyframes wiz-show {
+  from { transform: translateX(60px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+@keyframes wiz-hide {
+  from { transform: none; opacity: 1; }
+  to { transform: translateX(-60px); opacity: 0; }
+}
+
+/* bottom buttons: 293x85 at y 610 (Common/wizard_btn_{nor,sel}_new.bmp 304x90 fitted to the box),
+   FONT_SIZE_24 (32), black, centred; a dimmed button is drawn at ALPHA_SEMI_TRANSPARENT */
+.wiz-btn {
+  position: absolute;
+  top: 915px;
+  width: 439.5px;
+  height: 127.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: url('/f13/setup/wizard/wizard_btn_nor_new.png') 0 0 / 100% 100% no-repeat;
+  font-size: 48px;
+  color: #000;
+}
+.wiz-btn--sel { background-image: url('/f13/setup/wizard/wizard_btn_sel_new.png'); }
+.wiz-btn--dim { opacity: 0.5; }
+.wiz-btn--dim span { color: rgba(0, 0, 0, 0.5); }
+
+/* ---- option popup (CPopUpWidget, widgets.tsx) ---- */
+.pop { position: absolute; z-index: 50; font-weight: 500; }
+.pop::before {
+  /* AppCM/act_popup_shadow 48x48 over the whole box, slices (48-2)/2 */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 34.5px;
+  border-image: url('/f13/setup/popup/act_popup_shadow.png') 23 fill / 34.5px stretch;
+}
+.pop__inner {
+  /* the list window sits DEFAULTWND_SHADOW_BG 21/2 inside: #222D3B rectangle + sub_popup_bg frame */
+  position: absolute;
+  inset: 15.75px;
+  background: #222d3b;
+}
+.pop__inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 72px;
+  border-image: url('/f13/setup/popup/sub_popup_bg.png') 48 / 72px stretch;
+}
+.pop__item { position: absolute; left: 0; right: 0; }
+.pop__focus {
+  position: absolute;
+  left: 50%;
+  width: 480px;
+  height: 127.5px;
+  margin-left: -240px;
+  border-style: solid;
+  border-width: 60px;
+  border-image: url('/f13/setup/popup/list_highlight.png') 40 fill / 60px stretch;
+}
+.pop__check {
+  position: absolute;
+  left: 36px;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+}
+.pop__text {
+  position: absolute;
+  left: 96px;
+  right: 24px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  font-size: 36px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pop__item--focus .pop__text { color: #fdd911; }
+.pop__arrow {
+  position: absolute;
+  left: 50%;
+  width: 63px;
+  height: 43.5px;
+  margin-left: -31.5px;
+}
+.pop__arrow--up { top: 0; }
+.pop__arrow--down { bottom: 0; }
+
+/* ---- message box (CMessageBox, widgets.tsx): 544 wide, centred ---- */
+.msg { position: absolute; z-index: 60; left: 552px; width: 816px; font-weight: 500; }
+.msg::before {
+  /* AppCM/act_popup_shadow, 21 px larger than the box */
+  content: '';
+  position: absolute;
+  inset: -15.75px;
+  border-style: solid;
+  border-width: 34.5px;
+  border-image: url('/f13/setup/popup/act_popup_shadow.png') 23 fill / 34.5px stretch;
+}
+.msg__fill {
+  /* BG_ALPHA_COLOR black at the OSD transparency (inferred 80 %) under the frame */
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+}
+.msg__fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 40.5px;
+  border-image: url('/f13/setup/popup/message_popup_bg.png') 27 / 40.5px stretch;
+}
+.msg__text {
+  position: absolute;
+  left: 90px;
+  width: 636px;
+  font-size: 36px;
+  line-height: 49.5px;  /* row pitch = COMMON_FONT_SIZE_18 24 + MESSAGEBOX_TEXT_ROW_GAP 9, x1.5 */
+  color: #fff;
+  text-align: center;
+  white-space: pre-line;
+}
+.msg__btn {
+  position: absolute;
+  width: 264px;
+  height: 79.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #fff;
+}
+.msg__btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-width: 39px;
+  border-image: url('/f13/setup/popup/btn_normal.png') 26 fill / 39px stretch;
+}
+.msg__btn--focus::before { border-image-source: url('/f13/setup/popup/btn_focused.png'); }
+.msg__btn { isolation: isolate; }
