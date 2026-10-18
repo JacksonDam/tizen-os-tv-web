@@ -5,6 +5,7 @@ import type { AppProps } from '../../shell'
 import { closeApp, openApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { resetTv, setTv, useTv } from '../../tv/store'
+import { netContext } from './network'
 import { powerOff, powerOn } from '../setup/power'
 import { OSD, panelX, TRANSPARENCY_ALPHA } from './osd'
 import { CategoryIcon, Help, Panel } from './parts'
@@ -75,6 +76,7 @@ export function MenuApp({ params }: AppProps) {
     // an item to run: prefer the leaf with that name (Picture Size: the sublist 0xa4, not its container)
     else if (p.item) target = findPath(cats, it => it.t === p.item && !it.k?.length) ?? findPath(cats, it => it.t === p.item)
     else if (p.path?.length) target = findPath(cats, it => it.id === p.path![p.path!.length - 1])
+    netContext.smartHubSetup = false
     if (target) {
       const [ci, chain] = target
       direct.current = true
@@ -91,6 +93,8 @@ export function MenuApp({ params }: AppProps) {
       const last = chain[chain.length - 1]
       if (p.item || p.page === 'network-settings') {
         directItem.current = true
+        // Smart Hub's Start runs the network app in its Smart Hub setup scenario (0x5b, 0x4b1)
+        netContext.smartHubSetup = p.page === 'network-settings' && p.from === 'smarthub'
         const container = lv[lv.length - 1].item
         const w = itemAction(last, { close, enterChild: () => {}, refresh: () => setTick(t => t + 1), siblings: container.k ?? [], factoryReset })
         if (w) setWidget(w)

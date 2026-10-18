@@ -1,25 +1,30 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
+import { closeApp, openApp } from '../../shell'
+import { useConnected } from '../../tv/online'
 import { playUi, UI_SOUND } from '../../tv/sound'
-import { getSetting, setSetting } from '../../tv/store'
+import { getTv } from '../../tv/store'
+import { ConnectResult } from '../net/ConnectResult'
+import { ADDR, disconnectWireless, findAp, KEY_MAX, KEY_MIN, N, netTypeNow, online, scanResults, setNetType, signalIcon, type Ap } from '../net/data'
+import { Osk } from '../net/Osk'
 import { Wizard } from '../setup/wizard/Wizard'
 import { AW, baseKeys, transparencyAlpha, type AWProps } from './kit'
 import { IMG } from './parts'
 
 // Network windows the Menu opens (the network app, exeDSP CNetwork*ActionWindow, NetworkOSDInfo in the
 // 1280x720 OSD; texts g_NetworkWStringEng). The mocked set has built-in Wi-Fi and an Ethernet port
-// (NetworkUtility::IsEthernetSupportedModel / IsInternalWifiModel), no cable plugged in and no
-// wireless router in range, so every test fails the way the firmware reports it.
+// (NetworkUtility::IsEthernetSupportedModel / IsInternalWifiModel) with no cable plugged in, and the
+// museum's fictional Wi-Fi neighbourhood in range (net/data.ts): Wired tests fail the way the firmware
+// reports it; Wireless connects to a chosen network and the tests pass.
 // The network type is the setting 'networkType' ('Wireless' | 'Wired' | 'No Network', written by
-// Plug & Play); "No Network" leaves the network manager on Wireless (inferred).
+// Plug & Play); "No Network" leaves the network manager on Wireless (inferred). The connection is the
+// store's network state (tv/online.ts).
 
 const NET = `${IMG}/net`
 
 export type NetType = 'Wireless' | 'Wired'
-function netType(): NetType {
-  return getSetting<string>('networkType', 'Wireless') === 'Wired' ? 'Wired' : 'Wireless'
-}
+const netType = netTypeNow
 
 // ---------------------------------------------------------------------------------------------
 // Network > Network Status (CNetworkStatusActionWindow): CDefaultWindow (232,69) 816x581, title
@@ -32,14 +37,22 @@ function netType(): NetType {
 
 const STATUS = { X: 232, Y: 69, W: 816, H: 581 }
 const STATUS_ROWS = ['MAC Address', 'IP Address', 'Subnet Mask', 'Gateway', 'DNS Server']
-const CHECK_MS = 2000   // (inferred) how long the failing test takes
+const CHECK_MS = 2000   // (inferred) how long the test takes
 const ANI = ['network_settings_1', 'network_settings_2', 'network_settings_3']  // b9, ba, bb
 
-type Btn = { label: string; x: number; w: number; size: number; act: 'settings' | 'ip' | 'retry' | 'close' | 'cancel' }
+type Btn = { label: string; x: number; w: number; size: number; act: 'settings' | 'ip' | 'retry' | 'close' | 'cancel' | 'disconnect' }
 
+// Connected (test result 5, CNetworkStatusActionWindow::t_OnEvent @02ef3f14): message N 0xaf (wireless),
+// picture network_settings_4 (m_SetConnectingAniImage state 5), help N 0x66, the access point's name
+// (NETWORK_STATUS_AP_NAME 96,205, 200 wide) and signal icon (NETWORK_STATUS_AP_SIGNAL 306,200) while
+// and after testing (NetworkTest @02ef3060); buttons t_SetButton(1) from the Menu, wireless:
+// Disconnect (N 0x91) / IP Settings / Retry / Close at FOUR_X 8 / 273 / 452 / 630, focus on Close.
+// Disconnect drops the connection and the test runs again (inferred: the firmware's network manager
+// disconnects; the window then reports the disconnected state).
 export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { openSettings: () => void }) {
   const type = netType()
   const [checking, setChecking] = useState(true)
+  const [ok, setOk] = useState(false)
   const [frame, setFrame] = useState(0)
   const [focus, setFocus] = useState(0)
   const [run, setRun] = useState(0)
@@ -48,8 +61,11 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
     setFocus(0)
     const ani = setInterval(() => setFrame(f => (f + 1) % 3), 250)
     const t = setTimeout(() => {
+      const good = type === 'Wireless' && online()
+      setOk(good)
       setChecking(false)
-      setFocus(type === 'Wireless' ? 2 : 1)   // the focus goes to Retry (t_SetButton(2))
+      // t_SetButton(1): focus on Close; t_SetButton(2): focus on Retry
+      setFocus(good ? 3 : type === 'Wireless' ? 2 : 1)
     }, CHECK_MS)
     return () => {
       clearInterval(ani)
@@ -67,13 +83,16 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
     return () => clearTimeout(idle.current)
   }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
-  // t_SetButton: 0 = testing (Cancel at ONE_X 321), 2 = failed: wireless 4 buttons (FOUR_X 8/273/452/630,
-  // "Network Setting" 260 wide), wired 3 buttons (THREE_X 142/321/500); 173 x 53, btn_normal/focused
+  // t_SetButton: 0 = testing (Cancel at ONE_X 321), 1 = connected (Disconnect first), 2 = failed:
+  // wireless 4 buttons (FOUR_X 8/273/452/630, "Network Setting" 260 wide), wired 3 buttons
+  // (THREE_X 142/321/500); 173 x 53, btn_normal/focused
   const buttons: Btn[] = checking
     ? [{ label: 'Cancel', x: 321, w: 173, size: 20, act: 'cancel' }]
     : type === 'Wireless'
       ? [
-          { label: 'Network Setting', x: 8, w: 260, size: 18, act: 'settings' },
+          ok
+            ? { label: N.disconnect, x: 8, w: 260, size: 18, act: 'disconnect' }
+            : { label: 'Network Setting', x: 8, w: 260, size: 18, act: 'settings' },
           { label: 'IP Settings', x: 273, w: 173, size: 20, act: 'ip' },
           { label: 'Retry', x: 452, w: 173, size: 20, act: 'retry' },
           { label: 'Close', x: 630, w: 173, size: 20, act: 'close' },
@@ -101,10 +120,16 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
       if (b.act === 'close') close()
       else if (b.act === 'retry') setRun(r => r + 1)
       else if (b.act === 'cancel') {
-        setChecking(false)        // (inferred) Cancel stops the test on its failure state
-        setFocus(type === 'Wireless' ? 2 : 1)
+        setChecking(false)        // (inferred) Cancel stops the test on its result state
+        const good = type === 'Wireless' && online()
+        setOk(good)
+        setFocus(good ? 3 : type === 'Wireless' ? 2 : 1)
       } else if (b.act === 'settings') openSettings()
-      // IP Settings opens the IP setup window (not built: needs a network to be meaningful)
+      else if (b.act === 'disconnect') {
+        disconnectWireless()
+        setRun(r => r + 1)
+      }
+      // IP Settings opens the IP setup window (not built: the mocked router's DHCP sets everything)
       return true
     }
     if (baseKeys(k, { close, exitMenu })) return true
@@ -112,18 +137,22 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
   })
 
   const message = checking
-    ? type === 'Wireless' ? 'Checking wireless network connection…' : 'Checking wired network connection...'
-    : type === 'Wireless' ? 'Wireless network disconnected' : 'Wired network connection failed.'
+    ? type === 'Wireless' ? N.checkingWireless : 'Checking wired network connection...'
+    : type === 'Wireless' ? (ok ? N.readyToUse : N.wirelessDisconnected) : 'Wired network connection failed.'
   const help = checking
     ? ''
     : type === 'Wireless'
-      ? 'No wireless router selected. Go to Network settings to select your router.'
+      ? ok ? N.connectedInternet : 'No wireless router selected. Go to Network settings to select your router.'
       : 'No network cable found. Check that your network cable is plugged in. If it is connected, make sure that the router is turned on. If it is on, try turning it off and on again.'
-  const pic = checking ? ANI[frame] : 'network_settings_2'
-  // values: no address assigned; the MAC cells show the firmware's initial "00:00:00:00:00:00"
-  // (inferred: the mocked set reports no interface address)
-  const mac = ['00', ':00', ':00', ':00', ':00', ':00']
-  const ip = ['0.', '0.', '0.', '0 ']
+  const pic = checking ? ANI[frame] : ok ? 'network_settings_4' : 'network_settings_2'
+  // values: connected, the mocked interface and DHCP addresses (net/data.ts); otherwise nothing is
+  // assigned and the cells show the firmware's initial "00:00:00:00:00:00" / 0.0.0.0 (inferred)
+  const n = getTv().network
+  const live = type === 'Wireless' && online() && !checking
+  const ap = type === 'Wireless' && online() ? findAp(n.ssid) : undefined
+  const mac = live ? ADDR.mac.split(':').map((v, i) => (i ? ':' : '') + v) : ['00', ':00', ':00', ':00', ':00', ':00']
+  const quad = (a: string) => a.split('.').map((v, i) => (i < 3 ? v + '.' : v + ' '))
+  const rowsIp = live ? [quad(n.ip), quad(ADDR.subnet), quad(ADDR.gateway), quad(ADDR.dns)] : [1, 2, 3, 4].map(() => ['0.', '0.', '0.', '0 '])
   return (
     <div className="m13-awin" style={{ left: STATUS.X, top: STATUS.Y, width: STATUS.W, height: STATUS.H }}>
       <div className="m13-msg-shadow" style={{ left: -10, top: -10, width: STATUS.W + 21, height: STATUS.H + 21 }} />
@@ -133,7 +162,13 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
       <div className="m13-net-clip" style={{ left: 26, top: 49, width: 426, height: 133 }}>
         <img src={`${NET}/${pic}.png`} alt="" />
       </div>
-      {!checking && <img src={`${NET}/popup_wi_cancel.png`} style={{ left: 133, top: 149 }} alt="" />}
+      {!checking && !ok && <img src={`${NET}/popup_wi_cancel.png`} style={{ left: 133, top: 149 }} alt="" />}
+      {ap && (
+        <>
+          <div className="m13-net-cell m13-net-cell--left" style={{ left: 96, top: 205, width: 200, height: 26, fontSize: 18 }}>{ap.ssid}</div>
+          <img src={signalIcon(ap)} style={{ left: 306 - 8, top: 200 - 4 }} alt="" />
+        </>
+      )}
       <div className="m13-net-msg" style={{ left: 29, top: 46, width: 757, height: 69, fontSize: 22 }}>{message}</div>
       {STATUS_ROWS.map((r, i) => (
         <div key={r} className="m13-net-cell m13-net-cell--left" style={{ left: 366, top: 98 + i * 29, width: 213, height: 29, fontSize: 22 }}>{r}</div>
@@ -141,9 +176,9 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
       {mac.map((v, i) => (
         <div key={'m' + i} className="m13-net-cell" style={{ left: 581 + i * 34, top: 98, width: 34, height: 29, fontSize: 18 }}>{v}</div>
       ))}
-      {[1, 2, 3, 4].map(row =>
+      {rowsIp.map((ip, r) =>
         ip.map((v, i) => (
-          <div key={row + ':' + i} className="m13-net-cell" style={{ left: 602 + i * 46 + (i < 3 ? 2 : 0), top: 98 + row * 29, width: 46, height: 29, fontSize: 18 }}>{v}</div>
+          <div key={r + ':' + i} className="m13-net-cell" style={{ left: 602 + i * 46 + (i < 3 ? 2 : 0), top: 98 + (r + 1) * 29, width: 46, height: 29, fontSize: 18 }}>{v}</div>
         )),
       )}
       <img className="m13-net-line" src={`${NET}/act_window_line.png`} style={{ left: 10, top: 258 }} alt="" />
@@ -166,28 +201,47 @@ export function NetworkStatus({ close, exitMenu, openSettings }: AWProps & { ope
 //    (253 wide, right-aligned), size 26, focus Common/wizard_highlight 649x93, focused text #feba19
 //    (CNetworkActionWindowSelectionListNetworkTypeRenderer)
 //  - Wireless: "Wireless network" (208,293) size 32; search animation Common/loading_48 at (506,282)
-//    (18 frames, 250 ms); router list (133,352) 626 x 6 rows of 45 on black 0x26, focus 653x84;
-//    no router found -> one row "Add Network" (text x 74). Buttons 166x66 wizard_terms_btn_n/s at
-//    y 637: Refresh (257) + WPS(PBC) (420), or Stop (360) while searching (t_ShowButtons)
+//    (18 frames, 250 ms); router list (133,352) 626 x 6 rows of 45 on black 0x26, focus 653x84
+//    (CNetworkActionWindowSelectionListRenderer::Draw: name x 74 size 22, white / #feba19 focused;
+//    list_check_icon at (32,7) on item 0 when it is the connected network; signal icon at (513,3),
+//    NetworkSetup/icon_wifi_1..5 or icon_wifi_pin_1..5 (t_GetSignalStrength @02f231d4)), then
+//    "Add Network". Buttons 166x66 wizard_terms_btn_n/s at y 637: Refresh (257) + WPS(PBC) (420), or
+//    Stop (360) while searching (t_ShowButtons)
 //  - Wired: no router list; "Connect" (200 wide) at (360,344), disabled while no cable is plugged in
 //  - right: picture (826,213) and text (800,466) 373 wide, size 24, #5ff9ff
 //    (t_UpdateStatusDrawing: wireless_built_in_5 + N 0x12f / message_lan_1 + N 0xef)
+// OK on a network (m_OnListItemPress @02f0ff40 -> t_GotoNext @02f0fbbc -> ConnectCurrentAP @02f0fa0c):
+// a secured one opens the security key keyboard (event 0x13 -> CNetworkIMEWindow), an open one (and
+// the network already connected) goes straight to the connection test (t_ProcessConnect: event 0x38
+// -> CNetworkGBResultActionWindow, net/ConnectResult.tsx).
+// In Smart Hub setup (Smart Hub's Welcome > Start: { page: 'network-settings', from: 'smarthub' }) the
+// frame shows step 1 of 7 with Previous / Next circles; Next needs a connection and goes on to the
+// Smart Hub terms, Previous back to the Welcome page.
 
-const SEARCH_MS = 3000  // (inferred) a scan that finds nothing
+const SEARCH_MS = 3000  // (inferred) how long a scan takes
+const ROWS6 = 6
 
-type NSFocus = { area: 'type' } | { area: 'list'; i: number } | { area: 'btn'; i: number }
+type NSFocus = { area: 'type' } | { area: 'list'; i: number } | { area: 'btn'; i: number } | { area: 'prev' } | { area: 'next' }
+
+// set by the Menu when it opens Network Settings for Smart Hub's setup
+export const netContext = { smartHubSetup: false }
 
 export function NetworkSettings({ close, exitMenu }: AWProps) {
+  const smartHubSetup = netContext.smartHubSetup
   const [type, setType] = useState<NetType>(netType)
   const [searching, setSearching] = useState(type === 'Wireless')
   const [frame, setFrame] = useState(0)
   const [focus, setFocus] = useState<NSFocus>({ area: 'type' })
   const [popup, setPopup] = useState<number | null>(null)
   const [scan, setScan] = useState(0)
+  const [top, setTop] = useState(0)
+  const [phase, setPhase] = useState<{ kind: 'list' } | { kind: 'osk'; ssid: string } | { kind: 'connect'; ssid: string }>({ kind: 'list' })
+  const connected = useConnected()
   useEffect(() => {
     if (type !== 'Wireless') return
     setSearching(true)
     setFrame(0)
+    setTop(0)
     const ani = setInterval(() => setFrame(f => (f + 1) % 18), 250)
     const t = setTimeout(() => setSearching(false), SEARCH_MS)
     return () => {
@@ -197,7 +251,8 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
   }, [type, scan])
 
   const wireless = type === 'Wireless'
-  const list = wireless && !searching ? ['Add Network'] : []
+  const aps = useMemo(() => (searching ? [] : scanResults()), [searching])  // eslint-disable-line react-hooks/exhaustive-deps
+  const list: (Ap | null)[] = wireless && !searching ? [...aps, null] : []   // null = "Add Network"
   const buttons: { label: string; x: number; y: number; w: number; dim?: boolean; act: string }[] = wireless
     ? searching
       ? [{ label: 'Stop', x: 360, y: 637, w: 166, act: 'stop' }]
@@ -211,7 +266,27 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
     setFocus(f)
     playUi(UI_SOUND.MOVE)
   }
+  const goList = (i: number) => {
+    if (i < top) setTop(i)
+    else if (i >= top + ROWS6) setTop(i - ROWS6 + 1)
+    go({ area: 'list', i })
+  }
+  // leave for the Smart Hub's terms (Next / OK after connecting in Smart Hub setup)
+  const toTerms = () => {
+    closeApp('menu')
+    openApp('smarthub', { page: 'terms' })
+  }
+  const toWelcome = () => {
+    closeApp('menu')
+    openApp('smarthub', { page: 'welcome' })
+  }
+  const pick = (ap: Ap) => {
+    if (ap.secure && !(connected && getTv().network.ssid === ap.ssid)) setPhase({ kind: 'osk', ssid: ap.ssid })
+    else setPhase({ kind: 'connect', ssid: ap.ssid })
+  }
+
   useRemote((k: RemoteKey) => {
+    if (phase.kind !== 'list') return false
     if (popup !== null) {
       if (k === 'Up' || k === 'Down') {
         const n = popup + (k === 'Up' ? -1 : 1)
@@ -225,24 +300,49 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
         setPopup(null)
         if (t !== type) {
           setType(t)
-          setSetting('networkType', t)
+          setNetType(t)
         }
       } else if (k === 'Back' || k === 'Left') setPopup(null)
       else if (k === 'Exit' || k === 'Settings') exitMenu()
       return true
     }
+    if (smartHubSetup && (k === 'Left' || k === 'Right') && focus.area !== 'btn') {
+      // the navigation circles (Smart Hub setup only)
+      if (k === 'Left') go(focus.area === 'next' ? { area: 'type' } : { area: 'prev' })
+      else if (focus.area === 'prev') go({ area: 'type' })
+      else if (connected) go({ area: 'next' })
+      return true
+    }
+    if (focus.area === 'prev' || focus.area === 'next') {
+      if (k === 'Enter') {
+        playUi(UI_SOUND.SELECT)
+        if (focus.area === 'prev') toWelcome()
+        else toTerms()
+        return true
+      }
+      if (k === 'Back') {
+        toWelcome()
+        return true
+      }
+      if (k === 'Exit') {
+        closeApp('menu')
+        return true
+      }
+      return true
+    }
     if (k === 'Up' || k === 'Down') {
       const down = k === 'Down'
       if (focus.area === 'type') {
-        if (down && list.length) go({ area: 'list', i: 0 })
+        if (down && list.length) goList(0)
         else if (down && buttons.some(b => !b.dim)) go({ area: 'btn', i: 0 })
       } else if (focus.area === 'list') {
         const n = focus.i + (down ? 1 : -1)
         if (n < 0) go({ area: 'type' })
-        else if (n < list.length) go({ area: 'list', i: n })
+        else if (n < list.length) goList(n)
         else if (buttons.some(b => !b.dim)) go({ area: 'btn', i: 0 })
       } else if (!down) {
-        go(list.length ? { area: 'list', i: list.length - 1 } : { area: 'type' })
+        if (list.length) goList(list.length - 1)
+        else go({ area: 'type' })
       }
       return true
     }
@@ -254,7 +354,12 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
     if (k === 'Enter') {
       playUi(UI_SOUND.SELECT)
       if (focus.area === 'type') setPopup(wireless ? 0 : 1)
-      else if (focus.area === 'btn') {
+      else if (focus.area === 'list') {
+        const ap = list[focus.i]
+        if (ap) pick(ap)
+        // Add Network needs the name of a network the scan cannot see: none in this neighbourhood
+        // (not built: the SSID / security type entry, N 0x76 / 0x2b)
+      } else if (focus.area === 'btn') {
         const b = buttons[focus.i]
         if (b?.act === 'refresh') {
           setScan(s => s + 1)
@@ -263,20 +368,53 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
           setSearching(false)
           setFocus({ area: 'btn', i: 0 })
         }
-        // WPS(PBC) and Add Network need a wireless router / the on-screen keyboard (not built)
+        // WPS(PBC) needs a router's push button (not built)
       }
+      return true
+    }
+    if (smartHubSetup && k === 'Back') {
+      toWelcome()
+      return true
+    }
+    if (smartHubSetup && k === 'Exit') {
+      closeApp('menu')
       return true
     }
     if (baseKeys(k, { close, exitMenu })) return true
     return k !== 'Home' && k !== 'VolumeUp' && k !== 'VolumeDown' && k !== 'Mute'
   })
 
+  if (phase.kind === 'connect') {
+    return (
+      <div className="m13-net-stage">
+        <ConnectResult
+          ssid={phase.ssid}
+          smartHubSetup={smartHubSetup}
+          onOk={() => (smartHubSetup ? toTerms() : close())}
+          onStop={() => setPhase({ kind: 'list' })}
+          onExit={smartHubSetup ? () => closeApp('menu') : exitMenu}
+          onPrev={() => setPhase({ kind: 'list' })}
+        />
+      </div>
+    )
+  }
+
   // keep the focus valid when the buttons change (search start/end, type change)
   const btnFocus = focus.area === 'btn' ? Math.min(focus.i, buttons.length - 1) : -1
   const typeFocused = focus.area === 'type' && popup === null
+  const wfocus = focus.area === 'prev' ? 'prev' : focus.area === 'next' ? 'next' : 'content'
   return (
     <div className="m13-net-stage">
-      <Wizard title="Network Settings" step={0} total={0} focus="content" pageKey="net">
+      <Wizard
+        title="Network Settings"
+        step={smartHubSetup ? 1 : 0}
+        total={smartHubSetup ? 7 : 0}
+        smartHubStep={smartHubSetup ? 7 : undefined}
+        prev={smartHubSetup ? 'normal' : undefined}
+        next={smartHubSetup ? (connected ? 'normal' : 'disabled') : undefined}
+        focus={wfocus}
+        pageKey="net"
+      >
         <div className="m13-osd">
           <div className="m13-net-label" style={{ left: 208, top: 160, width: 573, fontSize: 32 }}>Select your network type.</div>
           <div className="m13-net-list" style={{ left: 133, top: 208, width: 626, height: 69 }} />
@@ -288,16 +426,22 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
               <div className="m13-net-label" style={{ left: 208, top: 293, width: 573, height: 40, fontSize: 32, display: 'flex', alignItems: 'center' }}>Wireless network</div>
               {searching && <div className="m13-net-loading" style={{ left: 506, top: 282, backgroundPosition: `${-frame * 64}px 0` }} />}
               <div className="m13-net-list" style={{ left: 133, top: 352, width: 626, height: 270 }}>
-                {list.map((t, i) => {
+                {list.slice(top, top + ROWS6).map((ap, k) => {
+                  const i = top + k
                   const f = focus.area === 'list' && focus.i === i && popup === null
+                  const isCur = !!ap && i === 0 && connected && getTv().network.ssid === ap.ssid
                   return (
-                    <div key={t} style={{ position: 'absolute', left: 0, top: i * 45, width: 626, height: 45 }}>
+                    <div key={ap ? ap.ssid : '+add'} className="n13-net__row" style={{ top: k * 45 }}>
                       {f && <div className="m13-net-focus" style={{ left: (626 - 653) / 2, top: (45 - 84) / 2, width: 653, height: 84 }} />}
-                      <div className="m13-net-cell m13-net-cell--left" style={{ left: 22 + 74, top: 0, width: 400, height: 45, fontSize: 26, color: f ? '#feba19' : '#fff' }}>{t}</div>
+                      {isCur && <img className="n13-net__check" src={`${IMG}/list_check_icon.png`} alt="" />}
+                      <div className="n13-net__name" style={{ color: f ? '#feba19' : '#fff' }}>{ap ? ap.ssid : N.addNetwork}</div>
+                      {ap && <img className="n13-net__sig" src={signalIcon(ap)} alt="" />}
                     </div>
                   )
                 })}
               </div>
+              {top > 0 && <img className="n13-net__arrow" src={`${NET}/indi_arrow_up_nor_s.png`} style={{ left: 133 + 313 - 24, top: 352 - 30 }} alt="" />}
+              {top + ROWS6 < list.length && <img className="n13-net__arrow" src={`${NET}/indi_arrow_down_nor_s.png`} style={{ left: 133 + 313 - 24, top: 352 + 270 - 4 }} alt="" />}
             </>
           )}
           {buttons.map((b, i) => (
@@ -316,6 +460,17 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
           )}
         </div>
       </Wizard>
+      {phase.kind === 'osk' && (
+        <Osk
+          title={N.securityKey}
+          guide={N.enterKey}
+          password
+          max={KEY_MAX}
+          min={KEY_MIN}
+          onDone={() => setPhase({ kind: 'connect', ssid: phase.ssid })}
+          onCancel={() => setPhase({ kind: 'list' })}
+        />
+      )}
     </div>
   )
 }

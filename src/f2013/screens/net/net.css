@@ -1,0 +1,234 @@
+/* Network, keyboard and online setup pages of the 2013 exhibit (1280x720 OSD values, x1.5 by .n13-osd;
+   Smart Hub wizard values are FullHD = stage px). */
+
+.n13-osd {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1280px;
+  height: 720px;
+  transform: scale(1.5);
+  transform-origin: 0 0;
+}
+.n13-osd > *,
+.n13-abs {
+  position: absolute;
+}
+
+/* ---- on-screen keyboard (CIMEWidget) ---- */
+.n13-osk {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+}
+.n13-osk__dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.898); /* OSK_DARK_BG_ALPHA_COLOR 0xE5000000 */
+}
+.n13-osk__win {
+  left: 0;
+  width: 1280px;
+  border-style: solid;
+  border-width: 19px;
+  border-image: url('/f13/net/ime/ime_up_bg.png') 19 fill / 19px stretch;
+  box-sizing: border-box;
+}
+.n13-osk__desc {
+  position: absolute;
+  left: 53px; /* 72 - border */
+  top: -11px; /* 8 - border */
+  width: 906px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 21px;
+  color: #a9d3f5; /* (inferred) the footage's pale blue */
+  white-space: nowrap;
+}
+.n13-osk__count {
+  position: absolute;
+  left: 1059px;
+  top: -11px;
+  width: 133px;
+  height: 32px;
+  line-height: 32px;
+  font-size: 21px;
+  color: #fff;
+  text-align: right;
+}
+.n13-osk__box {
+  position: absolute;
+  left: 38px; /* 57 - border */
+  top: 15px; /* 34 - border */
+  width: 932px;
+  height: 72px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0 40px;
+  border-image: url('/f13/net/ime/ime_input_box.png') 0 40 fill / 0 40px stretch;
+}
+.n13-osk__text {
+  position: absolute;
+  left: -16px; /* text x 24 inside the box */
+  top: 18px;
+  width: 884px;
+  height: 36px;
+  line-height: 36px;
+  font-size: 26px;
+  color: #000;
+  white-space: pre;
+  overflow: hidden;
+}
+.n13-osk__cursor {
+  display: inline-block;
+  width: 2px;
+  height: 28px;
+  margin: 0 1px;
+  vertical-align: -5px;
+  background: #000;
+  animation: n13-blink 1s steps(1) infinite;
+}
+@keyframes n13-blink {
+  50% {
+    opacity: 0;
+  }
+}
+.n13-osk__done {
+  position: absolute;
+  left: 974px; /* 993 - border */
+  top: 22px; /* 41 - border */
+  width: 226px;
+  height: 53px;
+  line-height: 53px;
+  text-align: center;
+  font-size: 24px;
+  color: #fff;
+  background-size: 100% 100%;
+}
+.n13-osk__done--dim {
+  color: rgba(255, 255, 255, 0.4);
+}
+.n13-osk__pad {
+  left: 0;
+  width: 1280px;
+  background: #000;
+}
+.n13-key {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0 10px;
+  border-image-slice: 0 10 fill;
+  border-image-width: 0 10px;
+  border-image-repeat: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.n13-key__ch {
+  font-size: 33px;
+  line-height: 1;
+  margin: 0 -10px;
+}
+.n13-key__fn {
+  font-size: 21px;
+  margin: 0 -10px;
+  white-space: nowrap;
+}
+.n13-key__fn--on {
+  color: #fdd910;
+}
+.n13-key__icon {
+  margin: 0 -10px;
+}
+.n13-key__focus {
+  position: absolute;
+  left: -22px; /* OSK_HIGHLITEKEY_GAP_X -12, minus the 10 px border */
+  top: -12px;
+  right: -22px;
+  bottom: -12px;
+  border-style: solid;
+  border-width: 21px;
+  border-image: url('/f13/net/ime/ime_highlight.png') 21 / 21px stretch;
+}
+
+/* ---- network app windows on the wizard frame (CNetworkGBResultActionWindow, settings list) ---- */
+.n13-net {
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+  color: #fff;
+}
+.n13-net__msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 26px;
+  line-height: 32px;
+  white-space: pre-wrap;
+}
+.n13-net__ap {
+  font-size: 24px;
+  line-height: 26px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.n13-net__help {
+  /* vertical alignment 4 = middle (SetAlignment(h, 4)); centred horizontally (inferred) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 26px;
+  line-height: 31px;
+  color: #f7ff8f;
+  white-space: pre-wrap;
+}
+.n13-net__wbtn {
+  width: 246px;
+  height: 85px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #000;
+  background: url('/f13/net/wizard_btn_nor.png') 0 0 / 100% 100% no-repeat;
+}
+.n13-net__wbtn--sel {
+  background-image: url('/f13/net/wizard_btn_sel.png');
+}
+.n13-net__row {
+  position: absolute;
+  left: 0;
+  width: 626px;
+  height: 45px;
+}
+.n13-net__name {
+  position: absolute;
+  left: 74px;
+  top: 0;
+  width: 430px;
+  height: 45px;
+  line-height: 45px;
+  font-size: 22px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.n13-net__check {
+  position: absolute;
+  left: 32px;
+  top: 7px;
+}
+.n13-net__sig {
+  position: absolute;
+  left: 513px;
+  top: 3px;
+}
+.n13-net__arrow {
+  position: absolute;
+}
