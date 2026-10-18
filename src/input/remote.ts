@@ -11,6 +11,8 @@ export type RemoteKey =
   | 'Red' | 'Green' | 'Yellow' | 'Blue'  // colour keys
   | 'PlayPause'                          // XF86PlayBack (short press)
   | 'PlayBackGame'                       // XF86PlayBackGame: long press of Play/Pause (Game Bar)
+  | 'Tools'                              // TOOLS (2013 remote)
+  | 'PreCh'                              // PRE-CH, previous channel (2013 remote)
   | DigitKey
 
 // Keyboard mapping. Mirrors the QEMU setup used to drive the real firmware
@@ -46,6 +48,10 @@ const KEYMAP: Record<string, RemoteKey> = {
   F2: 'Green',
   F3: 'Yellow',
   F4: 'Blue',
+  t: 'Tools',
+  T: 'Tools',
+  r: 'PreCh',
+  R: 'PreCh',
 }
 for (let d = 0; d <= 9; d++) KEYMAP[String(d)] = `Digit${d}` as DigitKey
 

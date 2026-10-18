@@ -109,3 +109,12 @@
 .rc-btn--yellow { background: #e0b62d; }
 .rc-btn--blue { background: #3a6fd8; }
 .rc .rc-colour:hover { filter: brightness(1.2); }
+
+.rc-museum {
+  font: 500 12px system-ui, sans-serif;
+  color: #c8cad0;
+  text-decoration: none;
+  padding: 2px 0;
+}
+.rc-museum:hover { color: #fff; text-decoration: underline; }
+.rc .rc-colour--labelled { width: 30px; height: 18px; border-radius: 9px; font-size: 10px; font-weight: 700; color: #111; }
