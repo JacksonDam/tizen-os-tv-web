@@ -814,3 +814,10 @@
   text-overflow: ellipsis;
   font-weight: 300;
 }
+
+/* ---- On TV Timeline View stand-in ---- */
+.ontl {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}

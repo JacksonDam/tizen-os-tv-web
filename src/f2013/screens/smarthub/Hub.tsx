@@ -3,6 +3,7 @@ import { useRemote, type RemoteKey } from '../../../input/remote'
 import { isConnected } from '../../tv/online'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getSetting, getTv } from '../../tv/store'
+import { getForeground } from '../../shell'
 import { ColorTag, colorTagColors } from './ColorTag'
 import {
   ARROW_GONE_X, ARROW_INIT_X, ARROW_X, ARROW_Y, defaultCentre, defaultPanelList, ENTRANCE_MS, EXIT_BG_MS,
@@ -314,7 +315,11 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
     setSubs(ss => ss.map(() => ({ shown: false, base: EXIT_FIRST_MS })))
     setSubFocus(f => ({ ...f, visible: false }))
     if (kind === 'submenu') setMinimize({ kind, sub: subFocusRef.current })
-    later(Math.max(MIN_FLIP_MS, MIN_MS), run)
+    later(Math.max(MIN_FLIP_MS, MIN_MS), () => {
+      run()
+      // nothing took over (no such application here): Smart Hub goes away as after a launch
+      if (getForeground()?.id === 'smarthub' && phase.current === 'minimize') close()
+    })
   }
   const launchItem = (run: () => void) => launch(run, 'item')
   const launchSub = (run: () => void) => launch(run, 'submenu')

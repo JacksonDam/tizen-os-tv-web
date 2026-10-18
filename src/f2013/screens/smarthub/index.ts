@@ -6,6 +6,7 @@ import './MultimediaPanel'
 import './MMBrowser'
 import './MoviesPanel'
 import './Movies2013'
+import './OnTvTimeline'
 
 registerApp({ id: 'smarthub', component: SmartHub, z: 200 })
 
