@@ -1,4 +1,5 @@
 import { F13 } from '../../../assets'
+import { tvGain } from '../../../tv/sound'
 import { getTv } from '../../../tv/store'
 
 // Plug & Play background music: /mtd_rocommon/PCM/nature1.mp3 (42.3 s), opened as PIP media when PnP
@@ -13,7 +14,7 @@ let sync: ReturnType<typeof setInterval> | undefined
 
 function level() {
   const s = getTv()
-  return s.muted || s.power !== 'on' ? 0 : Math.min(1, s.volume / 100)
+  return s.power !== 'on' ? 0 : tvGain(s.volume, s.muted)
 }
 
 function retryOnGesture() {
