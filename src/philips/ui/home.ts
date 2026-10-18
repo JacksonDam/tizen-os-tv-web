@@ -1,6 +1,8 @@
 import type { RemoteKey } from '../../input/remote'
 import { F, type Juice, W } from '../fw/juice'
 import type { TvEnv } from './env'
+import { openChannelList } from './chlist'
+import { openGuide } from './guide'
 import { openMenu } from './menu'
 import { hide, repaint, show, type Screen } from './screens'
 
@@ -61,6 +63,12 @@ export function openHome(j: Juice) {
         hide('menu')
         openHome(j)
       }
+    } else if (item === 0) {
+      hide('home')
+      openChannelList()
+    } else if (item === 5) {
+      hide('home')
+      openGuide()
     }
     repaint()
   })

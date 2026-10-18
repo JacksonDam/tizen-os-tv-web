@@ -8,7 +8,7 @@ import { REMOTE_PHILIPS } from './remote'
 import { getTv, setTv, subscribeTv, useTv } from './tv/store'
 import { strings } from './ui/env'
 import { bootUi, tvKey } from './ui/tv'
-import { env, paintAll, paintSeq, screenKey, subscribeScreens } from './ui/screens'
+import { env, paintAll, paintSeq, repaint, screenKey, subscribeScreens } from './ui/screens'
 
 export default function App() {
   const j = useJuice(env)
@@ -19,7 +19,10 @@ export default function App() {
   const tv = useSyncExternalStore(subscribeTv, getTv)
 
   useEffect(() => {
-    strings.use(lang).then(() => setReady(true))
+    strings.use(lang).then(() => {
+      setReady(true)
+      repaint()
+    })
   }, [lang])
   useEffect(() => {
     if (j && ready) bootUi(j)

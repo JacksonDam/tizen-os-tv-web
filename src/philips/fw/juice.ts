@@ -804,7 +804,9 @@ export class Juice {
         focused = k === cur
         st = focused ? stateStyle(ctrl, flags & 0x2001, true) : stateStyle(ctrl, 0, false)
       }
-      this.jss(iss, xx, yy, m.s16(this.b2(ib) + 10), m.s16(this.b2(ib) + 8), st)
+      // the last row of a full window drops its style's bottom piece (state | 0x10, 0x8cd7f8)
+      const lastRow = k === visible[visible.length - 1] && visible.length >= rows
+      this.jss(iss, xx, yy, m.s16(this.b2(ib) + 10), m.s16(this.b2(ib) + 8), lastRow ? st | 0x10 : st)
       this.user = this.env.str(caps[k])
       const tx = alt ? m.s16(a + 0xc6) : m.s16(a + 0x84)
       const ty = alt ? m.s16(a + 0xc8) : m.s16(a + 0x86)

@@ -1,6 +1,6 @@
 import type { Env, GridState, ListState } from '../fw/juice'
 import { dynString } from '../fw/dyn'
-import { Strings } from '../fw/strings'
+import { LANGUAGES, Strings } from '../fw/strings'
 import { getTv, setTv } from '../tv/store'
 import { ABSENT_PROPS, DEFAULTS, P } from './props'
 import { sourceName } from './sources'
@@ -71,11 +71,18 @@ export class TvEnv implements Env {
 export function getProp(prop: number): number {
   const s = getTv()
   if (prop === P.volume) return s.volume
+  // the menu language is the string table in use (Installation > Languages > Menu language)
+  if (prop === P.menuLanguage) return LANGUAGES.find(l => l.code === s.lang)?.prop ?? DEFAULTS[prop]
   return s.props[prop] ?? DEFAULTS[prop] ?? 0
 }
 export function setProp(prop: number, v: number) {
   if (prop === P.volume) {
     setTv(s => ({ volume: v, muted: false, volSeq: s.volSeq + 1 }))
+    return
+  }
+  if (prop === P.menuLanguage) {
+    const l = LANGUAGES.find(x => x.prop === v)
+    if (l) setTv({ lang: l.code })
     return
   }
   setTv(s => ({ props: { ...s.props, [prop]: v } }))
