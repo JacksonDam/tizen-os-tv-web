@@ -211,6 +211,8 @@ export function MenuApp({ params }: AppProps) {
   const listFocused = area === 'list'
   const hidden = !!widget && (widget.kind === 'sliderAW' || widget.kind === 'sublistAW')
   const dimmed = !!widget && !hidden
+  // popups and control bars sit in the Menu scene; message boxes and action windows in screen space
+  const screen = !!widget && widget.kind !== 'popup' && widget.kind !== 'bar'
 
   return (
     <div className="m13-osd">
@@ -291,7 +293,7 @@ export function MenuApp({ params }: AppProps) {
 
       </div>
       {widget && (
-        <div className="m13-widgets" style={{ left: hidden ? 0 : OSD.SCENE_X, top: hidden ? 0 : OSD.SCENE_Y }}>
+        <div className="m13-widgets" style={{ left: screen ? 0 : OSD.SCENE_X, top: screen ? 0 : OSD.SCENE_Y }}>
           <Widgets
             widget={widget}
             level={depth}

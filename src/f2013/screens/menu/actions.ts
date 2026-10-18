@@ -3,6 +3,7 @@ import { getTv, setSetting, setTv } from '../../tv/store'
 import type { MenuItem } from './types'
 import { defaultValue, getValue, optionText, setValue } from './values'
 import type { MsgBox, Widget } from './widgets'
+import { actionWindow } from './actionwin'
 
 // What OK on a Menu item does. The kind comes from the emulated CMenuMainWindow::t_MenuItemController
 // result baked into the tree (`ok`), the widget type from CMenuMainWidgetAgency::
@@ -120,6 +121,8 @@ export function itemAction(it: MenuItem, ctx: Ctx): Widget | null {
     APP_ITEMS[it.id]()
     return null
   }
+  const aw = actionWindow(it)
+  if (aw) return aw
   if (ok.startsWith('hide action:')) {
     if (it.v) return { kind: 'sliderAW', item: it, items: ctx.siblings.filter(s => s.v && (s.ok ?? '').startsWith('hide action:') && s.en !== false) }
     if (it.o) return { kind: 'sublistAW', item: it }

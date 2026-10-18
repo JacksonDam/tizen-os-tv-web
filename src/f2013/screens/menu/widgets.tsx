@@ -3,7 +3,8 @@ import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getSetting } from '../../tv/store'
-import { OSD, TRANSPARENCY_ALPHA } from './osd'
+import { OSD } from './osd'
+import { transparencyAlpha, type AWProps } from './actionwin'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
 import { getValue, optionText, setValue } from './values'
@@ -22,7 +23,7 @@ export type Widget =
   | { kind: 'bar'; item: MenuItem }
   | { kind: 'msg'; item?: MenuItem; boxes: MsgBox[] }
   | { kind: 'pin'; item: MenuItem; then: () => Widget | null | void }
-  | { kind: 'custom'; render: (close: () => void) => ReactNode }
+  | { kind: 'custom'; item?: MenuItem; render: (p: AWProps) => ReactNode }
 
 export type MsgBox = {
   text: string
@@ -57,7 +58,7 @@ export function Widgets(props: Props) {
     case 'pin':
       return <PinWidget {...props} then={widget.then} />
     case 'custom':
-      return <>{widget.render(props.onClose)}</>
+      return <>{widget.render({ close: props.onClose, exitMenu: props.onExitMenu })}</>
   }
 }
 
@@ -397,11 +398,6 @@ function MessageBoxes({ boxes, onClose, onExitMenu, onChange }: Props & { boxes:
 // ---------------------------------------------------------------------------------------------
 // CPinNumberWidget (AppMWOSDInfo PINNUMBERWIDGET_*): 608x397 centred, title + contents text,
 // four PIN boxes, Cancel button. The TV's PIN is 0000 until changed (menu.pin).
-
-// CMessageBox::m_CreateAlphaDrawing: BG_ALPHA_COLOR rectangle at the OSD transparency (Menu Transparency)
-function transparencyAlpha() {
-  return TRANSPARENCY_ALPHA[Number(getSetting<number>('menu.958', 1))] ?? TRANSPARENCY_ALPHA[1]
-}
 
 export function currentPin() {
   return String(getSetting<string>('menu.pin', '0000'))
