@@ -124,3 +124,61 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* widgets / action windows */
+.m13-widgets { position: absolute; width: 0; height: 0; }
+.m13-popup, .m13-popup > div, .m13-aw, .m13-aw > div, .m13-msg, .m13-msg > div, .m13-pin, .m13-pin > div, .m13-menubar, .m13-menubar > div { position: absolute; }
+.m13-popup-shadow { left: 0; top: 0; border: 23px solid transparent; border-image: url('/f13/menu/cm_act_popup_shadow.png') 23 fill stretch; }
+.m13-popup-bg { border: 48px solid transparent; border-image: url('/f13/menu/cm_sub_popup_bg.png') 48 fill stretch; }
+.m13-popup-list { overflow: hidden; }
+.m13-popup-item { position: absolute; left: 0; width: 100%; height: 48px; }
+.m13-popup-focus {
+  position: absolute;
+  left: -8px;
+  height: 85px;
+  border-style: solid;
+  border-width: 41px 40px 42px 40px;
+  border-color: transparent;
+  border-image: url('/f13/menu/list_highlight.png') 41 40 42 40 fill stretch;
+}
+.m13-popup-check { position: absolute; left: 24px; top: 8px; width: 32px; height: 32px; }
+.m13-popup-text {
+  position: absolute;
+  left: 64px;
+  top: 4px;
+  width: 220px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.m13-popup-arrow { position: absolute; width: 42px; height: 29px; }
+
+.m13-aw-bar { left: 0; border-style: solid; border-width: 0 6px; border-color: transparent; border-image: url('/f13/menu/blue_panel_slider.png') 36 6 fill stretch; }
+.m13-aw-title { display: flex; align-items: center; color: #fff; white-space: nowrap; overflow: hidden; }
+.m13-slider-sub { border-style: solid; border-width: 26px; border-color: transparent; }
+.m13-slider-sub--up { border-image: url('/f13/menu/slider_bg_up.png') 26 fill stretch; }
+.m13-slider-sub--down { border-image: url('/f13/menu/slider_bg_down.png') 26 fill stretch; }
+.m13-slider-subname { position: absolute; display: flex; align-items: center; font-size: 24px; color: #fff; white-space: nowrap; }
+.m13-cbar { position: absolute; left: 0; top: 0; }
+.m13-cbar > * { position: absolute; }
+.m13-cbar-slider > * { position: absolute; }
+.m13-cbar-track { height: 8px; border: 0 solid transparent; border-width: 0 4px; border-image: url('/f13/menu/control_progress_bg.png') 0 4 fill stretch; }
+.m13-cbar-fill { height: 8px; border: 0 solid transparent; border-width: 0 4px; border-image: url('/f13/menu/control_progress.png') 0 4 fill stretch; }
+.m13-cbar-thumb { width: 88px; height: 56px; }
+.m13-cbar-balloon { height: 61px; }
+.m13-cbar-balloon-bg { position: absolute; left: 0; top: 0; right: 0; height: 56px; border: 0 solid transparent; border-width: 0 46px; border-image: url('/f13/menu/progress_balloon.png') 0 46 fill stretch; }
+.m13-cbar-balloon-text { position: absolute; left: 0; right: 0; top: 0; height: 48px; display: flex; align-items: center; justify-content: center; color: #000; font-size: 24px; }
+.m13-menubar-bg { inset: 0; background: rgba(0, 0, 0, 0.929); }
+
+.m13-msg-shadow { border: 23px solid transparent; border-image: url('/f13/menu/cm_act_popup_shadow.png') 23 fill stretch; }
+.m13-msg-bg { inset: 0; border-style: solid; border-width: 72px 27px 27px 27px; border-color: transparent; border-image: url('/f13/menu/cm_message_popup_bg.png') 72 27 27 27 fill stretch; }
+.m13-msg-text { left: 60px; right: 60px; font-size: 24px; line-height: 33px; color: #fff; white-space: pre-wrap; }
+.m13-btn { display: flex; align-items: center; justify-content: center; border: 26px solid transparent; border-image: url('/f13/menu/btn_normal.png') 26 fill stretch; }
+.m13-btn--focus { border-image: url('/f13/menu/btn_focused.png') 26 fill stretch; }
+.m13-btn span { position: absolute; left: -18px; right: -18px; text-align: center; font-size: 24px; color: #fff; white-space: nowrap; overflow: hidden; }
+.m13-pin-text { display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; text-align: center; }
+.m13-pin-box { display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff; border: 2px solid #8e8e8e; background: #1d1d1d; }

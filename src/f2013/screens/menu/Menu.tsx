@@ -4,12 +4,12 @@ import { useRemote } from '../../../input/remote'
 import type { AppProps } from '../../shell'
 import { closeApp, openApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
-import { useTv } from '../../tv/store'
+import { resetTv, setTv, useTv } from '../../tv/store'
 import { OSD, panelX, TRANSPARENCY_ALPHA } from './osd'
-import { CAT_ICON, CategoryIcon, findItem, Help, IMG, Panel } from './parts'
+import { CAT_ICON, CategoryIcon, Help, Panel } from './parts'
 import { CATEGORIES } from './tree.gen'
 import type { MenuItem } from './types'
-import { getValue } from './values'
+import { dimReason, itemAction } from './actions'
 import { Widgets, type Widget } from './widgets'
 
 // The 2013 Menu (exeDSP CMenuApp / CMenuMainWindowAni). Category list on the left, menu list panels
@@ -119,15 +119,21 @@ export function MenuApp({ params }: AppProps) {
     setLevels(ls => ls.map((l, i) => (i === ls.length - 1 ? { ...l, focus: f, top } : l)))
     playUi(UI_SOUND.MOVE)
   }
+  const [, setTick] = useState(0)
   const runItem = (it: MenuItem) => {
     playUi(UI_SOUND.SELECT)
     if (it.en === false) {
-      setWidget({ kind: 'dimreason', item: it })
+      setWidget(dimReason(it))
       return
     }
-    const ok = it.ok ?? ''
-    if (ok === 'child' && it.k?.length) return enterChild(it)
-    setWidget({ kind: 'item', item: it })
+    const w = itemAction(it, {
+      close,
+      enterChild,
+      refresh: () => setTick(t => t + 1),
+      siblings: curItems,
+      factoryReset: () => factoryReset(),
+    })
+    if (w) setWidget(w)
   }
 
   useRemote((key: RemoteKey) => {
@@ -176,11 +182,12 @@ export function MenuApp({ params }: AppProps) {
 
   const alphaBg = TRANSPARENCY_ALPHA[Number(transparency ?? 1)] ?? TRANSPARENCY_ALPHA[1]
   const listFocused = area === 'list'
-  const dimmed = !!widget && widget.kind !== 'dimreason' ? true : !!widget
+  const hidden = !!widget && (widget.kind === 'sliderAW' || widget.kind === 'sublistAW')
+  const dimmed = !!widget && !hidden
 
   return (
     <div className="m13-osd">
-      <div className="m13-scene" style={{ left: OSD.SCENE_X, top: OSD.SCENE_Y, width: OSD.SCENE_W, height: OSD.SCENE_H }}>
+      <div className="m13-scene" style={{ left: OSD.SCENE_X, top: OSD.SCENE_Y, width: OSD.SCENE_W, height: OSD.SCENE_H, visibility: hidden ? 'hidden' : 'visible' }}>
         {/* back panel */}
         <div className="m13-back" style={{ opacity: phase >= 1 ? 1 : 0, transition: `opacity ${OSD.MAIN_BG_ALPHA_MS}ms ${EASE_INOUT}` }}>
           <div className="m13-back-shadow" style={{ left: OSD.BACK_IMG_X, top: OSD.BACK_IMG_Y, width: OSD.BACK_IMG_W, height: OSD.BACK_IMG_H }} />
@@ -255,19 +262,30 @@ export function MenuApp({ params }: AppProps) {
           {listFocused && helpOn && !busy && <Help item={focusedItem} dim={dimmed} />}
         </div>
 
-        {widget && (
+      </div>
+      {widget && (
+        <div className="m13-widgets" style={{ left: hidden ? 0 : OSD.SCENE_X, top: hidden ? 0 : OSD.SCENE_Y }}>
           <Widgets
             widget={widget}
             level={depth}
             row={cur.focus - cur.top}
             onClose={() => setWidget(null)}
             onExitMenu={close}
-            onValue={() => setWidget(w => (w ? { ...w } : w))}
+            onChange={w => setWidget(w)}
+            onValue={() => setTick(t => t + 1)}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
+}
+
+// Self Diagnosis > Reset: factory state, empty channel list, first-time setup on the next power-on.
+function factoryReset() {
+  resetTv()
+  setTv({ channels: [], setupDone: false })
+  setTv({ power: 'standby' })
+  setTimeout(() => setTv({ power: 'on' }), 1500)
 }
 
 function itemH() {
