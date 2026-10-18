@@ -3,6 +3,7 @@ import { closeApp, openApp, type AppProps } from '../../shell'
 import { TermsPage } from '../net/Terms'
 import { CompletePage } from '../setup/pnp/CompletePage'
 import { Hub } from './Hub'
+import type { SmartHubParams } from './panels'
 import { Welcome } from './Welcome'
 import './smarthub.css'
 
@@ -11,6 +12,8 @@ import './smarthub.css'
 // application in Smart Hub setup mode (RunApp(0xbd, 0xbd, 0x523)), whose Welcome page is drawn here.
 // openApp('smarthub', { page: 'welcome' }) reopens the setup at its Welcome page, as the network
 // wizard's "previous" result (code 2) does (CHomeWizardWindowManager::PreparePNP @02c02f90).
+// openApp('smarthub', { panel }) opens the carousel with that panel centred (returning from an item a
+// panel ran).
 //
 // Online (spec/online-net2013.md): Start runs the network app's Network Settings wizard in its Smart
 // Hub setup scenario (step 1 of 7, the Menu module); once connected its Next / OK comes back here with
@@ -21,7 +24,8 @@ import './smarthub.css'
 // "Setup complete!" with M 0x8e6, whose OK runs the Smart Hub (app 0xd9, t_ProcessExit @02603104).
 type Mode = 'hub' | 'welcome' | 'terms' | 'complete'
 export function SmartHub({ close, params }: AppProps) {
-  const page = (params as { page?: string } | undefined)?.page
+  const p = params as SmartHubParams | undefined
+  const page = p?.page
   const start: Mode = page === 'welcome' ? 'welcome' : page === 'terms' ? 'terms' : 'hub'
   const [mode, setMode] = useState<Mode>(start)
   const [hubKey, setHubKey] = useState(0)
@@ -75,5 +79,5 @@ export function SmartHub({ close, params }: AppProps) {
       </div>
     )
   }
-  return <Hub key={hubKey} close={close} onSetup={() => setMode('welcome')} />
+  return <Hub key={hubKey} close={close} onSetup={() => setMode('welcome')} startPanel={hubKey ? undefined : p?.panel} />
 }

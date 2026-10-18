@@ -1,27 +1,37 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { useRemote, type RemoteKey } from '../../../input/remote'
+import { isConnected } from '../../tv/online'
 import { playUi, UI_SOUND } from '../../tv/sound'
-import { getSetting } from '../../tv/store'
+import { getSetting, getTv } from '../../tv/store'
+import { getForeground } from '../../shell'
+import { ColorTag } from './ColorTag'
+import { colorTagColors } from './tagColors'
 import {
   ARROW_GONE_X, ARROW_INIT_X, ARROW_X, ARROW_Y, defaultCentre, defaultPanelList, ENTRANCE_MS, EXIT_BG_MS,
-  EXIT_FIRST_MS, EXIT_ROTATE, EXIT_TOTAL_MS, iconSrc, IMG, INIT_ROTATE_CENTRE, INIT_SCALE, INTRO_INIT_ROTATE,
-  MID_ACTIVATE_MS, MOVE_EASE, MOVE_MS, NORMAL_ALPHA, NORMAL_ROTATE, NORMAL_SCALE, PANELS, PIVOT_Z, TOP_ANI_LEAD,
+  EXIT_FIRST_MS, EXIT_ROTATE, EXIT_TOTAL_MS, HP_SCALE, iconSrc, IMG, INIT_ROTATE_CENTRE, INIT_SCALE,
+  INTRO_INIT_ROTATE, MID_ACTIVATE_MS, MOVE_EASE, MOVE_MS, NORMAL_ALPHA, NORMAL_ROTATE, NORMAL_SCALE, ONLINE_PANELS,
+  PANELS, PIVOT_Z, SUB_W, SUB_X, SUB_Y, SUBMENU, SUB_MOVE_LEAD_MS, TOP_ANI_LEAD,
   TOP_ANI_MS, TOP_ICON_GAP_X, TOP_INIT_Y, TOP_TEXT_H, TOP_TEXT_W, TOP_TEXT_X, TOP_TEXT_Y,
 } from './data'
+import { getOnlinePanel, getOnlinePanelOptions } from './panels'
 import { PromoPanel } from './PromoPanel'
+import { runOwnSubmenu } from './submenuActions'
+import { SubMenu, type SubFocus, type SubSlide } from './SubMenu'
 
-// The Smart Hub carousel as CHomePanelMainWindow draws it for a fresh TV with no network: the panels
-// of the product's default list on a 3D cylinder, each showing its "Set Up Smart Hub" page, the top
-// menu of panel icons, the side arrows and the panel-coloured gradient background. The submenu row
-// (CHomeSubMenuWindow) is not drawn in this state: its activate animation, which brings the buttons up
-// from y = 1080, is skipped while m_isDefaultPanelConfig is set (OnBeginActivateAnimation @02bd0378,
-// OnFocusIn @02bd1464 returns 0).
+// The Smart Hub carousel (CHomePanelMainWindow). Offline or with the terms not agreed it shows the
+// product's default list, every panel on its "Set Up Smart Hub" page and no sub menu
+// (m_isDefaultPanelConfig: CHomeSubMenuWindow::OnBeginActivateAnimation @02bd0378 and OnFocusIn @02bd1464
+// skip). Online with the terms agreed it shows the server list (ONLINE_PANELS) with each panel's body
+// (registerOnlinePanel, ./panels.ts) and the bottom sub menu of the centred panel. Focus is in one of
+// three windows (CHomeFocusManager): the top menu, the panel body (table) or the sub menu.
 
 type PanelAnim = { rot: number; scale: number; alpha: number; tr: string; shown: boolean }
 type IconAnim = { y: number; alpha: number; tr: string }
 type Overlay = { img: 'focus' | 'selected'; alpha: number; tr: string }
-type Phase = 'enter' | 'idle' | 'move' | 'exit'
+type Phase = 'enter' | 'idle' | 'move' | 'exit' | 'minimize'
 type ArrowMode = 'in' | 'out'
+type Zone = 'top' | 'content' | 'sub'
+type Minimize = { kind: 'item' | 'submenu'; sub: number } | null
 
 const NAV = new Set<RemoteKey>(['Up', 'Down', 'Left', 'Right', 'Enter'])
 // Keys CHomePanelApp::m_RegisterUsingKeys @02bab694 takes while Smart Hub is up whose effect was not
@@ -31,6 +41,11 @@ const SWALLOW = new Set<RemoteKey>([
   'Digit0', 'Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5', 'Digit6', 'Digit7', 'Digit8', 'Digit9',
 ])
 const HALF = Math.round(MOVE_MS / 2) // the top menu's out-then-in fades (m_InitCommonAlphaAnimationForSwitching)
+// Minimize motion (CHomePanelMainWindow::m_PlayMinimizeWindow @02bb9e50): panels fade over
+// GBHOME_ANI_MINIMIZE_WINDOW_ITEM_FLIP_TOTAL_DURATION (CHomePanelWindowBase::OnBeginMinimizeWindow
+// @02bc048c), the top menu over GBHOME_ANI_MINIMIZE_WINDOW_TOTAL_DURATION (m_AnimateMinimize @02bc5ebc).
+const MIN_FLIP_MS = 660
+const MIN_MS = 500
 
 function nextFrame(fn: () => void) {
   requestAnimationFrame(() => requestAnimationFrame(fn))
@@ -40,8 +55,15 @@ function rgb([r, g, b]: number[]) {
   return `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`
 }
 
-export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void }) {
-  const list = useMemo(() => defaultPanelList(getSetting('country', 'United Kingdom')), [])
+// Online = connected with the Smart Hub terms agreed (useSmartHubOnline), read once when Smart Hub opens.
+function isOnlineNow() {
+  const s = getTv()
+  return isConnected(s.network) && s.smartHub.agreed
+}
+
+export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup: () => void; startPanel?: number }) {
+  const online = useMemo(isOnlineNow, [])
+  const list = useMemo(() => (online ? ONLINE_PANELS : defaultPanelList(getSetting('country', 'United Kingdom'))), [online])
   const n = list.length
   const row = n - 1
   // order indices used by n panels (CHomePanelMainWindow::OnActivateWindow @02bbb990)
@@ -54,14 +76,23 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     return s
   }
   const stateOf = (s: number) => (s === 2 ? 0 : s === 1 || s === 3 ? 1 : 2) // centre, adjacent, hidden
-  const startCentre = first + defaultCentre(list)
+  const requested = startPanel !== undefined ? list.indexOf(startPanel) : -1
+  const startCentre = first + (requested >= 0 ? requested : defaultCentre(list))
+  // the panel body registered for a panel type (online only); without one the default page shows
+  const bodyOf = (type: number) => (online ? getOnlinePanel(type) : undefined)
+  const subOf = (type: number) => (bodyOf(type) ? SUBMENU[type] ?? [] : [])
 
   const [centre, setCentre] = useState(startCentre)
-  const [focusPanel, setFocusPanel] = useState(startCentre) // panel whose button has the focus (-1 while moving)
+  const [focusPanel, setFocusPanel] = useState(startCentre) // panel whose content has the focus (-1 while moving)
   const centreRef = useRef(startCentre)
-  const [focus, setFocus] = useState<'content' | 'top'>('content')
-  const focusRef = useRef<'content' | 'top'>('content')
+  const [zone, setZoneState] = useState<Zone>('content')
+  const zoneRef = useRef<Zone>('content')
+  const [idle, setIdle] = useState(false)
   const phase = useRef<Phase>('enter')
+  const setPhase = (p: Phase) => {
+    phase.current = p
+    setIdle(p === 'idle')
+  }
   const timers = useRef<ReturnType<typeof setTimeout>[]>([])
   const later = (ms: number, fn: () => void) => {
     timers.current.push(setTimeout(fn, ms))
@@ -86,6 +117,18 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     list.map(() => ({ alpha: 0, tr: 'none' })),
   )
   const [arrows, setArrows] = useState<{ mode: ArrowMode; seq: number }>({ mode: 'in', seq: 0 })
+  // sub menus: one per panel, hidden 108 px low until their panel is centred
+  const [subs, setSubs] = useState<SubSlide[]>(() => list.map(() => ({ shown: false, base: 0 })))
+  const [subFocus, setSubFocus] = useState<SubFocus>({ index: 0, visible: false })
+  const subFocusRef = useRef(0)
+  const [minimize, setMinimize] = useState<Minimize>(null)
+  const [topAlpha, setTopAlpha] = useState({ alpha: 1, tr: 'none' })
+
+  const setZone = (z: Zone) => {
+    zoneRef.current = z
+    setZoneState(z)
+  }
+  const centreType = () => list[centreRef.current - first]
 
   // ---- opening (m_PlayActivating, activate path) ----
   useEffect(() => {
@@ -105,6 +148,8 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
         y: 0, alpha: 1,
         tr: `transform ${TOP_ANI_MS}ms linear ${HALF + TOP_ANI_LEAD * (first + i)}ms, opacity ${ENTRANCE_MS}ms linear`,
       })))
+      // the centred panel's sub menu rises with the activation (CHomeSubMenuWindow::OnBeginActivateAnimation)
+      setSubs(ss => ss.map((s, i) => (first + i === startCentre ? { shown: true, base: 0 } : s)))
     })
     // OnMidActivateAnimation @02bbfe58: the other panels turn by GBHOME_ANI_PANEL_INTRO_ROTATE (+5/-5)
     // and fade to their slot alpha over 500 ms, linear
@@ -116,9 +161,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
         return { ...p, rot: NORMAL_ROTATE[row][s], alpha: NORMAL_ALPHA[s], tr: `transform ${lin}, opacity ${lin}` }
       }))
     })
-    later(ENTRANCE_MS + MID_ACTIVATE_MS, () => {
-      phase.current = 'idle'
-    })
+    later(ENTRANCE_MS + MID_ACTIVATE_MS, () => setPhase('idle'))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -128,7 +171,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     let c2 = c
     for (let k = 0; k < steps; k++) c2 = c2 + dir > last ? first : c2 + dir < first ? last : c2 + dir
     if (c2 === c) return
-    phase.current = 'move'
+    setPhase('move')
     playUi(UI_SOUND.MOVE_PANEL)
     centreRef.current = c2
     setCentre(c2)
@@ -170,41 +213,72 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     // top menu: the old overlay and name fade out, then the new ones fade in (416 + 416 ms, linear)
     const oi = c - first
     const ni = c2 - first
-    const img = focusRef.current === 'top' ? 'focus' : 'selected'
+    const img = zoneRef.current === 'top' ? 'focus' : 'selected'
     setOverlays(os => os.map((ov, i) =>
       i === oi ? { ...ov, alpha: 0, tr: `opacity ${HALF}ms linear` }
         : i === ni ? { img, alpha: 1, tr: `opacity ${HALF}ms linear ${HALF}ms` } : ov))
     setLabels(ls => ls.map((l, i) =>
       i === oi ? { alpha: 0, tr: `opacity ${HALF}ms linear` }
         : i === ni ? { alpha: 1, tr: `opacity ${HALF}ms linear ${HALF}ms` } : l))
+    // sub menus (CHomeSubMenuWindow::OnBeginMovePanelAnimation @02bcfd04): the old one slides down at
+    // once, the new one rises from GBHOME_ANI_SUBMENU_MOVE_SHOW_LEADTIME; the focus box hides
+    setSubs(ss => ss.map((s, i) => (i === oi ? { shown: false, base: 0 } : i === ni ? { shown: true, base: SUB_MOVE_LEAD_MS } : s)))
+    const fromSub = zoneRef.current === 'sub'
+    setSubFocus(f => ({ ...f, visible: false }))
     // side arrows slide out and come back once the panels have settled (inferred)
     setArrows(a => ({ mode: 'out', seq: a.seq }))
     later(MOVE_MS, () => {
       setPanels(ps => ps.map((p, i) => ({ ...p, shown: stateOf(slotOf(first + i, c2)) < 2 })))
       setFocusPanel(c2)
       setArrows(a => ({ mode: 'in', seq: a.seq + 1 }))
-      phase.current = 'idle'
+      // focus stays in the sub menu when it moved the carousel: the new panel's first item coming from
+      // the left, its last coming from the right (OnFocusIn @02bd1464, event 0x11900f) (inferred)
+      if (fromSub) {
+        const items = subOf(list[c2 - first])
+        if (items.length) {
+          const idx = dir > 0 ? 0 : items.length - 1
+          subFocusRef.current = idx
+          setSubFocus({ index: idx, visible: true })
+        } else setZone('content')
+      }
+      setPhase('idle')
     })
   }
 
   // Focus moving between the panel and the top menu: the active icon's overlay fades out and back in
   // with the other image (CHomeTopMenuWindow::OnFocusIn/OnFocusOut, callback_topicon_alpha_animation).
   function setTopFocus(top: boolean) {
-    const f = top ? 'top' : 'content'
-    if (focusRef.current === f) return
-    focusRef.current = f
-    setFocus(f)
+    const was = zoneRef.current === 'top'
+    setZone(top ? 'top' : 'content')
+    if (was === top) return
     const ci = centreRef.current - first
     setOverlays(os => os.map((ov, i) => (i === ci ? { ...ov, alpha: 0, tr: `opacity ${HALF}ms linear` } : ov)))
     later(HALF, () =>
       setOverlays(os => os.map((ov, i) =>
-        i === centreRef.current - first ? { img: focusRef.current === 'top' ? 'focus' : 'selected', alpha: 1, tr: `opacity ${HALF}ms linear` } : ov)),
+        i === centreRef.current - first ? { img: zoneRef.current === 'top' ? 'focus' : 'selected', alpha: 1, tr: `opacity ${HALF}ms linear` } : ov)),
     )
+  }
+
+  // Into the sub menu from the panel (event 0x119011, sound 16): the focus box rises from y 1080
+  // (AnimateSubmenuFocus case 3) on the first item.
+  function enterSub(index = 0) {
+    if (!subOf(centreType()).length) return false
+    playUi(UI_SOUND.MOVE)
+    setZone('sub')
+    subFocusRef.current = index
+    setSubFocus({ index, visible: true })
+    return true
+  }
+  // Up out of the sub menu (case 2, sound 16, event 0x119012): the box drops and fades.
+  function leaveSub() {
+    playUi(UI_SOUND.MOVE)
+    setSubFocus(f => ({ ...f, visible: false }))
+    setZone('content')
   }
 
   // ---- closing (m_PlayExitWindow @02bb9c60) ----
   function exit() {
-    phase.current = 'exit'
+    setPhase('exit')
     const c = centreRef.current
     const lin = `${MOVE_MS}ms linear ${EXIT_FIRST_MS}ms`
     setPanels(ps => ps.map((p, i) => {
@@ -220,36 +294,86 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     setLabelY(0)
     setLabels(ls => ls.map(() => ({ alpha: 0, tr: `opacity ${TOP_ANI_MS}ms linear` })))
     setArrows(a => ({ mode: 'out', seq: a.seq }))
+    // CHomeSubMenuWindow::OnBeginExitWindow: the sub menu slides down from 250 ms, 34 ms apart
+    setSubs(ss => ss.map(() => ({ shown: false, base: EXIT_FIRST_MS })))
+    setSubFocus(f => ({ ...f, visible: false }))
     later(EXIT_TOTAL_MS, close)
   }
+
+  // ---- running an item (events 0x11901d-0x11901f -> OnMinimizeWindow, m_CompleteMinimizeMotion) ----
+  // Panels fade out over 660 ms, the top menu and arrows over 500 ms, the sub menu slides away; from a
+  // sub menu item the colour tag grows from the button into the top-left corner (type 2,
+  // CHomeSubMenuWindow::OnBeginMinimizeWindow @02bd1b2c). Then the item runs (0x11901a ->
+  // CHomeExecutor) and Smart Hub gives way to it.
+  function launch(run: () => void, kind: 'item' | 'submenu' = 'item') {
+    if (phase.current === 'minimize' || phase.current === 'exit') return
+    setPhase('minimize')
+    const lin = `${MIN_FLIP_MS}ms linear`
+    setPanels(ps => ps.map(p => ({ ...p, alpha: 0, tr: `opacity ${lin}` })))
+    setTopAlpha({ alpha: 0, tr: `opacity ${MIN_MS}ms linear` })
+    setArrows(a => ({ mode: 'out', seq: a.seq }))
+    // the other sub menu buttons slide down (220 ms each from 250 ms, 34 ms apart)
+    setSubs(ss => ss.map(() => ({ shown: false, base: EXIT_FIRST_MS })))
+    setSubFocus(f => ({ ...f, visible: false }))
+    if (kind === 'submenu') setMinimize({ kind, sub: subFocusRef.current })
+    later(Math.max(MIN_FLIP_MS, MIN_MS), () => {
+      run()
+      // nothing took over (no such application here): Smart Hub goes away as after a launch
+      if (getForeground()?.id === 'smarthub' && phase.current === 'minimize') close()
+    })
+  }
+  const launchItem = (run: () => void) => launch(run, 'item')
+  const launchSub = (run: () => void) => launch(run, 'submenu')
 
   useRemote(key => {
     if (key === 'VolumeUp' || key === 'VolumeDown' || key === 'Mute' || key === 'Power') return false
     if (phase.current !== 'idle') return true // keys are dropped while an animation runs
+    const z = zoneRef.current
+    const type = centreType()
+    const hasBody = !!bodyOf(type)
     switch (key) {
       case 'Left':
-        move(-1)
+      case 'Right': {
+        const dir = key === 'Left' ? -1 : 1
+        if (z === 'sub') {
+          // AnimateSubmenuFocus cases 4/5: along the buttons (sound 16); past the ends the panel moves
+          const items = subOf(type)
+          const j = subFocusRef.current + dir
+          if (j >= 0 && j < items.length) {
+            playUi(UI_SOUND.MOVE)
+            subFocusRef.current = j
+            setSubFocus({ index: j, visible: true })
+            return true
+          }
+        }
+        move(dir)
         return true
-      case 'Right':
-        move(1)
-        return true
+      }
       case 'Up':
-        if (focusRef.current === 'content') {
+        if (z === 'content') {
           playUi(UI_SOUND.MOVE)
           setTopFocus(true)
-        } else playUi(UI_SOUND.NOKEY)
+        } else if (z === 'sub') leaveSub()
+        else playUi(UI_SOUND.NOKEY)
         return true
       case 'Down':
-        if (focusRef.current === 'top') {
+        if (z === 'top') {
           playUi(UI_SOUND.MOVE)
           setTopFocus(false)
-        }
+        } else if (z === 'content' && hasBody) enterSub()
+        else if (z === 'sub') playUi(UI_SOUND.NOKEY)
         return true
       case 'Enter':
-        if (focusRef.current === 'top') {
+        if (z === 'top') {
           playUi(UI_SOUND.MOVE)
           setTopFocus(false)
-        } else onSetup() // CHomeDefaultPanelInputListener: event 0x119066 -> Smart Hub setup (0x523)
+        } else if (z === 'sub') {
+          // CHomeWindowInputListener::NotifyKeyPress, sub menu window: sound 8, then the item runs
+          // (CHomeExecutor::ProcessExecutionSecondApp -> ExecuteSubMenuItem)
+          playUi(UI_SOUND.SELECT)
+          const i = subFocusRef.current
+          if (!getOnlinePanelOptions(type).submenu?.(i, launchSub)) runOwnSubmenu(type, i, launchSub)
+        } else if (!hasBody) onSetup() // CHomeDefaultPanelInputListener: event 0x119066 -> Smart Hub setup (0x523)
         return true
       case 'Back':
       case 'Exit':
@@ -265,6 +389,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
         }
         if (d > Math.floor(n / 2)) d -= n
         else if (d < -Math.floor(n / 2)) d += n
+        if (zoneRef.current === 'sub') setSubFocus(f => ({ ...f, visible: false }))
         setTopFocus(true)
         if (d > 0) move(-1, d)
         else move(1, -d)
@@ -275,9 +400,13 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
     }
   })
 
-  const iconLeft = (o: number) => 728 + TOP_ICON_GAP_X * o - (n % 2 === 0 ? 58 : 0) - 38.5
+  // top icons: GBHOME_TOP_ICON_POS_X 670 + 116 per order index (even counts -58), drawn 1.5x (115.5 x 109.5)
+  const iconW = 77 * HP_SCALE
+  const iconLeft = (o: number) => 670 + TOP_ICON_GAP_X * o - (n % 2 === 0 ? 58 : 0)
   const labelLeft = (o: number) => TOP_TEXT_X + TOP_ICON_GAP_X * o - (n % 2 === 0 ? 58 : 0)
   const cp = PANELS[list[centre - first]]
+  const ctype = list[centre - first]
+  const citems = subOf(ctype)
 
   return (
     <div className="sh">
@@ -289,6 +418,8 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
         <div className="sh-world">
           {list.map((type, i) => {
             const p = panels[i]
+            const Body = bodyOf(type)
+            const isCentre = first + i === focusPanel
             return (
               <div
                 key={i}
@@ -300,15 +431,33 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
                   visibility: p.shown ? 'visible' : 'hidden',
                 }}
               >
-                <PromoPanel type={type} focused={focus === 'content' && first + i === focusPanel} />
+                {Body ? (
+                  <Body
+                    active={idle && isCentre && zone === 'content'}
+                    width={1920}
+                    height={1080}
+                    exitUp={() => {
+                      if (zoneRef.current !== 'content' || phase.current !== 'idle') return
+                      playUi(UI_SOUND.MOVE)
+                      setTopFocus(true)
+                    }}
+                    exitDown={() => {
+                      if (zoneRef.current !== 'content' || phase.current !== 'idle') return
+                      if (!enterSub()) playUi(UI_SOUND.NOKEY)
+                    }}
+                    launch={launchItem}
+                  />
+                ) : (
+                  <PromoPanel type={type} focused={zone === 'content' && isCentre} />
+                )}
               </div>
             )
           })}
         </div>
       </div>
-      {/* top menu: one 77x73 icon per panel; the active one carries the selected (panel focused) or
-          focus (top menu focused) image as an overlay; the panel name (size 34) under it */}
-      <div className="sh-top">
+      {/* top menu: one icon per panel; the active one carries the selected (panel focused) or focus
+          (top menu focused) image as an overlay; the panel name (size 34) under it */}
+      <div className="sh-top" style={{ opacity: topAlpha.alpha, transition: topAlpha.tr }}>
         {list.map((type, i) => {
           const o = first + i
           const d = PANELS[type]
@@ -318,7 +467,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
             <div
               key={i}
               className="sh-top__icon"
-              style={{ left: iconLeft(o), transform: `translateY(${ic.y}px)`, opacity: ic.alpha, transition: ic.tr }}
+              style={{ left: iconLeft(o), width: iconW, height: 73 * HP_SCALE, transform: `translateY(${ic.y}px)`, opacity: ic.alpha, transition: ic.tr }}
             >
               <img src={iconSrc(d.icon, 'normal')} alt="" />
               <img src={iconSrc(d.icon, ov.img)} alt="" style={{ opacity: ov.alpha, transition: ov.tr }} />
@@ -343,16 +492,56 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
           )
         })}
       </div>
-      <Arrows mode={arrows.mode} seq={arrows.seq} />
+      {list.map((type, i) => (
+        <SubMenu
+          key={`s${i}`}
+          panel={type}
+          items={subOf(type)}
+          slide={subs[i]}
+          focus={first + i === centre ? (minimize?.kind === 'submenu' ? { ...subFocus, visible: false } : subFocus) : { index: 0, visible: false }}
+        />
+      ))}
+      {minimize?.kind === 'submenu' && citems.length > 0 && (
+        <MinimizeTag panel={ctype} label={citems[minimize.sub]} x={SUB_X[citems.length][minimize.sub]} w={SUB_W[citems.length]} />
+      )}
+      <div style={{ opacity: topAlpha.alpha, transition: topAlpha.tr }}>
+        <Arrows mode={arrows.mode} seq={arrows.seq} />
+      </div>
     </div>
   )
 }
 
-// Side arrows (CHomeSideIndicatorWindow): three copies per side slide outward from
+// The colour tag growing out of the chosen sub menu button: from the button (x, 972, button width x
+// 375) to 400 x 375 at the top-left corner over GBHOME_ANI_MINIMIZE_WINDOW_TOTAL_DURATION, its text box
+// from (button x + 30, 1002) to (30, 30) while the text fades in from 167 ms
+// (GBHOME_SUBMENU_COLOR_TAG_TEXT_ALPHA_ANIMATION_LEADTIME); the button's own label fades out in 167 ms.
+function MinimizeTag({ panel, label, x, w }: { panel: number; label: string; x: number; w: number }) {
+  const [go, setGo] = useState(false)
+  useEffect(() => nextFrame(() => setGo(true)), [])
+  const [top, bottom] = colorTagColors(panel)
+  return (
+    <ColorTag
+      label={label}
+      top={top}
+      bottom={bottom}
+      style={{
+        left: go ? 0 : x, top: go ? 0 : SUB_Y, width: go ? 400 : w,
+        transition: `left ${MIN_MS}ms linear, top ${MIN_MS}ms linear, width ${MIN_MS}ms linear`,
+      }}
+      textStyle={{
+        opacity: go ? 1 : 0,
+        transition: `opacity ${MIN_MS - 167}ms linear 167ms`,
+      }}
+    />
+  )
+}
+
+// Side arrows (CHomeSideIndicatorWindow), 69x111 drawn 1.5x: three copies per side slide outward from
 // GBHOME_ANI_ARROW_INIT_POS_X to GBHOME_ARROW_POS_X over 667 ms, 166 ms apart; copies 0 and 1 flash to
 // alpha 0.35 and back to 0 (250 + 250 ms), copy 2 fades to 1 over 667 ms and stays. On a panel move
 // copy 2 slides to GBHOME_DISAPPEARED_ARROW_POS_X and fades over 333 ms.
 function Arrows({ mode, seq }: { mode: ArrowMode; seq: number }) {
+  const size = { width: 69 * HP_SCALE, height: 111 * HP_SCALE }
   return (
     <>
       {(['left', 'right'] as const).map(side =>
@@ -367,7 +556,7 @@ function Arrows({ mode, seq }: { mode: ArrowMode; seq: number }) {
                 className="sh-arrow"
                 src={src}
                 alt=""
-                style={{ top: ARROW_Y, transform: `translateX(${ARROW_GONE_X[side]}px)`, opacity: 0, transition: 'transform 333ms linear, opacity 333ms linear' }}
+                style={{ ...size, top: ARROW_Y, transform: `translateX(${ARROW_GONE_X[side]}px)`, opacity: 0, transition: 'transform 333ms linear, opacity 333ms linear' }}
               />
             )
           }
@@ -378,6 +567,7 @@ function Arrows({ mode, seq }: { mode: ArrowMode; seq: number }) {
               src={src}
               alt=""
               style={{
+                ...size,
                 top: ARROW_Y,
                 '--x0': `${ARROW_INIT_X[side][i]}px`,
                 '--x1': `${ARROW_X[side][i]}px`,
