@@ -232,3 +232,153 @@
 .n13-net__arrow {
   position: absolute;
 }
+
+/* ---- Smart Hub terms page (CHomeWizardWindow; FullHD = stage px, positions partly from footage) ---- */
+.n13-terms__loading {
+  position: absolute;
+  left: 880px;
+  top: 448px;
+  width: 96px;
+  height: 96px;
+}
+.n13-terms {
+  position: absolute;
+  inset: 0;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+  color: #fff;
+}
+.n13-terms__intro {
+  position: absolute;
+  left: 240px;
+  top: 300px;
+  width: 1440px;
+  height: 150px;
+  font-size: 40px;
+  line-height: 50px;
+  white-space: pre-wrap;
+}
+.n13-terms__win {
+  position: absolute;
+  left: 240px;
+  top: 470px;
+  width: 1440px;
+  height: 520px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 9px;
+  border-image: url('/f13/net/terms/wizard_terms_box.PNG') 9 fill / 9px stretch;
+}
+.n13-terms__scroll {
+  position: absolute;
+  inset: 0;
+  transition: transform 250ms ease;
+}
+.n13-terms__all {
+  position: absolute;
+  left: 43px;
+  top: 30px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 34px;
+}
+.n13-terms__item {
+  position: absolute;
+  left: 60px;
+  width: 1300px;
+  height: 210px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 9px;
+  border-image: url('/f13/net/terms/wizard_content_box.PNG') 9 fill / 9px stretch;
+}
+.n13-terms__ititle {
+  position: absolute;
+  left: 20px;
+  top: 8px;
+  font-size: 32px;
+  line-height: 44px;
+}
+.n13-terms__idesc {
+  position: absolute;
+  left: 20px;
+  top: 52px;
+  width: 1240px;
+  font-size: 28px;
+  line-height: 36px;
+  color: #cfe8ff;
+}
+.n13-terms__cbtn,
+.n13-terms__vbtn {
+  position: absolute;
+  top: 110px;
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 30px;
+  color: #000;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 0 23px;
+  border-image: url('/f13/net/terms/wizard_terms_btn_n.PNG') 0 23 fill / 0 23px stretch;
+}
+.n13-terms__cbtn {
+  left: 51px; /* HOME_PNP_CHECK_BUTTON_POS_X 60 in the window */
+  width: 240px;
+  justify-content: flex-start;
+  color: #fff;
+  border-image-source: url('/f13/net/terms/wizard_terms_input_n.PNG');
+  border-image-slice: 0 30 fill;
+  border-width: 0 30px;
+}
+.n13-terms__cbtn span:last-child {
+  margin-left: 6px;
+}
+.n13-terms__vbtn {
+  left: 351px; /* HOME_PNP_VIEW_BUTTON_POS_X 360 */
+  width: 320px;
+}
+.n13-terms__cbtn--sel {
+  border-image-source: url('/f13/net/terms/wizard_terms_input_s.PNG');
+}
+.n13-terms__vbtn--sel {
+  border-image-source: url('/f13/net/terms/wizard_terms_btn_s.PNG');
+  color: #fff;
+}
+.n13-terms__more {
+  position: absolute;
+  left: 936px;
+  top: 994px;
+}
+.n13-check {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+.n13-check img {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.n13-check--focus::after {
+  content: '';
+  position: absolute;
+  left: -7px;
+  top: -7px;
+  width: 45px;
+  height: 45px;
+  background: url('/f13/net/terms/wizard_terms_check_h.PNG');
+}
+
+/* Smart Hub's setup pages (terms, complete) inside the Smart Hub app */
+.sh-setup {
+  position: absolute;
+  inset: 0;
+}

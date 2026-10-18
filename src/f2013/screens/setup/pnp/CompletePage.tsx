@@ -26,7 +26,23 @@ function preload() {
   for (let i = 0; i < FRAMES; i++) new Image().src = `${END}/08_plugplay_end_${String(i).padStart(2, '0')}.png`
 }
 
-export function CompletePage({ hiding, go, onDone }: PageProps & { onDone: () => void }) {
+// Online variants (spec/online-net2013.md): t_SetIntoText @025abc04 picks the text by window id:
+// 0x782 (network, terms agreed) M 0x8e6, 0x783 (no network) M 0x8e7, 0x785 (terms not agreed) M 0x8e9.
+// Smart Hub's own setup ends on the same page (CSmartHubResetCompleteActionWindow, window 0x78a: M 0x8e6,
+// step 7 of 7 with the cube; t_ProcessCreate @02603218), passed in through `text` / `frame`.
+export type CompleteVariant = 'network' | 'noNetwork' | 'notAgreed'
+export const COMPLETE_TEXT: Record<CompleteVariant, string> = {
+  network: S.completeNetwork,
+  noNetwork: S.completeNoNetwork,
+  notAgreed: S.completeNotAgreed,
+}
+
+export function CompletePage({ hiding, go, onDone, variant = 'noNetwork', frame: wiz, onPrev }: PageProps & {
+  onDone: () => void
+  variant?: CompleteVariant
+  frame?: { step: number; total: number; smartHubStep: number }
+  onPrev?: () => void
+}) {
   const [focus, setFocus] = useState<'ok' | 'prev'>('ok')
   const [frame, setFrame] = useState(0)
 
@@ -57,7 +73,8 @@ export function CompletePage({ hiding, go, onDone }: PageProps & { onDone: () =>
       playUi(16)
     } else if (key === 'Enter') {
       playUi(UI_SOUND.SELECT)
-      go(pnp.channelSource === 'Set-top box' ? 'configure' : 'autotune')
+      if (onPrev) onPrev()
+      else go(pnp.channelSource === 'Set-top box' ? 'configure' : 'autotune')
     }
     return true
   })
@@ -65,16 +82,16 @@ export function CompletePage({ hiding, go, onDone }: PageProps & { onDone: () =>
   return (
     <Wizard
       title={S.completeTitle}
-      step={PNP_STEP.complete}
-      total={PNP_TOTAL}
-      smartHubStep={PNP_SMARTHUB_STEP}
+      step={wiz?.step ?? PNP_STEP.complete}
+      total={wiz?.total ?? PNP_TOTAL}
+      smartHubStep={wiz?.smartHubStep ?? PNP_SMARTHUB_STEP}
       prev="normal"
       buttons={[{ label: S.ok }]}
       focus={focus === 'ok' ? 0 : 'prev'}
       hiding={hiding}
       pageKey="complete"
     >
-      <div className="pnp-complete">{S.completeNoNetwork}</div>
+      <div className="pnp-complete">{COMPLETE_TEXT[variant]}</div>
       <img className="pnp-cube" src={`${END}/08_plugplay_end_${String(frame).padStart(2, '0')}.png`} alt="" />
     </Wizard>
   )
