@@ -7,6 +7,7 @@ import { TRANSPARENCY_ALPHA } from './osd'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
 import type { Widget } from './widgets'
+import { NetworkSettings, NetworkStatus } from './network'
 
 // CMenuActionWindowBase on CDefaultWindow (AppMWOSDInfo / MenuOSDInfo, 1280x720 OSD space):
 //  - background AppCM/act_window_bg 9-slice (DEFAULTWND_BG_POSITION 2/24/139: corners 24 wide, top
@@ -68,7 +69,7 @@ export function ActionFrame({ x, y, w, h, title, buttons = [], focus = 0, dimBut
   )
 }
 
-export type AWProps = { close: () => void; exitMenu: () => void }
+export type AWProps = { close: () => void; exitMenu: () => void; change?: (w: Widget | null) => void }
 
 // Common action window keys (CMenuActionWindowBase::t_OnInput): RETURN closes the window, EXIT and
 // MENU close the Menu. Returns true when the key was handled.
@@ -175,6 +176,14 @@ export function actionWindow(it: MenuItem): Widget | null {
   switch (it.id) {
     case 0x6e5:
       return { kind: 'custom', item: it, render: p => <ContactSamsung title={it.t} {...p} /> }
+    case 0x4e:   // Network Status (network app; the Menu is hidden while it runs, inferred)
+      return { kind: 'custom', item: it, hideMenu: true, render: p => <NetworkStatus {...p} openSettings={() => p.change?.(networkSettingsWidget(it))} /> }
+    case 0x4d:   // Network Settings
+      return networkSettingsWidget(it)
   }
   return null
+}
+
+function networkSettingsWidget(it: MenuItem): Widget {
+  return { kind: 'custom', item: it, hideMenu: true, render: p => <NetworkSettings {...p} /> }
 }

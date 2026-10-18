@@ -23,7 +23,7 @@ export type Widget =
   | { kind: 'bar'; item: MenuItem }
   | { kind: 'msg'; item?: MenuItem; boxes: MsgBox[] }
   | { kind: 'pin'; item: MenuItem; then: () => Widget | null | void }
-  | { kind: 'custom'; item?: MenuItem; render: (p: AWProps) => ReactNode }
+  | { kind: 'custom'; item?: MenuItem; hideMenu?: boolean; render: (p: AWProps) => ReactNode }
 
 export type MsgBox = {
   text: string
@@ -58,7 +58,7 @@ export function Widgets(props: Props) {
     case 'pin':
       return <PinWidget {...props} then={widget.then} />
     case 'custom':
-      return <>{widget.render({ close: props.onClose, exitMenu: props.onExitMenu })}</>
+      return <>{widget.render({ close: props.onClose, exitMenu: props.onExitMenu, change: props.onChange })}</>
   }
 }
 

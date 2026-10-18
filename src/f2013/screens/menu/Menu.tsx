@@ -64,6 +64,8 @@ export function MenuApp({ params }: AppProps) {
 
   // ---- opening (CMenuMainWindowAni::t_ProcessShowMainWindow) ----
   const direct = useRef(false)
+  const directItem = useRef(false)   // opened on an item's window rather than on a list
+  const directDepth = useRef(0)      // list depth a direct-access page opened at
   useEffect(() => {
     // direct access (CMenuMainWindow::t_ShowMainWindow(1, ...)): open on the list, no category intro
     let target: [number, MenuItem[]] | null = null
@@ -79,12 +81,14 @@ export function MenuApp({ params }: AppProps) {
       const lv = levelsFor(cats[ci], isPage ? chain : chain)
       if (isPage) lv.push({ item: chain[chain.length - 1], focus: 0, top: 0 })
       setLevels(lv)
+      directDepth.current = lv.length
       setArea('list')
       setAnim({ x0: OSD.PANEL_START_X, dur: 0, ease: EASE_INOUT })
       setPhase(3)
       setHelpOn(true)
       const last = chain[chain.length - 1]
       if (p.item || p.page === 'network-settings') {
+        directItem.current = true
         const container = lv[lv.length - 1].item
         const w = itemAction(last, { close, enterChild: () => {}, refresh: () => setTick(t => t + 1), siblings: container.k ?? [], factoryReset })
         if (w) setWidget(w)
@@ -200,7 +204,10 @@ export function MenuApp({ params }: AppProps) {
       return true
     }
     if (key === 'Left' || key === 'Back') {
-      if (depth < 1) backToCategory()
+      // a page opened from another app (Source: Anynet+) closes back to it (inferred from
+      // CMenuMainWindow::t_ShowMainWindow direct access)
+      if (direct.current && p.from && levels.length <= directDepth.current) close()
+      else if (depth < 1) backToCategory()
       else backToParent()
       return true
     }
@@ -209,7 +216,7 @@ export function MenuApp({ params }: AppProps) {
 
   const alphaBg = TRANSPARENCY_ALPHA[Number(transparency ?? 1)] ?? TRANSPARENCY_ALPHA[1]
   const listFocused = area === 'list'
-  const hidden = !!widget && (widget.kind === 'sliderAW' || widget.kind === 'sublistAW')
+  const hidden = !!widget && (widget.kind === 'sliderAW' || widget.kind === 'sublistAW' || (widget.kind === 'custom' && !!widget.hideMenu))
   const dimmed = !!widget && !hidden
   // popups and control bars sit in the Menu scene; message boxes and action windows in screen space
   const screen = !!widget && widget.kind !== 'popup' && widget.kind !== 'bar'
@@ -300,7 +307,8 @@ export function MenuApp({ params }: AppProps) {
             row={cur.focus - cur.top}
             onClose={() => {
               setWidget(null)
-              if (p.from === 'tools' && direct.current) close()
+              // opened straight on an item (Tools, Channel List, Smart Hub): its window closing closes the Menu
+              if (direct.current && directItem.current) close()
             }}
             onExitMenu={close}
             onChange={w => setWidget(w)}

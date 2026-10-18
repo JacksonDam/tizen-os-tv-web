@@ -194,3 +194,23 @@
 .m13-awin-text { position: absolute; left: 0; top: 0; color: #fff; white-space: pre-wrap; overflow-wrap: break-word; }
 .m13-awin-cue { width: 42px; height: 29px; }
 .m13-btn--dim { border-image: url('/f13/menu/btn_dim.png') 26 fill stretch; }
+
+/* network windows (network.tsx) */
+.m13-net-stage { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform: scale(0.6666667); transform-origin: 0 0; pointer-events: none; }
+.m13-net-clip { overflow: hidden; }
+.m13-net-clip img { position: absolute; left: 0; top: 0; }
+.m13-net-msg { display: flex; align-items: center; color: #fff; white-space: pre-wrap; }
+.m13-net-cell { position: absolute; display: flex; align-items: flex-end; justify-content: flex-end; color: #fff; white-space: nowrap; overflow: hidden; }
+.m13-net-cell--left { justify-content: flex-start; }
+.m13-osd .m13-net-cell { align-items: center; }
+.m13-awin .m13-net-cell { align-items: flex-end; }
+.m13-net-line { width: 794px; height: 2px; }
+.m13-net-label { position: absolute; color: #fff; white-space: pre-wrap; }
+.m13-net-list { position: absolute; background: rgba(0, 0, 0, 0.149); }
+.m13-net-focus { position: absolute; border: 40px solid transparent; border-image: url('/f13/menu/net/wizard_highlight.png') 40 fill stretch; }
+.m13-net-loading { position: absolute; width: 64px; height: 64px; background: url('/f13/menu/net/loading_48.png') 0 0 no-repeat; }
+.m13-net-btn { position: absolute; display: flex; align-items: center; justify-content: center; border-style: solid; border-width: 0 32px; border-color: transparent; border-image: url('/f13/menu/net/wizard_terms_btn_n.png') 0 32 fill stretch; }
+.m13-net-btn span { position: absolute; left: -24px; right: -24px; text-align: center; font-size: 24px; color: rgba(0, 0, 0, 0.784); white-space: nowrap; }
+.m13-net-btn--sel { border-image: url('/f13/menu/net/wizard_terms_btn_s.png') 0 32 fill stretch; }
+.m13-net-btn--sel span { color: #fff; }
+.m13-net-popup { position: absolute; }
