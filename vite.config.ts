@@ -13,6 +13,7 @@ export default defineConfig(({ command, isPreview }) => ({
         lobby: 'index.html',
         tv2013: '2013/index.html',
         tv2025: '2025/index.html',
+        tvPhilips: 'philips/index.html',
       },
     },
   },

@@ -93,3 +93,22 @@ html, body, #root {
   .lobby__card { transition: none; }
   .lobby__card:hover, .lobby__card:focus { transform: none; }
 }
+
+/* Hold-to-open reaction for the hidden exhibit: a thin progress line pinned to the bottom of the
+   window that fills while a key is held. No text, in the lobby's own ink colour. */
+.lobby__charge {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(233, 233, 238, 0.12);
+  z-index: 10;
+}
+.lobby__charge-fill {
+  height: 100%;
+  width: 100%;
+  transform-origin: left center;
+  background: var(--ring);
+  box-shadow: 0 0 10px var(--ring);
+}
