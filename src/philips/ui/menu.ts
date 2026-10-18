@@ -33,6 +33,7 @@ export function registerMenuAction(node: number, fn: (ctl: MenuScreen) => void) 
 
 export class MenuScreen implements Screen {
   name = 'menu'
+  covers = true
   layer = 10
   modal = true
   nav: NavCtl

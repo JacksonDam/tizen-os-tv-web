@@ -1,9 +1,13 @@
 import type { RemoteKey } from '../../input/remote'
 import type { Juice } from '../fw/juice'
-import { getTv, setTv, tune } from '../tv/store'
+import { getTv, setTv, subscribeTv, tune } from '../tv/store'
+import { openSources, showBanner, updateMessage, volumeChanged } from './overlays'
+import { openGuide } from './guide'
+import { openChannelList } from './chlist'
 import { openHome } from './home'
 import { openMenu } from './menu'
-import { repaint } from './screens'
+import { W } from '../fw/juice'
+import { repaint, show } from './screens'
 
 // The TV layer: keys no OSD screen took (watching TV).
 
@@ -14,6 +18,25 @@ export function bootUi(j: Juice) {
   const q = new URLSearchParams(location.search)
   const at = q.get('menu')
   if (at !== null) openMenu(j, at ? at.split('.').map(Number) : [])
+  // debug: ?show=<class>:<index>[:<flags>] draws one widget tree
+  const dbg = q.get('show')
+  if (dbg) {
+    const [c, i, f] = dbg.split(':')
+    show({ name: 'debug', layer: 99, draw: jj => jj.draw(W(c as 'panel', +i), 0, 0, +(f ?? 1)) })
+  }
+  // react to the mocked hardware: zapping shows the banner and the picture messages, volume the bar
+  let last = getTv()
+  subscribeTv(() => {
+    const s = getTv()
+    if (s.zapSeq !== last.zapSeq) {
+      showBanner()
+      updateMessage()
+    }
+    if (s.volSeq !== last.volSeq) volumeChanged()
+    if (s.power !== last.power && s.power === 'on') updateMessage()
+    last = s
+  })
+  updateMessage()
   repaint()
   ;(window as unknown as { __ph: object }).__ph = { j, getTv }
 }
@@ -41,6 +64,19 @@ export function tvKey(k: RemoteKey, j: Juice): boolean {
       return true
     case 'Mute':
       setTv(t => ({ muted: !t.muted, volSeq: t.volSeq + 1 }))
+      return true
+    case 'Source':
+      openSources()
+      return true
+    case 'Info':
+      showBanner(true)
+      return true
+    case 'Guide':
+      openGuide()
+      return true
+    case 'Enter':
+    case 'ChannelList':
+      openChannelList()
       return true
   }
   return false

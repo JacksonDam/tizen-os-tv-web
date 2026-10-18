@@ -12,6 +12,7 @@ export interface Screen {
   draw(j: Juice, env: TvEnv): void
   key?(k: RemoteKey): boolean         // true = consumed
   modal?: boolean                     // keys stop here even if not consumed
+  covers?: boolean                    // full-screen: the picture's banner and messages are not drawn
 }
 
 export const env = new TvEnv()
@@ -57,10 +58,16 @@ export function hideAll(keep: (s: Screen) => boolean = () => false) {
 }
 
 export function paintAll(j: Juice) {
+  const covered = screens.some(s => s.covers)
   for (const s of screens) {
+    if (covered && (s.name === 'message' || s.name === 'banner')) continue
     env.hidden = new Set()
     env.disabled = new Set()
     env.overrides = new Map()
+    env.values = new Map()
+    env.gridState = new Map()
+    env.cells = new Map()
+    env.texts = new Map()
     s.draw(j, env)
   }
   env.hidden = new Set()

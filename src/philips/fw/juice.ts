@@ -55,7 +55,11 @@ export interface Env {
   textOverride?(w: number, alt: boolean): string | undefined
   allowed?(w: number, value: number): boolean // juiceappreg__japiX_ValueAllowed
   panelFocus?(w: number): number | undefined  // PanelVars+0xf: the focused child of a panel
+  grid?(w: number): GridState | undefined     // a dynamic grid's rows
+  cell?(w: number, row: number): string | number | undefined // a grid cell's value for a row
 }
+
+export type GridState = { count: number; focus: number; top: number; selected?: number }
 
 export type ListState = { focus: number; top: number; expanded: boolean }
 
@@ -76,7 +80,7 @@ export class Juice {
       'JuiceStatusControls', 'JuiceLists', 'JuiceSliders', 'JuiceButtons', 'JuiceTexts', 'JuiceNavigators',
       'JuiceBel2s', 'JuiceStyleTexts', 'JuiceStateStyles', 'JuiceBitmapGroups', 'JuiceDynamicGrids',
       'JuiceNumericGroupEdits', 'JuiceIcons', 'JuiceAnimators', 'JuiceMultiLineStatuss', 'JuiceDateTimes',
-      'JuiceOrganizers']) {
+      'JuiceOrganizers', 'JuiceScrollBars']) {
       this.T[k] = m.addr(k)
     }
   }
@@ -95,23 +99,46 @@ export class Juice {
   bmpW(id: number) { const a = this.m.atlas[id]; return a ? a[2] : 0 }
   bmpH(id: number) { const a = this.m.atlas[id]; return a ? a[3] : 0 }
 
-  // juicejbmp__bmp_DrawBitmap: tiles the bitmap over w x h
+  // juicejbmp__bmp_DrawBitmap: tiles the bitmap over w x h. Each bitmap is cut out of the atlas once
+  // (no sampling of its neighbours when the plane is scaled) and tiled with a repeating pattern.
+  private bmpCache = new Map<number, { c: HTMLCanvasElement; p: CanvasPattern | null }>()
+  bmpCanvas(id: number) {
+    let e = this.bmpCache.get(id)
+    if (!e) {
+      const a = this.m.atlas[id]
+      if (!a) return null
+      const c = document.createElement('canvas')
+      c.width = a[2]
+      c.height = a[3]
+      c.getContext('2d')!.drawImage(this.atlas, a[0], a[1], a[2], a[3], 0, 0, a[2], a[3])
+      e = { c, p: null }
+      this.bmpCache.set(id, e)
+    }
+    return e
+  }
   drawBitmap(id: number, x: number, y: number, w?: number, h?: number) {
-    const a = this.m.atlas[id]
-    if (!a || id <= 0) return
-    const [ax, ay, bw, bh] = a
+    if (id <= 0) return
+    const e = this.bmpCanvas(id)
+    if (!e) return
+    const bw = e.c.width
+    const bh = e.c.height
     w = w || bw
     h = h || bh
+    w = Math.min(w, OSD_W - x)
+    h = Math.min(h, OSD_H - y)
     if (w <= 0 || h <= 0) return
-    for (let yy = 0; yy < h; yy += bh) {
-      if (y + yy >= OSD_H) break
-      const ch = Math.min(bh, h - yy)
-      for (let xx = 0; xx < w; xx += bw) {
-        if (x + xx >= OSD_W) break
-        const cw = Math.min(bw, w - xx)
-        this.ctx.drawImage(this.atlas, ax, ay, cw, ch, x + xx, y + yy, cw, ch)
-      }
+    const ctx = this.ctx
+    if (w <= bw && h <= bh) {
+      ctx.drawImage(e.c, 0, 0, w, h, x, y, w, h)
+      return
     }
+    e.p ??= ctx.createPattern(e.c, 'repeat')
+    if (!e.p) return
+    ctx.save()
+    ctx.translate(x, y)
+    ctx.fillStyle = e.p
+    ctx.fillRect(0, 0, w, h)
+    ctx.restore()
   }
 
   // juicejlld__lld_FillRectangle with the draw style's background colour (0xfe = transparent)
@@ -397,9 +424,144 @@ export class Juice {
       case CLS.button: return this.buttonDraw(w, x, y, flags)
       case CLS.nav: return this.navDraw(w, x, y, flags)
       case CLS.icon: return this.iconDraw(w, x, y, flags)
+      case CLS.dgrid: return this.dgridDraw(w, x, y, flags)
       default: {
         if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags, flags & F.SELECTED), !!(flags & F.ALT))
       }
+    }
+  }
+
+  // FUN_008af2d8 + FUN_008adfd8 + FUN_008ad950 (dynamic grid: rows of cell widgets bound to the values
+  // of a property; +0x40 cells (0x14: widget, u8 flags, x, y), +0x52 cell count, +0x54 rows, +0x4c row
+  // pitch (vertical when +0x44 = 0), +0x4a/0x74/0x76 origin, +0x70/0x72 view offset, +0x78 background,
+  // +0x8c / +0xb4 widgets drawn on the focused row)
+  dgridDraw(w: number, x: number, y: number, flags: number) {
+    const m = this.m
+    const a = this.T.JuiceDynamicGrids + idxOf(w) * 0xc0
+    const ctrl = this.env.ctrl(this.prop(w), w)
+    if (flags & F.HELP) this.helpDraw(w, x, y)
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT))
+    if (flags & F.NOBODY) return
+    let gx = x
+    let gy = y
+    if (!(flags & F.NOOFFSET)) { gx += m.u16(a + 0x70); gy += m.u16(a + 0x72) }
+    const g = this.env.grid?.(w)
+    if (!g || this.env.state(w) < 3) return
+    const rows = m.u8(a + 0x54)
+    const vertical = m.u8(a + 0x44) === 0
+    const pitch = vertical ? m.s16(a + 0x4c) : m.s16(a + 0x4e)
+    const x0 = gx + m.s16(a + 0x4a) + m.u16(a + 0x74)
+    const y0 = gy + m.u16(a + 0x76)
+    this.jss(m.s16(a + 0x78), x0, y0, 0, 0, stateStyle(ctrl, flags & 1, false))
+    const top = Math.max(0, Math.min(g.top, g.count - rows))
+    const cells = m.u32(a + 0x40)
+    const nc = m.u16(a + 0x52)
+    for (let r = 0; r < rows && top + r < g.count; r++) {
+      const row = top + r
+      const rx = vertical ? x0 : x0 + r * pitch
+      const ry = vertical ? y0 + r * pitch : y0
+      const focused = row === g.focus && !!(flags & F.FOCUS)
+      const rf = (flags & F.ALT) | (focused ? F.FOCUS : 0) | (row === g.selected ? F.SELECTED : 0)
+      for (let c = 0; c < nc; c++) {
+        const e = cells + 0x14 * c
+        const cw = m.u32(e)
+        if (!(m.u8(e + 4) & 1) || this.env.state(cw) < 2) continue
+        this.cellDraw(cw, rx + m.s16(e + 6), ry + m.s16(e + 8), rf, row)
+      }
+      if (focused) {
+        const fw = m.u32(a + 0xb4)
+        if (fw) this.draw(fw, rx + m.u16(a + 0xb8), ry + m.u16(a + 0xba), 1)
+        const fw2 = m.u32(a + 0x8c)
+        if (fw2) this.draw(fw2, rx + m.u16(a + 0x90), ry + m.u16(a + 0x92), 1)
+      }
+    }
+    // the scroll bar (+0x6c, mode +0x6e 0: n by N) at the grid origin: total, rows shown, first row
+    const sb = m.s16(a + 0x6c)
+    if (sb >= 0 && m.u8(a + 0x6e) === 0) this.scrollBarDraw(sb, gx, gy, flags, g.count, rows, top)
+    const sst = stateStyle(ctrl, flags & 1, false)
+    this.jss(m.s16(a + 0xaa), gx + m.s16(a + 0xae), gy + m.s16(a + 0xb0), 0, 0, sst)
+    this.jss(m.s16(a + 0xac), gx + m.s16(a + 0xae), gy + m.s16(a + 0xb2), 0, 0, sst)
+  }
+  // juicesbc__sb_ScrollBarDrawnbyN (0x8ecc1c), JuiceScrollBars records of 0x22 bytes: +0 show the
+  // total (bel2 +0x10 at +0x12/+0x14, alt +0x16/+0x18), +1 vertical, +2/+4 origin (alt +6/+8), +0xa
+  // thumb bitmap group, +0xc travel, +0xe track length, +0x1a minimum thumb, +0x1c/+0x1e thumb
+  // offset, +0x20 track state style; the thumb only when not every item fits
+  scrollBarDraw(sb: number, x: number, y: number, flags: number, total: number, visible: number, pos: number) {
+    const m = this.m
+    const a = this.T.JuiceScrollBars + sb * 0x22
+    const st = stateStyle(true, 0, false)
+    const travel = m.s16(a + 0xc)
+    let len = total ? Math.trunc((visible * travel) / total) : 0
+    if (len < m.s16(a + 0x1a)) len = m.s16(a + 0x1a)
+    const alt = !!(flags & F.ALT)
+    const x15 = x + m.s16(a + (alt ? 6 : 2))
+    const y13 = y + m.s16(a + (alt ? 8 : 4))
+    if (m.u8(a)) this.bel2Draw(m.s16(a + 0x10), x15 + m.s16(a + (alt ? 0x16 : 0x12)), y13 + m.s16(a + (alt ? 0x18 : 0x14)), st, String(total))
+    if (!(visible < total)) return
+    const [top, mid, bot] = this.bmpGroup(m.u16(a + 0xa), st)
+    const size = m.s16(a + 0xe)
+    const free = travel > 0 ? travel - len : travel
+    let ty = (travel > 0 ? y13 + Math.trunc((pos * free) / (total - visible)) : y13) + m.s16(a + 0x1e)
+    const tx = x15 + m.s16(a + 0x1c)
+    if (m.u8(a + 1) === 1) {
+      this.jss(m.s16(a + 0x20), x15, y13, 0, size, st)
+      if (y13 + size < ty + len) ty = y13 + size - len
+      this.drawBitmap(top, tx, ty, this.bmpW(top), this.bmpH(top))
+      this.drawBitmap(mid, tx, ty + this.bmpH(top), this.bmpW(mid), len - (this.bmpH(top) + this.bmpH(bot)))
+      this.drawBitmap(bot, tx, ty + len - this.bmpH(bot), this.bmpW(bot), this.bmpH(bot))
+    } else {
+      this.jss(m.s16(a + 0x20), x15, y13, size, 0, st)
+      const lx = tx + Math.trunc((pos * free) / total)
+      this.drawBitmap(top, lx, ty, this.bmpW(top), this.bmpH(top))
+      this.drawBitmap(mid, lx + this.bmpW(top), ty, len - (this.bmpW(top) + this.bmpW(bot)), this.bmpH(mid))
+      this.drawBitmap(bot, lx + len - this.bmpW(bot), ty, this.bmpW(bot), this.bmpH(bot))
+    }
+  }
+  // juicew__vwid_Draw: a widget drawn for one value of a grid row
+  cellDraw(w: number, x: number, y: number, flags: number, row: number) {
+    const m = this.m
+    const v = this.env.cell?.(w, row)
+    switch (clsOf(w)) {
+      case CLS.status: return this.statusBody(w, x, y, flags, v)
+      case CLS.text: {
+        // FUN_008faa14: the text's string at +0x3e/+0x40 with bel2 +0x3c
+        const a = this.T.JuiceTexts + idxOf(w) * 0x9c
+        const st = stateStyle(this.env.ctrl(this.prop(w), w), flags & 1, !!(flags & 2))
+        const ss = m.u16(a + 0x6e)
+        this.jss(ss, x + m.s16(a + 0x42), y + m.s16(a + 0x44), this.ssWidth(ss, st), this.ssHeight(ss, st), st)
+        if (v !== undefined) this.bel2Draw(m.s16(a + 0x3c), x + m.s16(a + 0x3e), y + m.s16(a + 0x40), st, String(v))
+        return
+      }
+      case CLS.list:
+        if (v !== undefined) this.listValueDraw(w, x, y, flags, Number(v))
+        return
+      default: return this.draw(w, x, y, flags)
+    }
+  }
+
+  // FUN_008cceb0 for one value (collapsed lists, grid cells): the item state style and the value's
+  // text, bitmap or state style (+0x5b = 0 / 1 / 2) at the item text position
+  listValueDraw(w: number, x: number, y: number, flags: number, value: number) {
+    const m = this.m
+    const a = this.T.JuiceLists + idxOf(w) * 0xe0
+    const k = this.listValueIds(w).indexOf(value)
+    if (k < 0) return
+    const cap = this.listCaptions(w)[k]
+    const alt = !!(flags & F.ALT)
+    const st = stateStyle(this.env.ctrl(this.prop(w), w), flags & 1, !!(flags & 2))
+    const ib = alt ? m.s16(a + 0x52) : m.s16(a + 0x50)
+    const iss = alt ? m.u16(a + 0x7e) : m.u16(a + 0x7c)
+    this.jss(iss, x, y, m.s16(this.b2(ib) + 10), m.s16(this.b2(ib) + 8), st)
+    const bx = x + (alt ? m.s16(a + 0xc6) : m.s16(a + 0x84))
+    const by = y + (alt ? m.s16(a + 0xc8) : m.s16(a + 0x86))
+    const mode = m.u8(a + 0x5b)
+    if (mode === 0) {
+      this.user = this.env.str(cap)
+      this.bel2Draw(ib, bx, by, st, undefined, m.s16(a + 0xc4))
+    } else if (mode === 1) {
+      this.drawBitmap(cap, bx - ((this.bmpW(cap) * m.u8(this.b2(ib) + 4)) >> 1), by - ((this.bmpH(cap) * m.u8(this.b2(ib) + 5)) >> 1))
+    } else {
+      this.jss(cap, bx - ((this.ssWidth(cap, st) * m.u8(this.b2(ib) + 4)) >> 1), by - ((this.ssHeight(cap, st) * m.u8(this.b2(ib) + 5)) >> 1), 0, 0, st)
     }
   }
 
@@ -455,51 +617,84 @@ export class Juice {
     if (flags & F.HELP) this.helpDraw(w, x, y)
   }
 
-  // FUN_008f3b70 + FUN_008f2ae4 (status: background, value text of its control, caption)
+  // FUN_008f3b70 (status: body at its view offset, help, caption)
   statusDraw(w: number, x: number, y: number, flags: number) {
     const m = this.m
     const a = this.T.JuiceStatuss + idxOf(w) * 0x3c
     const v = this.T.JuiceStatusViews + m.u16(a + 0x38) * 0x20
-    const ctl = this.T.JuiceStatusControls + m.u16(a + 0x36) * 0x18
     if (!(flags & F.NOBODY)) {
       let px = x
       let py = y
       if (!(flags & F.NOOFFSET)) { px = x + m.u16(v + 0xc); py = y + m.u16(v + 0xe) }
-      const st = this.st(w, flags & 0x2001, flags & 2)
-      this.jss(m.s16(v + 0x14), px, py, m.s16(v), m.s16(v + 2), st)
-      const val = this.env.statusValue?.(w)
-      if (val !== undefined) {
-        let bi: number
-        let tx: number
-        let ty: number
-        let tss: number
-        if (flags & F.ALT) { bi = m.s16(ctl + 0xc); tx = m.s16(v + 8); ty = m.s16(v + 0xa); tss = m.s16(v + 0x12) }
-        else if (flags & F.ITEMS) { bi = m.s16(ctl + 0xe); tx = m.s16(v + 4); ty = m.s16(v + 6); tss = 0 }
-        else { bi = m.s16(ctl + 0xa); tx = m.s16(v + 4); ty = m.s16(v + 6); tss = m.s16(v + 0x10) }
-        const s = String(val)
-        if (bi >= 0) {
-          this.jss(tss, px, py, m.s16(this.b2(bi) + 10), m.s16(this.b2(bi) + 8), st)
-          if (m.u8(v + 0x16)) this.wrapDraw(bi, s, px + tx, py + ty, st, m.s16(v + 0x18))
-          else this.bel2Draw(bi, px + tx, py + ty, st & 0xf, s, m.s16(v + 0x18))
-        }
-      }
+      this.statusBody(w, px, py, flags, this.env.statusValue?.(w))
     }
     if (flags & F.HELP) this.helpDraw(w, x, y)
     if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags & 0x2001, flags & 2), !!(flags & F.ALT))
   }
-  // juicejstr__js_JWrapString: word-wrap a caption into width px
-  wrapDraw(bi: number, s: string, x: number, y: number, st: number, width: number) {
-    const ds = this.b2Style(bi, st)
-    const lines: string[] = []
-    for (const para of s.split('\r')) {
-      let cur = ''
-      for (const word of para.split(' ')) {
-        const t = cur ? `${cur} ${word}` : word
-        if (width && this.textWidth(t, ds) > width && cur) { lines.push(cur); cur = word } else cur = t
+  // FUN_008f2ae4: the state style of the view, then the control's value (types 1 number, 2 / 5 string)
+  // with its text background; also the status' vector draw, used for the cells of dynamic grids
+  statusBody(w: number, px: number, py: number, flags: number, val: string | number | undefined) {
+    const m = this.m
+    const a = this.T.JuiceStatuss + idxOf(w) * 0x3c
+    const v = this.T.JuiceStatusViews + m.u16(a + 0x38) * 0x20
+    const ctl = this.T.JuiceStatusControls + m.u16(a + 0x36) * 0x18
+    const st = this.st(w, flags & 0x2001, flags & 2)
+    this.jss(m.s16(v + 0x14), px, py, m.s16(v), m.s16(v + 2), st)
+    if (val === undefined) return
+    let bi: number
+    let tx: number
+    let ty: number
+    let tss: number
+    let clip = m.s16(v + 0x18)
+    if (flags & F.ALT) { bi = m.s16(ctl + 0xc); tx = m.s16(v + 8); ty = m.s16(v + 0xa); tss = m.s16(v + 0x12) }
+    else if (flags & F.ITEMS) { bi = m.s16(ctl + 0xe); tx = m.s16(v + 4); ty = m.s16(v + 6); tss = 0; clip = 0 }
+    else { bi = m.s16(ctl + 0xa); tx = m.s16(v + 4); ty = m.s16(v + 6); tss = m.s16(v + 0x10) }
+    if (bi < 0) return
+    const s = String(val)
+    this.jss(tss, px, py, m.s16(this.b2(bi) + 10), m.s16(this.b2(bi) + 8), st)
+    if (m.u8(v + 0x16)) {
+      // FUN_008f2ae4 wrap branch: the text is anchored like the label (anchor point, alignment within
+      // the label's styled box, one line high) and handed to JWrapString with the view's clip width,
+      // line limit (+0x1e) and line gap (+0x17)
+      const ab = this.b2(bi)
+      const ds = this.b2Style(bi, st & 0xf)
+      const sw = this.b2StyledWidth(bi, st & 0xf, s)
+      const sh = this.b2StyledHeight(bi, st & 0xf, s)
+      const tw = this.textWidth(s, ds)
+      if (tw < 1 || clip < 1) return
+      const x0 = Math.max(0, px - ((sw * m.u8(ab + 4)) >> 1)) + tx + ((m.u8(ab + 2) * Math.max(0, sw - tw)) >> 1)
+      const y0 = Math.max(0, py - ((sh * m.u8(ab + 5)) >> 1)) + ty + ((m.u8(ab + 3) * (sh - this.textHeight(s, ds))) >> 1)
+      this.wrapDraw(s, x0, y0, clip, ds, m.u8(v + 0x1e), m.u8(v + 0x17))
+    } else this.bel2Draw(bi, px + tx, py + ty, st & 0xf, s, clip)
+  }
+  // juicejstr__js_JWrapString (0x8c67c0): lines are measured glyph by glyph and broken at the last
+  // space before the width is reached (inside a word when it has none) or at a carriage return; a
+  // leading space of a line is skipped; at most maxLines lines (0: all), each one line height plus gap
+  // below the previous; no ellipsis
+  wrapDraw(s: string, x: number, y: number, width: number, ds: number, maxLines: number, gap: number) {
+    let i = 0
+    let lines = 0
+    let dy = 0
+    while (i < s.length && (maxLines === 0 || lines !== maxLines)) {
+      if (s[i] === ' ') i++
+      let n = 0
+      let lastSpace = 0
+      let w = 0
+      let k = i
+      for (; k < s.length; k++) {
+        const c = s[k]
+        if (c === '\r') { n = k - i + 1; break }
+        if (c === ' ') lastSpace = k - i
+        w += this.textWidth(c, ds)
+        if (width >= 1 && width <= w) { n = lastSpace || k - i; break }
       }
-      lines.push(cur)
+      if (k >= s.length) n = s.length - i
+      if (n <= 0) n = 1
+      this.drawText(s.slice(i, i + n).replace('\r', ''), x, y + dy, ds)
+      dy += this.lineHeight(ds) + gap
+      lines++
+      i += n
     }
-    this.drawText(lines.join('\r'), x, y, ds)
   }
 
   // FUN_008ce774 + FUN_008cceb0 (list: background, items, current value)
@@ -553,8 +748,15 @@ export class Juice {
     const a = this.T.JuiceLists + idxOf(w) * 0xe0
     const n = this.listCount(w)
     if (!n || this.env.state(w) < 4) return
-    const ls = this.env.list?.(w)
-    if (!ls) return
+    const mode71 = m.u8(a + 0x71)
+    if (mode71 !== 1 && mode71 !== 3) {
+      // collapsed: only the current value (indicators such as the mute icon)
+      const vy = m.u8(a + 0x70) === 2 ? y - ((m.s16(a + 0x66) * m.u8(a + 0x73)) >> 1) : y
+      this.listValueDraw(w, x, vy, flags, this.env.get(this.prop(w), w))
+      return
+    }
+    const cur0 = this.listValueIndex(w)
+    const ls = this.env.list?.(w) ?? { focus: cur0, top: cur0, expanded: true }
     const alt = !!(flags & F.ALT)
     const ib = alt ? m.s16(a + 0x52) : m.s16(a + 0x50)
     const iss = alt ? m.u16(a + 0x7e) : m.u16(a + 0x7c)
@@ -569,7 +771,11 @@ export class Juice {
     const shown: number[] = []
     for (let k = 0; k < n; k++) if (avail[k]) shown.push(k)
     const rows = this.listRows(w)
+    // the window keeps the focus (the value item for plain lists) visible
+    const anchor = shown.indexOf(radio ? ls.focus : cur)
     let first = Math.max(0, Math.min(ls.top, shown.length - rows))
+    if (anchor >= 0 && anchor < first) first = anchor
+    if (anchor >= 0 && anchor >= first + rows) first = anchor - rows + 1
     if (shown.length <= rows) first = 0
     let xx = x
     let yy = y

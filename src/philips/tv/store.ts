@@ -37,13 +37,15 @@ const initial = (): TvState => ({
 
 function load(): TvState {
   const s = initial()
+  const q = typeof location !== 'undefined' ? new URLSearchParams(location.search) : null
+  const lang = q?.get('lang') // test hook: ?lang=<menu language code> (fw/strings.ts LANGUAGES)
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) return { ...s, ...JSON.parse(raw), power: 'on' }
+    if (raw) return { ...s, ...JSON.parse(raw), power: 'on', ...(lang ? { lang } : {}) }
   } catch {
     /* storage unavailable: start fresh */
   }
-  return s
+  return lang ? { ...s, lang } : s
 }
 
 let state: TvState = load()

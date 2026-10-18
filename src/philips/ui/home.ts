@@ -16,6 +16,7 @@ const ITEMS = [8, 0, 5]
 
 export class HomeScreen implements Screen {
   name = 'home'
+  covers = true
   layer = 10
   modal = true
   focus = 0
