@@ -183,8 +183,11 @@
 .m13-btn { display: flex; align-items: center; justify-content: center; border: 26px solid transparent; border-image: url('/f13/menu/btn_normal.png') 26 fill stretch; }
 .m13-btn--focus { border-image: url('/f13/menu/btn_focused.png') 26 fill stretch; }
 .m13-btn span { position: absolute; left: -18px; right: -18px; text-align: center; font-size: 24px; color: #fff; white-space: nowrap; overflow: hidden; }
-.m13-pin-text { display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; text-align: center; }
-.m13-pin-box { display: flex; align-items: center; justify-content: center; font-size: 40px; color: #fff; border: 2px solid #8e8e8e; background: #1d1d1d; }
+.m13-pin-text { display: flex; align-items: center; justify-content: center; font-size: 24px; line-height: 33px; color: #fff; text-align: center; white-space: pre-wrap; }
+/* CButton composite with no slice rects: the 82x77 box images scaled to the 120x96 box (inferred) */
+.m13-pin-box { background: url('/f13/menu/input_box_normal.png') 0 0 / 100% 100% no-repeat; }
+.m13-pin-box--hl { background-image: url('/f13/menu/input_box_highlight.png'); }
+.m13-pin-box img { position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; transform: translate(-50%, -50%); }
 
 /* action windows (CMenuActionWindowBase on CDefaultWindow) */
 .m13-awin, .m13-awin > div, .m13-awin > img { position: absolute; }
@@ -223,3 +226,4 @@
 .m13-st-info > span { position: relative; }
 .m13-st-info-value { color: #86b7e3; }
 .m13-st-speaker { position: absolute; width: 106px; height: 106px; }
+.m13-cpin-text { display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; white-space: pre-wrap; text-align: center; }

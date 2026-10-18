@@ -3,7 +3,9 @@ import { getTv, setSetting, setTv } from '../../tv/store'
 import type { MenuItem } from './types'
 import { defaultValue, getValue, optionText, setValue } from './values'
 import type { MsgBox, Widget } from './widgets'
+import { createElement } from 'react'
 import { actionWindow } from './actionwin'
+import { ChangePin, resetSmartHub, smartHubOffline, updateNow } from './pinflows'
 
 // What OK on a Menu item does. The kind comes from the emulated CMenuMainWindow::t_MenuItemController
 // result baked into the tree (`ok`), the widget type from CMenuMainWidgetAgency::
@@ -127,9 +129,17 @@ export function itemAction(it: MenuItem, ctx: Ctx): Widget | null {
     if (it.v) return { kind: 'sliderAW', item: it, items: ctx.siblings.filter(s => s.v && (s.ok ?? '').startsWith('hide action:') && s.en !== false) }
     if (it.o) return { kind: 'sublistAW', item: it }
   }
+  if (ok === 'pin:smarthubreset') return resetSmartHub(it)
   if (ok.includes('pin:')) {
     return { kind: 'pin', item: it, then: () => afterPin(it, ctx, picMode) }
   }
+  if (ok === 'action:swu-now') return updateNow(it)
+  if (ok === 'app:smarthub') {   // On TV Setup, Open Smart Hub
+    ctx.close()
+    openApp('smarthub', { from: 'menu' })
+    return null
+  }
+  if (ok === 'app:smarthub-signin' || ok === 'action:terms' || ok === 'action:social' || ok === 'action:properties') return smartHubOffline(it)
   const wt = WIDGET_TYPE[it.id] ?? 1
   if (ok.includes('widget')) {
     if (wt === 0) {
@@ -147,6 +157,7 @@ export function itemAction(it: MenuItem, ctx: Ctx): Widget | null {
 
 function afterPin(it: MenuItem, ctx: Ctx, picMode: () => string): Widget | null {
   if (it.id === 0x6e9) return { kind: 'msg', item: it, boxes: messages(it, ctx, picMode) ?? [] }
+  if (it.id === 0x3cb) return { kind: 'custom', item: it, render: p => createElement(ChangePin, { item: it, ...p }) }
   if (it.o?.length) return { kind: 'popup', item: it }
   if (it.k?.length) {
     ctx.enterChild(it)

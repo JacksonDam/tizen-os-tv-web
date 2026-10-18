@@ -22,7 +22,7 @@ export type Widget =
   | { kind: 'sliderAW'; item: MenuItem; items: MenuItem[] }
   | { kind: 'bar'; item: MenuItem }
   | { kind: 'msg'; item?: MenuItem; boxes: MsgBox[] }
-  | { kind: 'pin'; item: MenuItem; then: () => Widget | null | void }
+  | { kind: 'pin'; item: MenuItem; text?: string; then: () => Widget | null | void }
   | { kind: 'custom'; item?: MenuItem; hideMenu?: boolean; render: (p: AWProps) => ReactNode }
 
 export type MsgBox = {
@@ -401,17 +401,26 @@ function MessageBoxes({ boxes, onClose, onExitMenu, onChange }: Props & { boxes:
 }
 
 // ---------------------------------------------------------------------------------------------
-// CPinNumberWidget (AppMWOSDInfo PINNUMBERWIDGET_*): 608x397 centred, title + contents text,
-// four PIN boxes, Cancel button. The TV's PIN is 0000 until changed (menu.pin).
+// CPinNumberWidget as CMenuWindowManager::t_ShowPinNumberWindow @02592bec shows it: no title
+// (PINNUMBERWIDGET_NOTITLE_*: 608x336 centred), contents (26,19) 556x128 centre/middle size 24 (M 0x75b,
+// or M 0x18 for the country items), four boxes (66 + 117 i, 139) 120x96 (Common/input_box_normal,
+// input_box_highlight on the next box, Common/input_character per entered digit), Cancel (216,256)
+// 176x53, hidden after 60 s. The TV's PIN is 0000 until changed (menu.pin).
 
 export function currentPin() {
   return String(getSetting<string>('menu.pin', '0000'))
 }
 
+export const PIN_TEXT = 'Enter your PIN by using the number buttons on the remote control.'
+
 function PinWidget({ widget, onClose, onExitMenu, onChange }: Props & { then: () => Widget | null | void }) {
   const w = widget as Extract<Widget, { kind: 'pin' }>
   const [digits, setDigits] = useState('')
   const [wrong, setWrong] = useState(false)
+  useEffect(() => {
+    const t = setTimeout(onClose, 60000)
+    return () => clearTimeout(t)
+  }, [digits])  // eslint-disable-line react-hooks/exhaustive-deps
   useRemote((k: RemoteKey) => {
     if (k.startsWith('Digit')) {
       const d = digits + k.slice(5)
@@ -422,6 +431,7 @@ function PinWidget({ widget, onClose, onExitMenu, onChange }: Props & { then: ()
         if (next) onChange(next)
         else onClose()
       } else {
+        // (inferred) a wrong PIN clears the boxes and shows M 0x78c in the contents
         setDigits('')
         setWrong(true)
       }
@@ -430,21 +440,32 @@ function PinWidget({ widget, onClose, onExitMenu, onChange }: Props & { then: ()
     else return k !== 'Home' && k !== 'VolumeUp' && k !== 'VolumeDown'
     return true
   })
-  const W = 608, H = 397
+  return <PinBox text={wrong ? 'Incorrect PIN. Please check and try again.' : (w.text ?? PIN_TEXT)} digits={digits.length} />
+}
+
+export function PinBox({ text, digits, cancelFocus = true }: { text: string; digits: number; cancelFocus?: boolean }) {
+  const W = 608, H = 336
   return (
-    <div className="m13-pin" style={{ left: 640 - 304, top: 360 - 198, width: W, height: H }}>
+    <div className="m13-pin" style={{ left: 640 - 304, top: 360 - 168, width: W, height: H }}>
       <div className="m13-msg-shadow" style={{ left: -10, top: -10, width: W + 21, height: H + 21 }} />
+      <div className="m13-msg-alpha" style={{ opacity: transparencyAlpha() }} />
       <div className="m13-msg-bg" />
-      <div className="m13-pin-text" style={{ left: 26, top: 80, width: 556, height: 128 }}>
-        {wrong ? 'Invalid PIN. Please try again.' : 'Enter your PIN.'}
-      </div>
+      <div className="m13-pin-text" style={{ left: 26, top: 19, width: 556, height: 128 }}>{text}</div>
+      <PinBoxes x={66} y={139} digits={digits} />
+      <div className={`m13-btn${cancelFocus && digits >= 4 ? ' m13-btn--focus' : ''}`} style={{ left: 216, top: 256, width: 176, height: 53 }}><span>Cancel</span></div>
+    </div>
+  )
+}
+
+export function PinBoxes({ x, y, digits, active = true }: { x: number; y: number; digits: number; active?: boolean }) {
+  return (
+    <>
       {[0, 1, 2, 3].map(i => (
-        <div key={i} className="m13-pin-box" style={{ left: 66 + i * 117, top: 200, width: 120 - 24, height: 96 - 40 }}>
-          {i < digits.length ? '*' : i === digits.length ? '' : ''}
+        <div key={i} className={`m13-pin-box${active && i === digits ? ' m13-pin-box--hl' : ''}`} style={{ left: x + i * 117, top: y, width: 120, height: 96 }}>
+          {i < digits && <img src={`${IMG}/input_character.png`} alt="" />}
         </div>
       ))}
-      <div className="m13-btn m13-btn--focus" style={{ left: 216, top: 317, width: 176, height: 53 }}><span>Cancel</span></div>
-    </div>
+    </>
   )
 }
 
