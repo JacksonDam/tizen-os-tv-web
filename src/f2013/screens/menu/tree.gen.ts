@@ -2911,8 +2911,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Sports Mode",
     "r": 0,
     "ok": "",
-    "h": "Sports Mode optimises your settings for when you're watching sports.",
-    "en": false
+    "h": "Sports Mode optimises your settings for when you're watching sports."
    },
    {
     "id": 28726,

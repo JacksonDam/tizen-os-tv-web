@@ -1,5 +1,5 @@
 import { openApp } from '../../shell'
-import { getTv, setSetting, setTv } from '../../tv/store'
+import { getSetting, getTv, setSetting, setTv } from '../../tv/store'
 import type { MenuItem } from './types'
 import { defaultValue, getValue, optionText, setValue } from './values'
 import type { MsgBox, Widget } from './widgets'
@@ -113,6 +113,13 @@ export function itemAction(it: MenuItem, ctx: Ctx): Widget | null {
     openApp('pnp', { from: 'menu' })
     return null
   }
+  if (it.id === 0x2c9) {   // Sports Mode: CSoccerModeItem::SetMenuItemData sends event 0x1820 to the TV
+    // viewer, which switches the mode and shows its banner (inferred: the Menu closes; the banner is the
+    // TV viewer's). Kept as setting 'sportsMode' (1 on, 0 off).
+    setSetting('sportsMode', getSetting<number>('sportsMode', 0) ? 0 : 1)
+    ctx.close()
+    return null
+  }
   if (it.id === 0x38) {    // Picture Off: picture off until a key is pressed (item help text)
     setSetting('menu.picture-off', 1)
     ctx.close()
@@ -157,6 +164,9 @@ export function itemAction(it: MenuItem, ctx: Ctx): Widget | null {
 
 function afterPin(it: MenuItem, ctx: Ctx, picMode: () => string): Widget | null {
   if (it.id === 0x6e9) return { kind: 'msg', item: it, boxes: messages(it, ctx, picMode) ?? [] }
+  // Transfer Channel List (Import from USB / Export to USB): no USB device on the mocked set, M 0x87a
+  // (inferred: shown before the import / export choice)
+  if (it.id === 0x2bc) return { kind: 'msg', item: it, boxes: [{ text: 'No USB connected. Please check connection and retry.', buttons: OK }] }
   if (it.id === 0x3cb) return { kind: 'custom', item: it, render: p => createElement(ChangePin, { item: it, ...p }) }
   if (it.o?.length) return { kind: 'popup', item: it }
   if (it.k?.length) {
