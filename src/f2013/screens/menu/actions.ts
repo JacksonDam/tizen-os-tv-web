@@ -6,7 +6,7 @@ import type { MsgBox, Widget } from './widgets'
 import { createElement } from 'react'
 import { actionWindow } from './windows'
 import { ChangePin } from './pinflows'
-import { resetSmartHub, smartHubOffline, updateNow } from './flows'
+import { resetSmartHub, smartHubOffline, smartHubOnline, updateNow } from './flows'
 
 // What OK on a Menu item does. The kind comes from the emulated CMenuMainWindow::t_MenuItemController
 // result baked into the tree (`ok`), the widget type from CMenuMainWidgetAgency::
@@ -150,7 +150,8 @@ export function itemAction(it: MenuItem, ctx: Ctx): Widget | null {
     openApp('smarthub', { from: 'menu' })
     return null
   }
-  if (ok === 'app:smarthub-signin' || ok === 'action:terms' || ok === 'action:social' || ok === 'action:properties') return smartHubOffline(it)
+  if (ok === 'app:smarthub-signin' || ok === 'action:terms') return smartHubOnline(it, ctx.close)
+  if (ok === 'action:social' || ok === 'action:properties') return smartHubOffline(it)
   const wt = WIDGET_TYPE[it.id] ?? 1
   if (ok.includes('widget')) {
     if (wt === 0) {

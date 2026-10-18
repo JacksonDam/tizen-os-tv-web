@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useRemote, type RemoteKey } from '../../../input/remote'
-import { setSmartHub } from '../../tv/online'
+import { setSmartHub, useSmartHub } from '../../tv/online'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { MessageBox } from '../setup/wizard/widgets'
 import { Wizard, type WizFocus } from '../setup/wizard/Wizard'
@@ -48,12 +48,16 @@ export type TermsProps = {
   onPrev: () => void
   onNext: () => void        // after agreeing
   onExit?: () => void       // RETURN / EXIT outside Plug & Play
+  // Menu > Smart Features > Terms & Policy (the agreement can be changed or withdrawn, HomePanel 0x1a):
+  // the boxes start from the stored agreement and Next stores whatever is checked (inferred)
+  fromMenu?: boolean
 }
 
-export function TermsPage({ step, total, smartHubStep, hiding, onPrev, onNext, onExit }: TermsProps) {
+export function TermsPage({ step, total, smartHubStep, hiding, onPrev, onNext, onExit, fromMenu }: TermsProps) {
+  const stored = useSmartHub().agreed
   const [loading, setLoading] = useState(true)
   const [frame, setFrame] = useState(0)
-  const [agreed, setAgreed] = useState<boolean[]>(DOCS.map(() => false))
+  const [agreed, setAgreed] = useState<boolean[]>(() => DOCS.map(() => stored))
   const [focus, setFocus] = useState<F>({ row: 0, col: 0 })
   const [msg, setMsg] = useState<string | null>(null)
   const [detail, setDetail] = useState<number | null>(null)
@@ -72,6 +76,11 @@ export function TermsPage({ step, total, smartHubStep, hiding, onPrev, onNext, o
 
   const all = agreed.every(Boolean)
   const next = () => {
+    if (fromMenu) {
+      setSmartHub({ agreed: all })
+      onNext()
+      return
+    }
     if (!all) {
       const a = DOCS.find(d => d.type === 1)!.title
       const b = DOCS.find(d => d.type === 2)!.title
@@ -105,7 +114,10 @@ export function TermsPage({ step, total, smartHubStep, hiding, onPrev, onNext, o
     const { row, col } = focus
     if (k === 'Up' && row > 0) move({ row: row - 1, col: row - 1 === 0 ? 0 : col })
     else if (k === 'Down' && row < DOCS.length) move({ row: row + 1, col: row === 0 ? 0 : col })
-    else if (k === 'Left') move(row > 0 && col === 1 ? { row, col: 0 } : 'prev')
+    else if (k === 'Left') {
+      if (row > 0 && col === 1) move({ row, col: 0 })
+      else if (!fromMenu) move('prev')
+    }
     else if (k === 'Right') move(row > 0 && col === 0 ? { row, col: 1 } : 'next')
     else if (k === 'Enter') {
       playUi(UI_SOUND.SELECT)
@@ -126,7 +138,7 @@ export function TermsPage({ step, total, smartHubStep, hiding, onPrev, onNext, o
         step={step}
         total={total}
         smartHubStep={smartHubStep}
-        prev={loading ? 'disabled' : 'normal'}
+        prev={fromMenu ? 'hidden' : loading ? 'disabled' : 'normal'}
         next={loading ? 'disabled' : 'normal'}
         focus={wfocus}
         bubble={wfocus === 'content' && !loading ? 'next' : undefined}

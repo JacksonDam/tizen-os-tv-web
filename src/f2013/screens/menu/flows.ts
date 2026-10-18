@@ -1,3 +1,7 @@
+import { createElement as h } from 'react'
+import { setSmartHub } from '../../tv/online'
+import { online } from '../net/data'
+import { TermsPage } from '../net/Terms'
 import type { MenuItem } from './types'
 import type { Widget } from './widgets'
 
@@ -8,8 +12,11 @@ export function resetSmartHub(it: MenuItem): Widget {
     kind: 'pin',
     item: it,
     text: 'All Smart Hub settings, downloaded apps and accounts stored on your TV will be reset (taking about 1 min).\nEnter your PIN to reset now.',
+    // the reset clears the Smart Hub's terms agreement and accounts (the PIN text above; inferred: the
+    // stored state changes as the reset starts)
     then: () => ({
       kind: 'msg',
+      ...(setSmartHub({ agreed: false, account: null }), {}),
       item: it,
       boxes: [
         { text: 'Resetting all settings...', timeout: 3000 },
@@ -21,6 +28,29 @@ export function resetSmartHub(it: MenuItem): Widget {
 
 // Smart Features items that need the Smart Hub servers (sign in, account, terms, social, properties):
 // the offline TV answers with the Smart Hub's network message (HomePanel 0x14; inferred).
+// Online (spec/online-net2013.md):
+//  - Terms & Policy (0x704c, the Smart Hub's own disclaimer menu, CHomeDisclaimerMenu*): the terms
+//    page in the wizard frame without steps, the boxes as stored; Next stores the agreement
+//  - Samsung Account > Sign In / Create Account / Terms & Conditions, Privacy Policy: the Menu closes
+//    (event 0x1b40) and the Settings app runs the "_ACCOUNT_" widget ("SignIn", "TermsConditions" ...,
+//    CSettingAppBase::t_OnEvent @01c7b968 -> CInfoLink2Wrapper::RunWidget @0195fdf4 -> app 0x4d). That
+//    widget and the widget engine are not part of this firmware update, so nothing opens and the TV
+//    shows the picture again (the account UI the footage shows, EhQ9pDtWV4M 3:23, is the widget's).
+export function smartHubOnline(it: MenuItem, close: () => void): Widget | null {
+  if (!online()) return smartHubOffline(it)
+  if (it.id === 0x704c) {
+    return {
+      kind: 'custom',
+      item: it,
+      hideMenu: true,
+      render: p => h('div', { className: 'm13-net-stage' },
+        h(TermsPage, { step: 0, total: 0, smartHubStep: 0, fromMenu: true, onPrev: p.close, onNext: p.close, onExit: p.close })),
+    }
+  }
+  close()
+  return null
+}
+
 export function smartHubOffline(it: MenuItem): Widget {
   return {
     kind: 'msg',
