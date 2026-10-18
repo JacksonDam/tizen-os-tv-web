@@ -9,7 +9,6 @@ import { argb, img } from '../common'
 import { chMode, navList, type ChMode } from '../navmode'
 import { CategoryPopup, categoryItems } from './CategoryPopup'
 import { QuickNavi } from './QuickNavi'
-import { DetailInfo } from './DetailInfo'
 import { C, L } from './layout'
 import { currentTimeStr, dayTexts, timeStr } from './time'
 import { DOTS, fitText, textWidth, useFontsReady, wrapText } from './text'
@@ -31,7 +30,7 @@ const SND = { UP: 1, DOWN: 2, LEFT: 3, RIGHT: 4, BACK: UI_SOUND.BACK, SELECT: UI
 
 type Row = { index: number; ch: Channel }
 type Cell = { prog: GuideProgramme; x: number; w: number }
-type Popup = null | 'category' | 'quicknav' | 'detail'
+type Popup = null | 'category' | 'quicknav'
 
 // CEpgFullRendererBase::t_DrawProgramInfo @ 027b00c8: programme cells of a row inside the page.
 // x is relative to FULL_LIST_ITEM_SELECT_X; widths run to the next programme's start position
@@ -270,20 +269,16 @@ export function GuideApp({ close }: AppProps) {
         leftRight(key)
         return true
       case 'Enter':
-        // t_OnItemPress @ 0279dd3c: an on-air programme (help 'Watch'): tune to it and return to TV
-        // (inferred: the firmware passes it to CScheduleInformation mode 5); a future one opens the
-        // detail window (t_ShowDetailInformation).
-        if (!prog || !focusRow) return true
-        if (isCurrent) {
+        // t_OnItemPress @ 0279dd3c: an on-air programme: tune to it and return to TV (inferred: the
+        // firmware hands it to CScheduleInformation mode 5). A future programme opens the programme
+        // detail window (t_ShowDetailInformation -> CDetailInformationWW), which this exhibit leaves out.
+        if (prog && focusRow && isCurrent) {
           tuneChannel(focusRow.index)
           close()
-        } else if (prog.start.getTime() > now) setPopup('detail')
+        }
         return true
       case 'Info':
-        // case 0x1f: sound 8, t_ShowInfoBox -> t_ShowDetailInformation
-        if (!prog) return true
-        playUi(SND.SELECT)
-        setPopup('detail')
+        // case 0x1f: sound 8 + t_ShowInfoBox -> CDetailInformationWW (left out, see above)
         return true
       case 'Guide':
         // m_ProcessGuideKeyPress @ 0279cf8c
@@ -486,9 +481,6 @@ export function GuideApp({ close }: AppProps) {
             }
           }}
         />
-      )}
-      {popup === 'detail' && prog && focusRow && (
-        <DetailInfo ch={focusRow.ch} prog={prog} onClose={() => setPopup(null)} />
       )}
     </div>
   )
