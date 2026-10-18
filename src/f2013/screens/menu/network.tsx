@@ -4,7 +4,7 @@ import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getSetting, setSetting } from '../../tv/store'
 import { Wizard } from '../setup/wizard/Wizard'
-import { AW, baseKeys, transparencyAlpha, type AWProps } from './actionwin'
+import { AW, baseKeys, transparencyAlpha, type AWProps } from './kit'
 import { IMG } from './parts'
 
 // Network windows the Menu opens (the network app, exeDSP CNetwork*ActionWindow, NetworkOSDInfo in the
@@ -17,7 +17,7 @@ import { IMG } from './parts'
 const NET = `${IMG}/net`
 
 export type NetType = 'Wireless' | 'Wired'
-export function netType(): NetType {
+function netType(): NetType {
   return getSetting<string>('networkType', 'Wireless') === 'Wired' ? 'Wired' : 'Wireless'
 }
 

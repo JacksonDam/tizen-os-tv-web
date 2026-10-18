@@ -2,12 +2,11 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
-import { getSetting } from '../../tv/store'
 import { OSD } from './osd'
-import { transparencyAlpha, type AWProps } from './actionwin'
+import { currentPin, PIN_TEXT, transparencyAlpha, type AWProps } from './kit'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
-import { getValue, optionText, setValue } from './values'
+import { getValue, setValue } from './values'
 
 // Widgets and action windows the Menu opens for an item.
 //  popup      CPopUpWidget sublist inside the Menu (CMenuMainWidgetAgency, widget type 1)
@@ -407,11 +406,6 @@ function MessageBoxes({ boxes, onClose, onExitMenu, onChange }: Props & { boxes:
 // input_box_highlight on the next box, Common/input_character per entered digit), Cancel (216,256)
 // 176x53, hidden after 60 s. The TV's PIN is 0000 until changed (menu.pin).
 
-export function currentPin() {
-  return String(getSetting<string>('menu.pin', '0000'))
-}
-
-export const PIN_TEXT = 'Enter your PIN by using the number buttons on the remote control.'
 
 function PinWidget({ widget, onClose, onExitMenu, onChange }: Props & { then: () => Widget | null | void }) {
   const w = widget as Extract<Widget, { kind: 'pin' }>
@@ -469,4 +463,3 @@ export function PinBoxes({ x, y, digits, active = true }: { x: number; y: number
   )
 }
 
-export { optionText }

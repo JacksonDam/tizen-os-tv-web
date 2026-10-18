@@ -3,7 +3,8 @@ import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getTv } from '../../tv/store'
-import { ActionFrame, AW, baseKeys, MODEL_CODE, SW_VERSION, type AWProps } from './actionwin'
+import { ActionFrame } from './actionwin'
+import { AW, baseKeys, MODEL_CODE, SW_VERSION, type AWProps } from './kit'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
 import { getValue, setValue } from './values'
@@ -139,7 +140,7 @@ export function SoundTest({ item, ...p }: TestProps) {
 
 // ---- Result: CSelfTestCompleteActionWindow (window size 2 = 602x557 centred, title = the test, one
 // Close button; text (33,64) 536 wide, size 24, row gap 6; t_SetCompleteMessage) ----
-export function selfTestResultText(testId: number, result: 0 | 1) {
+function selfTestResultText(testId: number, result: 0 | 1) {
   if (result === 1) {
     return 'Please contact the Samsung Call Centre.' + '\n' +
       'Be ready to provide this information to the advisor.' +

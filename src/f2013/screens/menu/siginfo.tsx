@@ -2,7 +2,8 @@ import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { currentChannel, getTv, tuneChannel, useTv } from '../../tv/store'
-import { ActionFrame, AW, baseKeys, type AWProps } from './actionwin'
+import { ActionFrame } from './actionwin'
+import { AW, baseKeys, type AWProps } from './kit'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
 
@@ -19,7 +20,7 @@ import type { MenuItem } from './types'
 // (GetMenuItemDataText: modulation types 1/2/0xb/0xe), a steady SNR per multiplex and "Lock"
 // (inferred mock measurements; the firmware formats SNR as "%.2f dB").
 
-export function signalOf(rf: number | undefined) {
+function signalOf(rf: number | undefined) {
   const snr = 26 + ((rf ?? 0) % 5) * 1.25           // (inferred) mocked measurement
   const level = Math.min(10, Math.round((snr - 14) / 1.6))
   return { snr, level }

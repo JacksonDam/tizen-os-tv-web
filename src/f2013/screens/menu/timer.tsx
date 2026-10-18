@@ -3,7 +3,8 @@ import type { RemoteKey } from '../../../input/remote'
 import { useRemote } from '../../../input/remote'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getSetting, getTv, setSetting } from '../../tv/store'
-import { ActionFrame, baseKeys, type AWProps } from './actionwin'
+import { ActionFrame } from './actionwin'
+import { baseKeys, type AWProps } from './kit'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
 import { VALUE_TEXT } from './values'
@@ -41,7 +42,7 @@ function save(id: number, t: Timer) {
 }
 
 const pad = (n: number) => String(n).padStart(2, '0')
-export function timerText(id: number) {
+function timerText(id: number) {
   const t = load(id)
   return t.repeat === 0 ? 'Off' : `${pad(t.hour)}:${pad(t.minute)}`
 }

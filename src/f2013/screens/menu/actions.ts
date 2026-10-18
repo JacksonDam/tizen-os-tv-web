@@ -4,8 +4,9 @@ import type { MenuItem } from './types'
 import { defaultValue, getValue, optionText, setValue } from './values'
 import type { MsgBox, Widget } from './widgets'
 import { createElement } from 'react'
-import { actionWindow } from './actionwin'
-import { ChangePin, resetSmartHub, smartHubOffline, updateNow } from './pinflows'
+import { actionWindow } from './windows'
+import { ChangePin } from './pinflows'
+import { resetSmartHub, smartHubOffline, updateNow } from './flows'
 
 // What OK on a Menu item does. The kind comes from the emulated CMenuMainWindow::t_MenuItemController
 // result baked into the tree (`ok`), the widget type from CMenuMainWidgetAgency::

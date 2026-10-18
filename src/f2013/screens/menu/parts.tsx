@@ -4,14 +4,10 @@ import { depthOffset, OSD, panelW } from './osd'
 import { HELP_IMAGE } from './helpimg.gen'
 import type { MenuItem } from './types'
 import { getValue, optionText } from './values'
+import { VALUE_OF } from './kit'
 
 export const IMG = `${F13}/menu`
 
-// Category icon files (CMenuMainWindow::t_SetCategoryItem: selected, normal, dim, + _opaque variants)
-export const CAT_ICON: Record<number, string> = {
-  0x14: '01_picture', 0x134: '02_sound', 0x1b6: '03_channel', 3: '04_network', 1: '05_smart', 2: '05_smart',
-  0x2cc: '06_system', 0x6e4: '07_support',
-}
 // MenuAnimation sequences (CMenuUtil::m_Set*IconMotion): frames per strip
 const ANIM: Record<string, string> = {
   '01_picture': 'picture', '02_sound': 'sound', '03_channel': 'channel', '04_network': 'network',
@@ -28,17 +24,6 @@ const RENDER: Record<number, [number, Kind]> = {
   13: [2, 'slider'], 14: [0, 'short'],
 }
 
-// Value shown by a container item that displays its child's value (sublist entry items)
-export const VALUE_OF: Record<number, number> = { 0x23: 0x24, 0xdb: 0xdc, 0x519: 0x51a, 0x42: 0x43, 0x64: 0x65, 0x197: 0x198, 0x297: 0x298 }
-
-export function findItem(root: MenuItem[], id: number): MenuItem | undefined {
-  for (const it of root) {
-    if (it.id === id) return it
-    const k = it.k && findItem(it.k, id)
-    if (k) return k
-  }
-  return undefined
-}
 
 // ---- category list ----
 
