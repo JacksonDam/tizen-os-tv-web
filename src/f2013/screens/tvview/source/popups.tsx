@@ -107,6 +107,8 @@ export function MessageBox({ text, onClose }: { text: string; onClose: () => voi
   return (
     <div style={{ position: 'absolute', left: L.MSG_X, top: L.MSG_Y, width: L.MSG_W, height: L.MSG_H }}>
       <Nine src="AppCM/act_popup_shadow.bmp" x={-sh} y={-sh} w={L.MSG_W + L.POP_SHADOW} h={L.MSG_H + L.POP_SHADOW} t={23} r={23} b={23} l={23} />
+      {/* CMessageBox::m_CreateAlphaDrawing: BG_ALPHA_COLOR black at the OSD transparency (0.9 inferred) */}
+      <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.9)' }} />
       <Nine src="AppCM/message_popup_bg.bmp" x={0} y={0} w={L.MSG_W} h={L.MSG_H} t={48} r={27} b={48} l={27} />
       <div style={{
         position: 'absolute', left: 40, top: 0, width: L.MSG_W - 80, height: L.MSG_H,
