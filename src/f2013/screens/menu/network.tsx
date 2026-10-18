@@ -326,6 +326,7 @@ function NetPopup({ items, focus, current }: { items: string[]; focus: number; c
   return (
     <div className="m13-popup" style={{ left: 0, top: 0, width: W, height: H }}>
       <div className="m13-popup-shadow" style={{ width: W, height: H }} />
+      <div className="m13-popup-fill" style={{ left: S, top: S, width: W - 21, height: H - 21 }} />
       <div className="m13-popup-bg" style={{ left: S, top: S, width: W - 21, height: H - 21 }} />
       <div className="m13-popup-list" style={{ left: S, top: S, width: W - 21, height: H - 21 }}>
         {items.map((t, i) => (

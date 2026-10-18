@@ -63,7 +63,8 @@ export function Widgets(props: Props) {
 }
 
 // ---------------------------------------------------------------------------------------------
-// CPopUpWidget (AppMWOSDInfo): 325 wide, height by item count, 48 px items with 22 px list margins,
+// CPopUpWidget (AppMWOSDInfo; m_CreateBackgroundImage @01927db8): opaque SUB_POPUP_BG_ALPHA_COLOR #222d3b
+// rectangle under the sub_popup_bg frame, act_popup_shadow around; 325 wide, height by item count, 48 px items with 22 px list margins,
 // list_highlight focus (320x85), list_check_icon on the current value, text at x 64.
 
 const POPUP_H = [0, 128, 162, 210, 258, 306, 354, 402]
@@ -79,6 +80,7 @@ function PopupList({ options, current, focus, x, y }: { options: [number, string
   return (
     <div className="m13-popup" style={{ left: x, top: y, width: POPUP_W, height: h }}>
       <div className="m13-popup-shadow" style={{ width: POPUP_W, height: h }} />
+      <div className="m13-popup-fill" style={{ left: SHADOW / 2 | 0, top: SHADOW / 2 | 0, width: POPUP_W - SHADOW, height: h - SHADOW }} />
       <div className="m13-popup-bg" style={{ left: SHADOW / 2 | 0, top: SHADOW / 2 | 0, width: POPUP_W - SHADOW, height: h - SHADOW }} />
       <div className="m13-popup-list" style={{ left: SHADOW / 2 | 0, top: SHADOW / 2 | 0, width: POPUP_W - SHADOW, height: h - SHADOW }}>
         {shown.map(([v, t, en], i) => {
@@ -123,7 +125,8 @@ function Popup({ item, row, onClose, onExitMenu, onValue }: Props & { item: Menu
     if (k === 'Up' || k === 'Down') move(k === 'Up' ? -1 : 1)
     else if (k === 'Enter') {
       playUi(UI_SOUND.SELECT)
-      setValue(item, opts[focus][0])
+      // Device Name > User Input opens the on-screen keyboard (not built): the name stays
+      if (!(item.id === 0x51 && opts[focus][1] === 'User Input')) setValue(item, opts[focus][0])
       onValue()
       onClose()
     } else if (k === 'Left' || k === 'Back') onClose()

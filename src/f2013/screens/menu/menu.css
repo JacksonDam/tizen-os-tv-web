@@ -130,6 +130,7 @@
 .m13-widgets { position: absolute; width: 0; height: 0; }
 .m13-popup, .m13-popup > div, .m13-aw, .m13-aw > div, .m13-msg, .m13-msg > div, .m13-pin, .m13-pin > div, .m13-menubar, .m13-menubar > div { position: absolute; }
 .m13-popup-shadow { left: 0; top: 0; border: 23px solid transparent; border-image: url('/f13/menu/cm_act_popup_shadow.png') 23 fill stretch; }
+.m13-popup-fill { background: #222d3b; }
 .m13-popup-bg { border: 48px solid transparent; border-image: url('/f13/menu/cm_sub_popup_bg.png') 48 fill stretch; }
 .m13-popup-list { overflow: hidden; }
 .m13-popup-item { position: absolute; left: 0; width: 100%; height: 48px; }

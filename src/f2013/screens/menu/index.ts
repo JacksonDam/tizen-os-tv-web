@@ -1,5 +1,6 @@
 import { openApp, registerApp, registerHotkey, registerOverlay } from '../../shell'
 import './menu.css'
+import './dynamic'
 import { MenuApp } from './Menu'
 import { applyPicture, applySoundFeedback, MenuEffects } from './effects'
 

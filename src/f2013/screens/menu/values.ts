@@ -43,6 +43,11 @@ const DEFAULTS: Record<number, number> = {
   0x80: 1, 0x81: 1,   // Anynet+ On, Auto Turn Off Yes
   0xc1d: 1,     // Auto update On (inferred)
   [(0x7035 << 8) | 1]: 1, [(0x7035 << 8) | 2]: 1, 0x1770: 1, 0x1772: 1, 0x189c: 1,
+  0x521: 0x656e67, // Primary Subtitle: English (inferred UK default; data = ISO 639-2 code)
+  0x54a: 0x656e67, // Secondary Subtitle: English (inferred)
+  0x57a: 0x656e67, // Primary Audio: English (inferred)
+  0x5a8: 0x656e67, // Secondary Audio: English (inferred)
+  0x51: 0,         // Device Name: [TV] Samsung (inferred: the first name of the list)
 }
 
 export function defaultValue(it: MenuItem): number {
@@ -55,7 +60,15 @@ export function defaultValue(it: MenuItem): number {
 // Container items that show their sublist child's value
 const ALIAS: Record<number, number> = { 0x23: 0x24, 0xdb: 0xdc, 0x519: 0x51a, 0x42: 0x43, 0x64: 0x65, 0x197: 0x198, 0x297: 0x298 }
 
+// Items whose value is another module's text setting (Plug & Play keys): Country, Menu Language
+export const TEXT_KEYS: Record<number, [string, string]> = { 0x1dd: ['country', 'United Kingdom'], 0x3b4: ['menuLanguage', 'English'] }
+
 export function getValue(it: MenuItem): number {
+  const tk = TEXT_KEYS[it.id]
+  if (tk) {
+    const v = getSetting<string>(tk[0], tk[1])
+    return it.o?.find(o => o[1] === v)?.[0] ?? 0
+  }
   if (ALIAS[it.id]) return getSetting<number>(`menu.${ALIAS[it.id]}`, DEFAULTS[ALIAS[it.id]] ?? defaultValue(it))
   return getSetting<number>(`menu.${it.id}`, defaultValue(it))
 }
@@ -69,6 +82,11 @@ const MIRROR: Record<number, (it: MenuItem, v: number) => [string, string | numb
 }
 
 export function setValue(it: MenuItem, v: number) {
+  const tk = TEXT_KEYS[it.id]
+  if (tk) {
+    setSetting(tk[0], optionText(it, v))
+    return
+  }
   setSetting(`menu.${it.id}`, v)
   const m = MIRROR[it.id]
   if (m) {
