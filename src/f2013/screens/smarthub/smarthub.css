@@ -660,3 +660,157 @@
 .gb__line {
   position: absolute;
 }
+
+/* ---- Films and TV Shows panel (CHomePreferredContentPanel) ---- */
+.mvp {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+}
+.mvp__title {
+  position: absolute;
+  width: 500px;
+  height: 34px;
+  line-height: 34px;
+  font-size: 32px;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+.mvp__item {
+  position: absolute;
+}
+.mvp__item img {
+  display: block;
+  width: 100%;
+}
+.mvp__cap {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  font-size: 28px;
+  line-height: 48px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 3;
+}
+
+/* ---- Films and TV Shows app (Movies2013.tsx) ---- */
+.nv {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+}
+.nv__bg {
+  position: absolute;
+  inset: 0;
+}
+.nv__page {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  font-size: 27px;
+}
+.nv__cell {
+  position: absolute;
+}
+.nv__cell img {
+  display: block;
+  width: 100%;
+}
+.nv__title {
+  margin-top: 6px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 300;
+}
+.nv__poster {
+  position: absolute;
+}
+.nv__dtitle {
+  position: absolute;
+  color: #4fd0ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nv__dinfo {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.nv__bar {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin: 0 14px;
+  background: rgba(255, 255, 255, 0.5);
+  vertical-align: middle;
+}
+.nv__syn {
+  position: absolute;
+  line-height: 1.45;
+  font-weight: 300;
+}
+.nv__btn {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.nv__btn > img:first-child {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.nv__btn span, .nv__icon {
+  position: relative;
+  margin: 0 6px;
+}
+.nv__ltitle {
+  position: absolute;
+  white-space: nowrap;
+}
+.nv__trailer {
+  position: absolute;
+}
+.nv__trailer img:first-child {
+  width: 100%;
+  height: 100%;
+}
+.nv__play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 64px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+}
+.nv__vline {
+  position: absolute;
+  width: 3px;
+  background: rgba(255, 255, 255, 0.25);
+}
+.nv__rel {
+  position: absolute;
+}
+.nv__rel img {
+  display: block;
+  width: 100%;
+}
+.nv__rel div {
+  margin-top: 4px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 300;
+}

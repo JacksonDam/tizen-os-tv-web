@@ -22,7 +22,8 @@ export type MMParams = { category?: MMCategory; from?: number; play?: StubClip; 
 
 const MM = `${IMG}/mm`
 
-type Item = { id: string; title: string; kind: 'photo' | 'video'; video?: string; seconds?: number; date?: string }
+export type MMItem = { id: string; title: string; kind: 'photo' | 'video'; video?: string; seconds?: number; date?: string }
+type Item = MMItem
 
 const USB_PHOTOS: Item[] = STUB_USB.photos.map(p => ({ id: p.id, title: p.title, kind: 'photo', date: p.date }))
 const USB_VIDEOS: Item[] = STUB_USB.videos.map(v => ({ id: v.id, title: v.title, kind: 'video', video: v.file, seconds: v.seconds }))
@@ -250,7 +251,7 @@ export function MMBrowser({ params, close }: AppProps) {
 // the progress bar (426, 13) 1085 x 69 (pb_progress_bg / bar / handle), the total time (1512, 27), the
 // title index "1 / 4" (1610, 27) 228 x 40, the file name (84, 117) 1752 x 40; texts size 38. It shows on
 // start and on keys, and hides after a few seconds (inferred 5 s).
-function VideoPlayer({ list, index, onIndex, onReturn, onExit }: {
+export function VideoPlayer({ list, index, onIndex, onReturn, onExit }: {
   list: Item[]; index: number; onIndex: (i: number) => void; onReturn: () => void; onExit: () => void
 }) {
   const it = list[index]

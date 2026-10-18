@@ -4,6 +4,8 @@ import { SmartHub } from './SmartHub'
 import './OnTvPanel'
 import './MultimediaPanel'
 import './MMBrowser'
+import './MoviesPanel'
+import './Movies2013'
 
 registerApp({ id: 'smarthub', component: SmartHub, z: 200 })
 
