@@ -83,9 +83,16 @@ export class Banner implements Screen {
     else {
       env.values.set(W('status', 641), strings.get(62)) // List: All channels
       env.values.set(W('status', 642), '')
+      // the stand-in streams carry no audio language or rating (properties 0x5a0 / 0x642)
       env.values.set(W('status', 643), '')
       env.values.set(W('status', 644), '')
       env.hidden.add(W('slider', 42))
+      // Sound (list#169, property 0x58e) and Signal (list#170, property 0x283): DVB services as MPEG-1
+      // Layer II stereo ("MPEG 2/0"), analogue stations as stereo, HDMI as digital in (inferred)
+      const hdmi = s.source.startsWith('HDMI')
+      const analogue = s.source !== 'TV' ? !hdmi : !!ch?.analogue
+      env.overrides.set(0x58e, s.source !== 'TV' ? (hdmi ? 34 : 52) : analogue ? 52 : 24)
+      env.overrides.set(0x283, s.source !== 'TV' ? (hdmi ? 29 : 23) : analogue ? 21 : 22)
     }
     void P
     j.draw(W('panel', 296), 0, 0, 0)
