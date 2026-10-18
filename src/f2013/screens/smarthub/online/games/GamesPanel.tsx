@@ -1,10 +1,10 @@
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { STUB_GAMES, stubArt } from '../../../../../shared/fictional'
 import { useRemote } from '../../../../../input/remote'
 import { openApp } from '../../../../shell'
 import { playUi, UI_SOUND } from '../../../../tv/sound'
 import { FLIP, FlipItem, type FlipTable } from '../../flip'
-import type { OnlinePanelProps } from '../../panels'
+import { useBodyFocus, type OnlinePanelProps } from '../../panels'
 import { fw, MEDIUM } from '../hubapps/assets'
 import { useDownloads, useInstalledGames } from '../hubapps/catalog'
 import type { HubParams } from './GameHub'
@@ -59,7 +59,7 @@ const FLIP_TABLE: FlipTable = {
 export function GamesPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
   const installed = useInstalledGames()
   const downloads = useDownloads()
-  const [i, setI] = useState(0)
+  const [i, setI] = useBodyFocus('i', 0)
   const ref = useRef(i)
   ref.current = i
 

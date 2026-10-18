@@ -14,7 +14,7 @@ import {
   TOP_ANI_MS, TOP_ICON_GAP_X, TOP_INIT_Y, TOP_TEXT_H, TOP_TEXT_W, TOP_TEXT_X, TOP_TEXT_Y,
 } from './data'
 import { FlipContext, normalizeMs, type Flip } from './flip'
-import { getOnlinePanel, getOnlinePanelOptions } from './panels'
+import { BodyFocusContext, getOnlinePanel, getOnlinePanelOptions, type BodyFocus } from './panels'
 import { PromoPanel } from './PromoPanel'
 import { runOwnSubmenu } from './submenuActions'
 import { SubMenu, type SubFocus, type SubSlide } from './SubMenu'
@@ -50,7 +50,7 @@ const MIN_MS = 500
 
 // What Smart Hub had focused when it handed over to an item (CHomePanelMainWindow::OnMinimizeWindow
 // keeps the focused window, +0x608); coming back to that panel restores it.
-let minimized: { panel: number; zone: Zone; sub: number } | null = null
+let minimized: { panel: number; zone: Zone; sub: number; body?: Record<string, unknown> } | null = null
 
 function nextFrame(fn: () => void) {
   requestAnimationFrame(() => requestAnimationFrame(fn))
@@ -114,6 +114,22 @@ export function Hub({ close, onSetup, startPanel, normalize = false }: {
   useEffect(() => {
     minimized = null
   }, [])
+  // each panel body's focus (panels.ts useBodyFocus), kept for the hand-over
+  const bodyFocus = useRef(new Map<number, Record<string, unknown>>())
+  const bodyCtx = useRef(new Map<number, BodyFocus>())
+  function bodyFocusOf(type: number): BodyFocus {
+    let c = bodyCtx.current.get(type)
+    if (!c) {
+      c = {
+        resume: back?.panel === type ? back.body : undefined,
+        keep: (name, value) => {
+          bodyFocus.current.set(type, { ...bodyFocus.current.get(type), [name]: value })
+        },
+      }
+      bodyCtx.current.set(type, c)
+    }
+    return c
+  }
 
   // ---- panels: activation start state (OnBeginActivateAnimation @02bc0afc); coming back, the panels
   // are at their places with alpha 0 (the minimize faded them) ----
@@ -366,7 +382,7 @@ export function Hub({ close, onSetup, startPanel, normalize = false }: {
   function launch(run: () => void, kind: 'item' | 'submenu' = 'item') {
     if (phase.current === 'minimize' || phase.current === 'exit') return
     setPhase('minimize')
-    minimized = { panel: centreType(), zone: zoneRef.current, sub: subFocusRef.current }
+    minimized = { panel: centreType(), zone: zoneRef.current, sub: subFocusRef.current, body: bodyFocus.current.get(centreType()) }
     const lin = `${MIN_FLIP_MS}ms linear`
     setPanels(ps => ps.map(p => ({ ...p, alpha: 0, tr: `opacity ${lin}` })))
     // the centred panel's tables fold away (flip.tsx), the focus glow goes at once
@@ -493,21 +509,23 @@ export function Hub({ close, onSetup, startPanel, normalize = false }: {
                   }}
                 >
                   {Body ? (
-                    <Body
-                      active={idle && isCentre && zone === 'content'}
-                      width={1920}
-                      height={1080}
-                      exitUp={() => {
-                        if (zoneRef.current !== 'content' || phase.current !== 'idle') return
-                        playUi(UI_SOUND.MOVE)
-                        setTopFocus(true)
-                      }}
-                      exitDown={() => {
-                        if (zoneRef.current !== 'content' || phase.current !== 'idle') return
-                        if (!enterSub()) playUi(UI_SOUND.NOKEY)
-                      }}
-                      launch={launchItem}
-                    />
+                    <BodyFocusContext.Provider value={bodyFocusOf(type)}>
+                      <Body
+                        active={idle && isCentre && zone === 'content'}
+                        width={1920}
+                        height={1080}
+                        exitUp={() => {
+                          if (zoneRef.current !== 'content' || phase.current !== 'idle') return
+                          playUi(UI_SOUND.MOVE)
+                          setTopFocus(true)
+                        }}
+                        exitDown={() => {
+                          if (zoneRef.current !== 'content' || phase.current !== 'idle') return
+                          if (!enterSub()) playUi(UI_SOUND.NOKEY)
+                        }}
+                        launch={launchItem}
+                      />
+                    </BodyFocusContext.Provider>
                   ) : (
                     <PromoPanel type={type} focused={zone === 'content' && isCentre} />
                   )}

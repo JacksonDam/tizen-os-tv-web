@@ -1,4 +1,4 @@
-import type { ComponentType } from 'react'
+import { createContext, useContext, useEffect, useState, type ComponentType } from 'react'
 
 // Online panel bodies. When the TV is online with the Smart Hub terms agreed (useSmartHubOnline in
 // src/f2013/tv/online.ts) the carousel (Hub.tsx) draws each panel's frame and, inside it, the body a
@@ -42,6 +42,22 @@ export type OnlinePanelOptions = {
 }
 
 export type SmartHubParams = { page?: 'welcome' | 'terms' | 'complete'; panel?: number }
+
+// The body's focused item survives the item it ran: the carousel keeps it when it hands over and gives
+// it back when Smart Hub comes back to that panel (CHomePanelMainWindow::OnMinimizeWindow keeps the
+// focused window, +0x608). A body declares its focus state with useBodyFocus in place of useState.
+export type BodyFocus = { resume?: Record<string, unknown>; keep: (name: string, value: unknown) => void }
+export const BodyFocusContext = createContext<BodyFocus>({ keep: () => {} })
+
+export function useBodyFocus<T>(name: string, initial: T) {
+  const { resume, keep } = useContext(BodyFocusContext)
+  const state = useState<T>(() => (resume && name in resume ? (resume[name] as T) : initial))
+  const value = state[0]
+  useEffect(() => {
+    keep(name, value)
+  }, [keep, name, value])
+  return state
+}
 
 const bodies = new Map<number, { body: ComponentType<OnlinePanelProps>; opts: OnlinePanelOptions }>()
 

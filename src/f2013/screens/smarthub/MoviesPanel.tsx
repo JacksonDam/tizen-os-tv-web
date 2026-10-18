@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useRemote } from '../../../input/remote'
 import { stubArt, STUB_TITLES, type StubTitle } from '../../../shared/fictional'
 import { openApp } from '../../shell'
@@ -6,7 +5,7 @@ import { playUi, UI_SOUND } from '../../tv/sound'
 import { MOVIES } from './data'
 import { FLIP, FlipItem, type FlipTable } from './flip'
 import { Glow, TextBox } from './kit'
-import { registerOnlinePanel, type OnlinePanelProps } from './panels'
+import { registerOnlinePanel, useBodyFocus, type OnlinePanelProps } from './panels'
 
 // Films and TV Shows online (CHomePreferredContentPanel, panel 2, ETableListType 5): the server's
 // featured title and recommendations in a 3 x 4 table (m_InitializeTableInfo @02bd4234, CHomeOSDInfo
@@ -63,7 +62,7 @@ function step(i: number, key: 'Up' | 'Down' | 'Left' | 'Right'): number | null {
 }
 
 export function MoviesPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
-  const [focus, setFocus] = useState(0)
+  const [focus, setFocus] = useBodyFocus('focus', 0)
   const slots = featuredSlots()
   const run = (fn: () => void) => (launch ? launch(fn) : fn())
 

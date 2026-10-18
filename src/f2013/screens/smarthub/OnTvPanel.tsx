@@ -8,7 +8,7 @@ import { currentChannel, currentSource, currentVideo, getTv, tuneChannel, useTv 
 import { hhmm, IMG, ONTV } from './data'
 import { FLIP, FlipItem, useFlip, type FlipTable } from './flip'
 import { Glow, TextBox } from './kit'
-import { registerOnlinePanel, type OnlinePanelProps } from './panels'
+import { registerOnlinePanel, useBodyFocus, type OnlinePanelProps } from './panels'
 
 // On TV (CHomeSmartLivePanel, ETableListType 1) online: a 3 x 6 table (m_InitializeTableInfo @02bd88b4,
 // CHomeOSDInfo GBHOME_SMARTLIVE_*): at GBHOME_SMARTLIVE_MAIN_GRID_POS (152, 162), columns 246 wide 30
@@ -103,7 +103,7 @@ export function OnTvPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const { rec, next } = useMemo(() => picks(now), [now.getMinutes(), tuneSeq])
   const video = useTv(currentVideo)
-  const [focus, setFocus] = useState(0)
+  const [focus, setFocus] = useBodyFocus('focus', 0)
   // the live picture goes as the minimize motion starts and comes back when Smart Hub has come back
   // (CHomeSmartLivePanel::t_OnBeginMinimizeWindow @02bd9ca4 hides the video object +0x1d84 and turns the
   // video off; t_OnEndNormalizeWindow @02bd9a10 shows it again); meanwhile the pieces carry the still

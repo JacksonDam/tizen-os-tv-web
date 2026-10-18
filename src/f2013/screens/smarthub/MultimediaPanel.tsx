@@ -6,7 +6,7 @@ import { playUi, UI_SOUND } from '../../tv/sound'
 import { HP_SCALE, IMG, MULTIMEDIA } from './data'
 import { FLIP, FlipItem, type FlipTable } from './flip'
 import { Glow } from './kit'
-import { registerOnlinePanel, type OnlinePanelProps } from './panels'
+import { registerOnlinePanel, useBodyFocus, type OnlinePanelProps } from './panels'
 
 // Photos, Videos & Music online (CHomeMultimediaPanel, panel 7, ETableListType 10). Connected, the EU
 // panel shows the server's "Most Popular" feed: four pages of 15 items (CHomeMultimediaPanel::
@@ -35,8 +35,8 @@ const cellY = (r: number) => GY + (CH + SH) * r
 const FLIP_TABLE: FlipTable = { layout: FLIP.multimedia, rect: k => ({ x: cellX(k % 5), y: cellY(Math.floor(k / 5)), w: CW, h: CH }) }
 
 export function MultimediaPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
-  const [page, setPage] = useState(1)
-  const [focus, setFocus] = useState(0)          // item index on the page, -1 = refresh button
+  const [page, setPage] = useBodyFocus('page', 1)
+  const [focus, setFocus] = useBodyFocus('focus', 0)         // item index on the page, -1 = refresh button
   const [spin, setSpin] = useState(0)
   const items = STUB_POPULAR.slice((page - 1) * PER_PAGE, page * PER_PAGE)
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react'
+import { useEffect, useRef, useSyncExternalStore, type CSSProperties } from 'react'
 import { stubArt } from '../../../../../shared/fictional'
 import { useRemote } from '../../../../../input/remote'
 import { openApp, useForeground } from '../../../../shell'
@@ -7,7 +7,7 @@ import { getSetting } from '../../../../tv/store'
 import { PinPopup } from './MoreApps'
 import { APPS } from '../../data'
 import { FLIP, FlipItem, type FlipTable } from '../../flip'
-import type { OnlinePanelProps } from '../../panels'
+import { useBodyFocus, type OnlinePanelProps } from '../../panels'
 import { fw, LIGHT, MEDIUM } from '../hubapps/assets'
 import {
   appById, PROMOTED, RECOMMENDED, SAMSUNG_APPS, startDownload, useDownloads, useInstalled, useLocked, useMyApps,
@@ -73,7 +73,7 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
   const downloads = useDownloads()
   const myApps = useMyApps()
   const pin = usePin()
-  const [pos, setPos] = useState<Pos>({ t: 'rec', i: 0 })
+  const [pos, setPos] = useBodyFocus<Pos>('pos', { t: 'rec', i: 0 })
   const posRef = useRef(pos)
   posRef.current = pos
   // the column the focus entered the merged promotion cell from, to go back down the same column
