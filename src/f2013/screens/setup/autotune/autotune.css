@@ -42,8 +42,8 @@
   height: 148px;
   box-sizing: border-box;
   border-style: solid;
-  border-width: 61.5px;
-  border-image: url('/f13/setup/wizard/wizard_highlight.png') 41 fill / 61.5px stretch;
+  border-width: 60px;
+  border-image: url('/f13/setup/wizard/wizard_highlight.png') 40 fill / 60px stretch;  /* SplitRect halves; CSS needs a centre px */
 }
 
 /* help at the right: HELP_TEXT_SIZE 17 #A9F8FF, row gap 7 */
@@ -77,8 +77,8 @@
   inset: 0;
   z-index: -1;
   border-style: solid;
-  border-width: 49.5px;
-  border-image: url('/f13/setup/scan/wizard_terms_btn_n.png') 33 fill / 49.5px stretch;
+  border-width: 48px;
+  border-image: url('/f13/setup/scan/wizard_terms_btn_n.png') 32 fill / 48px stretch;
 }
 .at-btn--sel::before { border-image-source: url('/f13/setup/scan/wizard_terms_btn_new_s.png'); }
 
@@ -106,8 +106,8 @@
   height: 32px;
   box-sizing: border-box;
   border-style: solid;
-  border-width: 15px 16.5px;
-  border-image: url('/f13/setup/scan/progress_bg_variable.png') 10 11 fill / 15px 16.5px stretch;
+  border-width: 15px;
+  border-image: url('/f13/setup/scan/progress_bg_variable.png') 10 fill / 15px stretch;
 }
 .at-fill1 {
   position: absolute;
@@ -123,8 +123,8 @@
   height: 31.5px;
   box-sizing: border-box;
   border-style: solid;
-  border-width: 15px 16.5px;
-  border-image: url('/f13/setup/scan/progress_bar_variable.png') 10 11 fill / 15px 16.5px stretch;
+  border-width: 15px;
+  border-image: url('/f13/setup/scan/progress_bar_variable.png') 10 fill / 15px stretch;
 }
 .at-pct {
   position: absolute;
@@ -151,8 +151,8 @@
   position: absolute;
   inset: 0;
   border-style: solid;
-  border-width: 13.5px;
-  border-image: url('/f13/setup/scan/wizard_list_bg.png') 9 fill / 13.5px stretch;
+  border-width: 12px;
+  border-image: url('/f13/setup/scan/wizard_list_bg.png') 8 fill / 12px stretch;
 }
 .at-cell {
   position: absolute;
