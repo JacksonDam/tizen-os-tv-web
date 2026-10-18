@@ -1,0 +1,76 @@
+/* Online Smart Hub panels (Apps, Games, Social) and the screens they open. Panel bodies are drawn in the
+   panel's 1920x1080 OSD space (CHomeOSDInfo::t_InitFullHDResolution values, = stage px); the NNavi and
+   More Apps screens say their own space where they use another. */
+
+@keyframes hub-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(var(--hub-marquee)); }
+}
+
+.hub {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+  color: #fff;
+  transform-origin: 0 0;
+}
+.hub-abs { position: absolute; }
+
+/* ---- table cells (CHomeTableLayoutListControl + CHomeAppServiceListItemRenderer) ---- */
+.hub-cell {
+  position: absolute;
+}
+/* the item background: a white rectangle, alpha GBHOME_APPS_ITEM_BACKGROUND_OPACITY_ITEM_NOT (0.06) until
+   the item has content, then ..._ITEM_OK (0.15) */
+.hub-cell__bg {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+}
+.hub-cell__icon {
+  position: absolute;
+}
+.hub-cell__text {
+  position: absolute;
+  text-align: center;
+  font-weight: 300;
+}
+.hub-cell__badge {
+  position: absolute;
+}
+.hub-cell__dim {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.hub-progress {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 6px 5px;
+}
+
+/* the focus highlight: highlight_all.png, 9-sliced with APPCMHOME_HIGHLIGHT_IMAGE_W1..H3 = 50 */
+.hub-focus {
+  position: absolute;
+  box-sizing: border-box;
+  border: 50px solid transparent;
+  border-image-slice: 50 fill;
+  border-image-width: 50px;
+  pointer-events: none;
+}
+
+/* ---- the NNavi (widget manager) OSD: 1280x720 OSD, drawn x1.5 ---- */
+.hub-runner {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+  color: #fff;
+}
