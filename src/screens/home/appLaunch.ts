@@ -43,3 +43,15 @@ export function useLaunching(): boolean {
     () => launching !== null,
   )
 }
+
+// RETURN closed the app: the Smart Hub comes back where it was (csfs stayed below the app). Other ways
+// back (Home, Exit then Home) open it on the default focus.
+let returning = false
+export function returnFromApp() {
+  returning = true
+}
+export function takeReturn(): boolean {
+  const r = returning
+  returning = false
+  return r
+}

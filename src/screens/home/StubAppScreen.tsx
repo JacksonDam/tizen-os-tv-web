@@ -3,6 +3,7 @@ import type { AppProps } from '../../apps/registry'
 import { STUB_APPS, stubArt } from '../../shared/fictional'
 import { squircleClip } from './agreed/squircle'
 import './agreed/agreed.css'
+import { returnFromApp } from './appLaunch'
 
 // The placeholder for a third-party app the firmware cannot run (the museum's stub apps): the app's
 // artwork and name. Keys behave as the TV treats a web app: RETURN at the app's first page closes it and
@@ -14,7 +15,10 @@ const clip = squircleClip(224, 224, 64)
 export function StubAppScreen({ args, onExit }: AppProps) {
   const app = STUB_APPS.find(a => a.id === args?.app) ?? STUB_APPS[0]
   useRemote(key => {
-    if (key === 'Back') onExit('hub')
+    if (key === 'Back') {
+      returnFromApp()
+      onExit('hub')
+    }
     else if (key === 'Exit') onExit('live')
     else if (key === 'Home') return false
     return true

@@ -13,7 +13,7 @@ import { ContentRow } from './agreed/ContentRow'
 import { removeLauncherItem, setLauncherOrder, useLauncher, type LauncherItem } from './launcher'
 import { MessageBox } from '../../components/MessageBox'
 import { CONTENT_ROWS, PROMOS } from './serverContent'
-import { cancelLaunch, launchApp, useLaunching } from './appLaunch'
+import { cancelLaunch, launchApp, takeReturn, useLaunching } from './appLaunch'
 import './agreed/agreed.css'
 
 const NH = `${TV}/com.samsung.tv.coba.newhome`
@@ -54,7 +54,7 @@ export function AgreedHome({ active, onSidebar, onHideHub }: Props) {
   const autoplaySound = useSetting<number>('home-autoplay-sound', 1) === 1
 
   const [restored] = useState(() => {
-    const r = resume
+    const r = takeReturn() ? resume : null
     resume = null
     return r
   })
