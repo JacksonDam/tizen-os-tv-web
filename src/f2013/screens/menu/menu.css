@@ -227,3 +227,10 @@
 .m13-st-info-value { color: #86b7e3; }
 .m13-st-speaker { position: absolute; width: 106px; height: 106px; }
 .m13-cpin-text { display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; white-space: pre-wrap; text-align: center; }
+
+/* equaliser (equaliser.tsx) */
+.m13-eq-row > * { position: absolute; }
+.m13-eq-focus { left: 8px; right: 8px; top: -17px; height: 85px; border-style: solid; border-width: 41px 40px 42px 40px; border-color: transparent; border-image: url('/f13/menu/list_highlight.png') 41 40 42 40 fill stretch; }
+.m13-eq-title { left: 42px; top: 0; height: 50px; display: flex; align-items: center; font-size: 24px; white-space: nowrap; }
+.m13-eq-mark { top: 0; width: 53px; height: 50px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
+.m13-eq-icon { top: 18px; width: 13px; height: 13px; }

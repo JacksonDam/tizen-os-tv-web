@@ -103,14 +103,10 @@ export function SoundTest({ item, ...p }: TestProps) {
     a.volume = tv.muted ? 0 : Math.min(1, tv.volume / 100)   // (inferred) TV volume scale
     audio.current = a
     a.play().catch(() => {})
-    const live = Array.from(document.querySelectorAll<HTMLMediaElement>('.f13-live video, .f13-live audio'))
-    const was = live.map(m => m.muted)
-    live.forEach(m => (m.muted = true))
     const ani = setInterval(() => setFrame(f => (f + 1) % 4), 1000)
     return () => {
       a.pause()
       clearInterval(ani)
-      live.forEach((m, i) => (m.muted = was[i]))
     }
   }, [phase])
   const result = (r: 0 | 1) => p.change?.({ kind: 'custom', item, render: q => <SelfTestResult item={item} result={r} {...q} /> })

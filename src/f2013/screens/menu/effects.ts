@@ -1,6 +1,7 @@
 import { setUiSoundLevel } from '../../tv/sound'
-import { getTv, useTv } from '../../tv/store'
-import { useEffect } from 'react'
+import { createElement, useEffect } from 'react'
+import { useRemote } from '../../../input/remote'
+import { getTv, setSetting, useTv } from '../../tv/store'
 import { defaultValue } from './values'
 
 // Menu settings that act outside the Menu.
@@ -43,7 +44,7 @@ export function applyPicture() {
     document.head.appendChild(styleEl)
   }
   const pictureOff = getTv().settings['menu.picture-off'] === 1
-  styleEl.textContent = `.f13-live { filter: ${pictureFilter()}; }${pictureOff ? ' .f13-live { visibility: hidden; }' : ''}`
+  styleEl.textContent = `.f13-live { filter: ${pictureFilter()}; }${pictureOff ? ' .f13-live { filter: brightness(0) !important; }' : ''}`
 }
 
 // Always-mounted overlay that re-applies the effects whenever the settings change.
@@ -53,5 +54,17 @@ export function MenuEffects() {
     applyPicture()
     applySoundFeedback()
   }, [s])
+  return s['menu.picture-off'] === 1 ? createElement(PictureOffKeys) : null
+}
+
+// Picture Off (item help): "Press any key (except the Power or Volume buttons) on your remote to turn
+// the screen back on." Mounted while the picture is off, so it sees keys before the apps; Power,
+// volume and mute go to the system handler first and keep the picture off. The key only turns the
+// picture back on (inferred).
+function PictureOffKeys() {
+  useRemote(() => {
+    setSetting('menu.picture-off', 0)
+    return true
+  })
   return null
 }
