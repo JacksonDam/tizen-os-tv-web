@@ -154,6 +154,7 @@ export function GuideApp({ close }: AppProps) {
   const [focusTime, setFocusTime] = useState(() => Date.now())
   const [popup, setPopup] = useState<Popup>(null)
   const homeRow = useRef(startRow)
+  const quickPaged = useRef(false)
 
   // EpgUtilBase::SetTvSource: the Guide switches the input to TV.
   useEffect(() => {
@@ -433,7 +434,7 @@ export function GuideApp({ close }: AppProps) {
       {/* help bar */}
       <div className="g13-abs g13-help" style={{ left: 0, top: L.HELP_Y, width: L.WIN_W, height: L.HELP_H }}>
         <Pic src="EPG/HelpBarBG_new.bmp" x={0} y={0} nw={1280} nh={55} />
-        {markers.map(m => (
+        {popup !== 'quicknav' && markers.map(m => (
           <div key={m.mk.key} className="g13-abs" style={{ left: m.x, top: 0, height: L.HELP_H }}>
             <Pic src={m.mk.icon} x={0} y={(L.HELP_H - m.iw) / 2} nw={34} nh={34} />
             <Text x={m.iw + L.HELP_IMGTXT_MARGIN} y={0} w={Math.ceil(m.tw) + 4} h={L.HELP_H} size={L.HELP_TEXT_SIZE} color={C.HELP_TEXT}>{m.mk.text}</Text>
@@ -456,23 +457,33 @@ export function GuideApp({ close }: AppProps) {
       {popup === 'quicknav' && (
         <QuickNavi
           canGoBack={canGoBack}
-          onClose={() => setPopup(null)}
+          canPage={rows.length > L.MAX_VISIBLE}
+          onClose={() => {
+            // ProcessQuickNaviKeyPress: after paging, the focus goes to the first row of the page
+            if (quickPaged.current) setFocus(first)
+            quickPaged.current = false
+            setPopup(null)
+          }}
           onMove={dir => {
-            if (dir === 'Left' || dir === 'Right') {
-              // t_ProcessLeftRightKey key 0/1: -/+24 hours for DVB (FlagEnableForDVB)
-              const d = 24 * HOUR
-              if (dir === 'Left') {
-                if (pageStart <= nowHour) return
-                const np = Math.max(nowHour, pageStart - d)
-                setPageStart(np)
-                setFocusTime((focusCell?.prog.start.getTime() ?? np) - (pageStart - np))
-                playUi(SND.LEFT)
-              } else {
-                setPageStart(pageStart + d)
-                setFocusTime((focusCell?.prog.start.getTime() ?? pageStart) + d)
-                playUi(SND.RIGHT)
-              }
-            } else upDown(dir === 'Up' ? 'ChannelUp' : 'ChannelDown')
+            if (dir === 'Up' || dir === 'Down') {
+              quickPaged.current = true
+              upDown(dir === 'Up' ? 'ChannelUp' : 'ChannelDown')
+              return
+            }
+            // t_ProcessLeftRightKey with key 0 / 1: -/+24 hours (FlagEnableForDVB), never before the current hour
+            const d = 24 * HOUR
+            const s0 = focusCell ? focusCell.prog.start.getTime() : pageStart
+            if (dir === 'Left') {
+              if (pageStart <= nowHour) return
+              const back = Math.min(d, pageStart - nowHour)
+              setPageStart(pageStart - back)
+              setFocusTime(s0 - back)
+              playUi(SND.LEFT)
+            } else {
+              setPageStart(pageStart + d)
+              setFocusTime(s0 + d)
+              playUi(SND.RIGHT)
+            }
           }}
         />
       )}

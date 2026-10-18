@@ -8,3 +8,4 @@
 .g13-focus { box-sizing: border-box; border-style: solid; border-width: 30px; border-image-slice: 20 fill; border-image-repeat: stretch; }
 .g13-progress { box-sizing: border-box; border-style: solid; border-width: 0 9px; border-image-slice: 0 6 fill; border-image-repeat: stretch; }
 .g13-help { overflow: hidden; }
+.g13-nine { box-sizing: border-box; border-style: solid; border-image-repeat: stretch; }
