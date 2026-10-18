@@ -97,6 +97,10 @@ export function setValue(it: MenuItem, v: number) {
   }
 }
 
+// Items whose value text the firmware builds itself (GetMenuItemDataText: On / Off Timer ...)
+export const VALUE_TEXT: Record<number, () => string> = {}
+
 export function optionText(it: MenuItem, v = getValue(it)): string {
+  if (VALUE_TEXT[it.id]) return VALUE_TEXT[it.id]()
   return it.o?.find(o => o[0] === v)?.[1] ?? ''
 }
