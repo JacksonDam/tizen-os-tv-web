@@ -71,7 +71,8 @@ export function MenuApp({ params }: AppProps) {
     let target: [number, MenuItem[]] | null = null
     if (p.page === 'network-settings') target = findPath(cats, it => it.id === 0x4d)
     else if (p.page) target = findPath(cats, it => it.t === p.page)
-    else if (p.item) target = findPath(cats, it => it.t === p.item)
+    // an item to run: prefer the leaf with that name (Picture Size: the sublist 0xa4, not its container)
+    else if (p.item) target = findPath(cats, it => it.t === p.item && !it.k?.length) ?? findPath(cats, it => it.t === p.item)
     else if (p.path?.length) target = findPath(cats, it => it.id === p.path![p.path!.length - 1])
     if (target) {
       const [ci, chain] = target
