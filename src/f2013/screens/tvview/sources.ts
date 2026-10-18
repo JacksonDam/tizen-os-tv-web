@@ -30,7 +30,7 @@ type Input = Source & {
   connected: boolean      // jack detected (t_FlagLegacyDeviceConnection)
 }
 
-const INPUTS: Input[] = [
+export const INPUTS: readonly Input[] = [
   { id: 'TV', title: 'TV', video: '', type: 'tv', sourceType: 0x00, connected: true },
   { id: 'HDMI1', title: 'HDMI1', device: 'Game', video: 'loop-life.mp4', type: 'hdmi', sourceType: 0x39, connected: true },
   { id: 'HDMI2', title: 'HDMI2/DVI', device: 'Cable STB', video: 'loop-bars.mp4', type: 'hdmi', sourceType: 0x3a, connected: true },
