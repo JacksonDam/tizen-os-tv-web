@@ -25,10 +25,16 @@ export type OnlinePanelProps = {
   exitUp: () => void
   // Down on the body's last row: focus goes to the sub menu.
   exitDown?: () => void
+  // Running an item: the body plays its select sound and calls launch(run); the carousel plays the
+  // minimize motion (CHomePanelMainWindow::OnMinimizeWindow, events 0x11901d-0x11901f) and calls run()
+  // when it completes (m_CompleteMinimizeMotion -> CHomeExecutor::ExecuteGridItem). Without launch the
+  // body calls run() itself.
+  launch?: (run: () => void) => void
 }
 
 export type OnlinePanelOptions = {
-  submenu?: (index: number) => boolean
+  // Enter on sub menu item i. `launch` is the same minimize-then-run hand-over as the prop above.
+  submenu?: (index: number, launch: (run: () => void) => void) => boolean
 }
 
 export type SmartHubParams = { page?: 'welcome'; panel?: number }
