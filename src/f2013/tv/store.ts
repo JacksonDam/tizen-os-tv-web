@@ -35,11 +35,22 @@ export type TvState = {
   muted: boolean
   settings: Record<string, string | number>
   setupDone: boolean       // first-time setup (Plug & Play) completed
+  network: NetworkState    // the mocked network connection (see ./online.ts)
+  smartHub: SmartHubState  // Smart Hub terms and account (see ./online.ts)
   switchSeq: number        // bumped by switchSource()
   tuneSeq: number          // bumped by tuneChannel()
 }
 
 const KEY = 'museum.2013.state.v1'
+
+// The museum's TVs start online: connected to the fictional "Harbour View" Wi-Fi (the 2025 exhibit's
+// neighbourhood, src/screens/connections/network.ts) with the Smart Hub terms agreed.
+export type NetworkState = { type: 'wireless' | 'wired' | 'none'; ssid: string | null; ip: string }
+export type SmartHubState = { agreed: boolean; account: string | null }
+export const ONLINE_DEFAULT: { network: NetworkState; smartHub: SmartHubState } = {
+  network: { type: 'wireless', ssid: 'Harbour View', ip: '192.168.0.23' },
+  smartHub: { agreed: true, account: null },
+}
 
 const initial: TvState = {
   power: 'on',
@@ -51,6 +62,8 @@ const initial: TvState = {
   muted: false,
   settings: {},
   setupDone: true,
+  network: ONLINE_DEFAULT.network,
+  smartHub: ONLINE_DEFAULT.smartHub,
   switchSeq: 0,
   tuneSeq: 0,
 }
