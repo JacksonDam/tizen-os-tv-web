@@ -53,7 +53,7 @@ export function SubMenu({ panel, items, slide, focus }: { panel: number; items: 
         <img
           key={`l${i}`}
           className="sh-sub__line"
-          src={`${IMG}/sub category/sub_boundary_line.png`}
+          src={`${IMG}/sub/sub_boundary_line.png`}
           alt=""
           style={{ left: x, top: SUB_LINE_Y, width: 6 * HP_SCALE, height: 48 * HP_SCALE, ...el(i * 2 + 1) }}
         />

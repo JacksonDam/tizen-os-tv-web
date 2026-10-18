@@ -264,3 +264,133 @@
   white-space: pre-line;
   overflow: hidden;
 }
+
+/* ---- shared body pieces (kit.tsx) ---- */
+.sh-glow {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 75px;
+  border-image-slice: 50 50 50 50;
+  border-image-repeat: stretch;
+  pointer-events: none;
+  z-index: 5;
+}
+.sh-tbox {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 22px 14px 16px 14px;
+  border-image-slice: 15 9 11 9 fill;
+  border-image-repeat: stretch;
+}
+
+/* ---- On TV (CHomeSmartLivePanel) ---- */
+.ontv {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+}
+.ontv__title {
+  position: absolute;
+  height: 40px;
+  line-height: 40px;
+  font-size: 32px;
+  white-space: nowrap;
+}
+.ontv__next {
+  width: 1626px;
+  display: flex;
+  align-items: center;
+}
+.ontv__next i {
+  flex: 1;
+  height: 2px;
+  margin-left: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  margin-top: 6px;
+}
+.ontv__pig {
+  position: absolute;
+  background: #000;
+  overflow: hidden;
+}
+.ontv__pig video {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+.ontv__cap {
+  position: absolute;
+  font-size: 28px;
+  line-height: 38px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 300;
+  z-index: 3;
+}
+.ontv__cap b {
+  font-weight: 500;
+}
+.ontv__item {
+  position: absolute;
+}
+.ontv__thumb {
+  position: relative;
+  overflow: hidden;
+}
+.ontv__thumb img {
+  width: 100%;
+  height: 100%;
+}
+.ontv__band {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+}
+.ontv__tt {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 3px;
+  max-height: 64px;
+  font-size: 28px;
+  line-height: 32px;
+  text-align: center;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.ontv__prog {
+  position: absolute;
+  left: 0;
+  height: 4.5px;
+  background: rgb(81, 85, 92);
+}
+.ontv__prog i {
+  display: block;
+  height: 100%;
+  background: rgb(0, 159, 241);
+}
+.ontv__upc {
+  position: absolute;
+  left: 10px;
+  font-size: 28px;
+  line-height: 38px;
+  color: rgba(48, 180, 255, 0.69);
+  white-space: nowrap;
+  z-index: 3;
+}
+.ontv__time {
+  position: absolute;
+  left: 10px;
+  font-size: 25px;
+  line-height: 38px;
+  color: rgb(0, 174, 239);
+  white-space: nowrap;
+  z-index: 3;
+}

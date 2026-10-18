@@ -259,17 +259,18 @@ export const SUBMENU: Record<number, string[]> = {
   [MULTIMEDIA]: ['All Content', 'Photos', 'Videos', 'Music', 'Recorded TV'],
 }
 
-// Focus box image per panel (m_InitializeSubMenu: g_HomePanelImage 0x1c-0x20, 0xbb, 0xed), drawn as a
+// Focus box image per panel (m_InitializeSubMenu: g_HomePanelImage 0x1c-0x20, 0xbb, 0xed = HomePanel/
+// sub category/*/<name>, copied to public/f13/smarthub/sub), drawn as a
 // 9-part composite (GBHOME_SUBMENU_FOCUS_IMAGE_W1..H3 = 24 24 12 6 24 110 in 1.5x image px).
 export const SUBMENU_FOCUS_IMG: Record<number, string> = {
-  [SOCIAL]: 'sub category/social/so_sub.png',
-  [ONTV]: 'sub category/smart guide/sg_sub.png',
-  [MOVIES]: 'sub category/movies&TVShow/ct_sub.png',
-  [APPS]: 'sub category/apps/apps_sub.png',
-  [ALLSHARE]: 'sub category/music photo&clips/mc_sub.png',
-  [NEWS]: 'sub category/info/info_sub.png',
-  [GAMES]: 'sub category/games/game_sub.png',
-  [MULTIMEDIA]: 'sub category/music photo&clips/mc_sub.png',
+  [SOCIAL]: 'sub/so_sub.png',
+  [ONTV]: 'sub/sg_sub.png',
+  [MOVIES]: 'sub/ct_sub.png',
+  [APPS]: 'sub/apps_sub.png',
+  [ALLSHARE]: 'sub/mc_sub.png',
+  [NEWS]: 'sub/info_sub.png',
+  [GAMES]: 'sub/game_sub.png',
+  [MULTIMEDIA]: 'sub/mc_sub.png',
 }
 
 // CHomeOSDInfo (t_InitFullHDResolution / t_InitCommonResolution): buttons GBHOME_SUBMENU_BUTTON_WIDTH[n]
