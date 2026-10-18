@@ -21,19 +21,29 @@ export type TvState = {
 
 const KEY = 'museum.philips-eu.state.v1'
 
-const initial = (): TvState => ({
-  power: 'on',
-  source: 'TV',
-  channels: defaultLineup(),
-  channel: 0,
-  prevChannel: 0,
-  volume: 20,
-  muted: false,
-  lang: 'en',
-  props: {},
-  zapSeq: 0,
-  volSeq: 0,
-})
+// A first visit opens on the first SD service: the lineup's HD services are MPEG-4, which this set
+// shows as "Unsupported video format" over black (an installation still ends on channel 1).
+function startChannel(l: TvChannel[]) {
+  return Math.max(0, l.findIndex(c => c.kind === 'tv' && !c.hd))
+}
+
+const initial = (): TvState => {
+  const channels = defaultLineup()
+  const channel = startChannel(channels)
+  return {
+    power: 'on',
+    source: 'TV',
+    channels,
+    channel,
+    prevChannel: channel,
+    volume: 20,
+    muted: false,
+    lang: 'en',
+    props: {},
+    zapSeq: 0,
+    volSeq: 0,
+  }
+}
 
 function load(): TvState {
   const s = initial()
