@@ -14,8 +14,8 @@ import './net.css'
 // bottom buttons "Update now" (SWU 0x39) and "Update later" (SWU 0x63), dimmed while checking; only
 // the Previous circle. The mocked server has nothing newer than T-MST12DEUC 2130.0, so the search ends
 // in CSWUMainGBUI_PnP_Popup_NoNewUpdate (OnEntry @03c1c3c8): message box type 0xf, SWU 0x5b "You
-// already have the most up to date version.", no buttons, 10 s (CSWUMainMsg_GB::ConfigMsgBox
-// @03c278ac); when it closes the state machine sends 0x2921 and Plug & Play goes on to Setup complete!
+// already have the most up to date version.", OK (SWU 0x2b), 10 s (CSWUMainMsg_GB::ConfigMsgBox
+// @03c278ac, the common tail as for the Menu's type 4); when it closes the state machine sends 0x2921 and Plug & Play goes on to Setup complete!
 // Positions are the footage's (inferred); the check takes 2.5 s (inferred, the footage's ~2 s).
 
 const CHECK_MS = 2500
@@ -78,7 +78,7 @@ export function SwUpdatePage({ step, total, smartHubStep, hiding, onPrev, onNext
         </div>
       </Wizard>
       {!checking && (
-        <MessageBox text="You already have the most up to date version." buttons={[]} timeoutMs={10000} onButton={() => onNext()} />
+        <MessageBox text="You already have the most up to date version." buttons={['OK']} timeoutMs={10000} onButton={() => onNext()} />
       )}
     </>
   )

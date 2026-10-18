@@ -31,7 +31,7 @@ function preload() {
 // Smart Hub's own setup ends on the same page (CSmartHubResetCompleteActionWindow, window 0x78a: M 0x8e6,
 // step 7 of 7 with the cube; t_ProcessCreate @02603218), passed in through `text` / `frame`.
 export type CompleteVariant = 'network' | 'noNetwork' | 'notAgreed'
-export const COMPLETE_TEXT: Record<CompleteVariant, string> = {
+const COMPLETE_TEXT: Record<CompleteVariant, string> = {
   network: S.completeNetwork,
   noNetwork: S.completeNoNetwork,
   notAgreed: S.completeNotAgreed,

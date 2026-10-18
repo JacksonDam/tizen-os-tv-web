@@ -65,6 +65,19 @@ export function smartHubOffline(it: MenuItem): Widget {
 // without a network the SWU state machine stops at CSWUMainGBUI_CheckNetwork, message type 4
 // (g_SWUUIAppWStringEng 2, one button, 10 s; CSWUMainMsg_GB::ConfigMsgBox). The SWU main window
 // behind it is not built.
+// Online (spec/online-net2013.md): the search runs (SWU 0x32 "Checking for updates…", the SWU main window
+// is not built: shown as a message box, inferred 2.5 s) and the mocked server has nothing newer than
+// T-MST12DEUC 2130.0: CSWUMainGBUI_NoNewUpdate::OnEntry @03c1aee4, message type 6 = SWU 0x31 (OK, 10 s).
 export function updateNow(it: MenuItem): Widget {
+  if (online()) {
+    return {
+      kind: 'msg',
+      item: it,
+      boxes: [
+        { text: 'Checking for updates…', timeout: 2500 },
+        { text: 'There are no new updates for you at the moment.', buttons: ['OK'], timeout: 10000 },
+      ],
+    }
+  }
   return { kind: 'msg', item: it, boxes: [{ text: 'Please check that your network has been configured.', buttons: ['OK'] }] }
 }

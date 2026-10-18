@@ -1,5 +1,5 @@
 import { useRemote, type RemoteKey } from '../../../input/remote'
-import { closeApp, openApp, registerApp, type AppProps } from '../../shell'
+import { closeApp, openApp, type AppProps } from '../../shell'
 import { GAMES, SOCIAL } from '../smarthub/data'
 import './net.css'
 
@@ -15,11 +15,11 @@ import './net.css'
 // params { from: 'menu' | 'gamehub' | 'social' }: the Games and Social panels' "You must sign in ..."
 // Yes (HomePanel 0xd8) return to their panel; the Menu's items return to the TV picture.
 
-export type AccountParams = { from?: 'menu' | 'gamehub' | 'social'; page?: 'SignIn' | 'TermsConditions' | 'CreateAccount' }
+type AccountParams = { from?: 'menu' | 'gamehub' | 'social'; page?: 'SignIn' | 'TermsConditions' | 'CreateAccount' }
 
-export const ACCOUNT_NAME = 'Samsung Account'   // M (Smart Features > Samsung Account)
+const ACCOUNT_NAME = 'Samsung Account'   // M (Smart Features > Samsung Account)
 
-function Account({ params }: AppProps) {
+export function Account({ params }: AppProps) {
   const p = (params ?? {}) as AccountParams
   const leave = () => {
     closeApp('samsungaccount')
@@ -45,4 +45,3 @@ function Account({ params }: AppProps) {
   )
 }
 
-registerApp({ id: 'samsungaccount', component: Account, z: 300 })

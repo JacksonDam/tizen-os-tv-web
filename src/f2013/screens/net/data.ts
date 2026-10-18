@@ -115,3 +115,7 @@ export function online() {
   const n = getTv().network
   return n.type === 'wireless' && isConnected(n)
 }
+
+// Set by the Menu when it opens Network Settings for Smart Hub's setup (the network app's Smart Hub
+// setup scenario 0x4b1: step 1 of 7, Previous / Next circles).
+export const netContext = { smartHubSetup: false }

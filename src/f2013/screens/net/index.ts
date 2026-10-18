@@ -1,8 +1,11 @@
 // Network 2013 (online round): the mocked Wi-Fi, the on-screen keyboard, the connection test and the
 // Smart Hub terms pages are used by the Menu, Plug & Play and Smart Hub modules (spec/online-net2013.md).
-import './Account'
+import { registerApp } from '../../shell'
+import { Account } from './Account'
 import { getTv } from '../../tv/store'
 import { setNetwork, setSmartHub } from '../../tv/online'
+
+registerApp({ id: 'samsungaccount', component: Account, z: 300 })
 
 // Test hook for captures: window.__net13.offline() / .notAgreed() / .online() / .state()
 if (typeof window !== 'undefined') {

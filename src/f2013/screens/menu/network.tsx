@@ -6,7 +6,7 @@ import { useConnected } from '../../tv/online'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { getTv } from '../../tv/store'
 import { ConnectResult } from '../net/ConnectResult'
-import { ADDR, disconnectWireless, findAp, KEY_MAX, KEY_MIN, N, netTypeNow, online, scanResults, setNetType, signalIcon, type Ap } from '../net/data'
+import { ADDR, disconnectWireless, netContext, findAp, KEY_MAX, KEY_MIN, N, netTypeNow, online, scanResults, setNetType, signalIcon, type Ap } from '../net/data'
 import { Osk } from '../net/Osk'
 import { Wizard } from '../setup/wizard/Wizard'
 import { AW, baseKeys, transparencyAlpha, type AWProps } from './kit'
@@ -223,9 +223,6 @@ const ROWS6 = 6
 
 type NSFocus = { area: 'type' } | { area: 'list'; i: number } | { area: 'btn'; i: number } | { area: 'prev' } | { area: 'next' }
 
-// set by the Menu when it opens Network Settings for Smart Hub's setup
-export const netContext = { smartHubSetup: false }
-
 export function NetworkSettings({ close, exitMenu }: AWProps) {
   const smartHubSetup = netContext.smartHubSetup
   const [type, setType] = useState<NetType>(netType)
@@ -251,7 +248,7 @@ export function NetworkSettings({ close, exitMenu }: AWProps) {
   }, [type, scan])
 
   const wireless = type === 'Wireless'
-  const aps = useMemo(() => (searching ? [] : scanResults()), [searching])  // eslint-disable-line react-hooks/exhaustive-deps
+  const aps = useMemo(() => (searching ? [] : scanResults()), [searching])
   const list: (Ap | null)[] = wireless && !searching ? [...aps, null] : []   // null = "Add Network"
   const buttons: { label: string; x: number; y: number; w: number; dim?: boolean; act: string }[] = wireless
     ? searching

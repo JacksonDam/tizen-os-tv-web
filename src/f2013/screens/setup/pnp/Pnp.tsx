@@ -120,7 +120,7 @@ export function Pnp({ params }: AppProps) {
           go={go}
           variant={!online() ? 'noNetwork' : agreed ? 'network' : 'notAgreed'}
           onPrev={() => go(online() ? (agreed ? 'swu' : 'terms') : pnp.channelSource === 'Set-top box' ? 'configure' : 'autotune')}
-          onDone={() => finishPnp(pnp.channelSource === 'Set-top box' ? pnp.stbSource : undefined, online() && agreed)}
+          onDone={() => finishPnp(pnp.channelSource === 'Set-top box' ? pnp.stbSource : undefined, !fromMenu && online() && agreed)}
         />
       )}
     </div>
