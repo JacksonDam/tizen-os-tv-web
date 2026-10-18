@@ -4,6 +4,7 @@ import { RemotePanel } from '../remote/RemotePanel'
 import { Stage } from '../stage/Stage'
 import { OsdPlane, useJuice } from './fw/osd'
 import { LiveTv } from './LiveTv'
+import { SltvPicture } from './SltvPicture'
 import { REMOTE_PHILIPS } from './remote'
 import { getTv, setTv, subscribeTv, useTv } from './tv/store'
 import { strings } from './ui/env'
@@ -44,6 +45,7 @@ export default function App() {
     <div className="shell">
       <Stage>
         <LiveTv />
+        {power === 'on' && <SltvPicture />}
         {power === 'on' && <OsdPlane juice={ready ? j : null} seq={[seq, tv]} paint={paintAll} />}
         {power !== 'on' && <div className="ph-standby" />}
       </Stage>

@@ -12,6 +12,7 @@ export interface Screen {
   draw(j: Juice, env: TvEnv): void
   key?(k: RemoteKey): boolean         // true = consumed
   modal?: boolean                     // keys stop here even if not consumed
+  passes?(k: RemoteKey): boolean      // keys a modal screen lets through (volume and mute)
   covers?: boolean                    // full-screen: the picture's banner and messages are not drawn
   osd?: number                        // the osdman#0 child panel this screen is (OSD manager rules)
 }
@@ -132,10 +133,13 @@ export function screenKey(k: RemoteKey): boolean {
       changed()
       return true
     }
-    if (s.modal) return true
+    if (s.modal && !s.passes?.(k)) return true
   }
   return false
 }
+
+// volume, mute and power stay with the TV over the full-screen applications (demos, assistant)
+export const tvKeys = (k: RemoteKey) => k === 'VolumeUp' || k === 'VolumeDown' || k === 'Mute' || k === 'Power'
 
 // one-shot timers owned by screens (OSD time-outs)
 const timers = new Map<string, ReturnType<typeof setTimeout>>()

@@ -3,7 +3,8 @@ import type { RemoteKey } from '../../input/remote'
 import { F, type Juice, W } from '../fw/juice'
 import { getProp, setProp, type TvEnv } from './env'
 import { P } from './props'
-import { hide, repaint, show, timer, type Screen } from './screens'
+import { hide, repaint, show, timer, tvKeys, type Screen } from './screens'
+import { startSltvDemo } from './sltv'
 
 // The demo application of mtv522eu (ceapdemo, properties 0x1b9..0x1e0 through ceapdemo__demoapi_*,
 // CeapPropRangeValues index 5) and its screens in panel#30, driven by the panels' event-action tables
@@ -27,13 +28,14 @@ import { hide, repaint, show, timer, type Screen } from './screens'
 //   and seven bars (slider#1..#7: Contrast, Dynamic contrast, Colour, Sharpness, DNR, Motion, Tint,
 //   properties 0x1c5, 0x1c7, 0x1c4, 0x1c9, 0x1c6, 0x1c8, 0x1ca = ceapjagcpuiapps__vctl_Get 0x3f..0x45,
 //   the picture analysis of Active Control). Key group 0x97 (red, Menu, ...) ends it (0x4149).
+// - Settings assistant (0x4220): panel#30 hides the TV menu, panel#31 and the strip, shows panel#51
+//   and sets property 0x65; the assistant (sltv.ts) runs in its demo mode in the copy panel#47.
 // - Ambilight (0x4222, panel#53) and 100 Hz Clear LCD (0x4219, panel#44) are other models'
-//   features and are not offered, like the menu hides them; the Settings assistant demo (0x4220,
-//   panel#47) needs the Settings assistant, which the exhibit does not build.
+//   features and are not offered, like the menu hides them.
 
 export const DEMO_PROP = 0x1bd
 export const DEMO_LIST = W('list', 8)
-export const DEMO_VALUES = [0, 4] // Pixel Plus, Active Control (offered on this set)
+export const DEMO_VALUES = [0, 3, 4] // Pixel Plus, Settings assistant, Active Control (offered on this set)
 export const DEMO_STRIP = W('panel', 29)
 
 type DemoState = { kind: 'pp'; full: boolean } | { kind: 'ac' } | null
@@ -163,11 +165,13 @@ export class DemoScreen implements Screen {
     }
   }
 
+  // volume and mute stay with the TV (not in the demo's blocked key group 0x7a)
+  passes = tvKeys
+
   key(k: RemoteKey) {
     const s = state
     if (!s) return false
-    // volume and mute stay with the TV (not in the demo's blocked key group 0x7a)
-    if (k === 'VolumeUp' || k === 'VolumeDown' || k === 'Mute' || k === 'Power') return false
+    if (tvKeys(k)) return false
     if (s.kind === 'pp') {
       if (k === 'Enter') setState({ kind: 'pp', full: !s.full })
       else if (k === 'Settings' || k === 'Back' || k === 'Exit') this.end() // Menu (Back: inferred)
@@ -213,6 +217,10 @@ export function startDemo(value: number, pictureAvailable: boolean, onStart: () 
     onStart()
     setState({ kind: 'pp', full: false })
     show(new DemoScreen(onEnd))
+    return true
+  }
+  if (value === 3) {
+    startSltvDemo(onStart, onEnd)
     return true
   }
   if (value === 4) {

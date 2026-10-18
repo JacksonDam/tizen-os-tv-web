@@ -275,5 +275,5 @@ fonts in `public/f13`, `public/tv` and `public/sounds` come from Samsung TV firm
 end-of-setup movie
 (`public/video/oobe_ending_2160p60.mp4`) from a capture of a Samsung TV; they remain the property of Samsung
 Electronics. App logos shown in them belong to their respective owners. The bitmaps, widget tables, menu
-texts and the Philips Screen Font 4 in `public/philips` come from Philips TV firmware and remain the property
-of their owners.
+texts, the Philips Screen Font 4 and the Settings assistant's decision tree, test pictures (JPEG) and music
+(MP3) in `public/philips` come from Philips TV firmware and remain the property of their owners.

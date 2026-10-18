@@ -57,6 +57,21 @@ html, body, #root {
   pointer-events: none;
 }
 
+/* The Settings assistant's pictures (SltvPicture.tsx) over the TV picture, under the OSD. */
+.ph-sltv {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+.ph-sltv-pic {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ph-sltv-a { clip-path: inset(0 50% 0 0); } /* display 1: 683 of 1366 columns */
+.ph-sltv-b { clip-path: inset(0 0 0 50%); } /* display 2 */
+
 .ph-osd {
   position: absolute;
   inset: 0;

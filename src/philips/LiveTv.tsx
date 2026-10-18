@@ -3,7 +3,7 @@ import { useTv } from './tv/store'
 import { useDemo } from './ui/demo'
 import { getProp } from './ui/env'
 import { P } from './ui/props'
-import { formatTransform } from './ui/options'
+import { formatTransform, pictureFilter } from './ui/options'
 import { pictureVideo } from './ui/sources'
 
 // The picture: the current channel's or input's stand-in loop. Radio services and inputs without a
@@ -26,8 +26,7 @@ export function LiveTv() {
   const brightness = getProp(P.brightness)
   const colour = getProp(P.colour)
   if (!video) return <div className="ph-live" />
-  // the sliders around the factory values (100 / 50 / 50) map to CSS filters (inferred)
-  const filter = `contrast(${0.5 + contrast / 200}) brightness(${0.6 + brightness / 125}) saturate(${colour / 50})`
+  const filter = pictureFilter(contrast, brightness, colour)
   const transform = formatTransform(getProp(P.pictureFormat))
   // Pixel Plus demo in split screen: the left half without Pixel Plus ("Off"), the right half with it
   // ("On") up to the line at x = 424 of 852; the processing difference is approximated by softening

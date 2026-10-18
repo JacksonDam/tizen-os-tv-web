@@ -62,13 +62,18 @@ export class MenuScreen implements Screen {
   name = 'menu'
   covers = true
   layer = 10
-  modal = true
   nav: NavCtl
   j: Juice
   onExit: () => void = () => hide('menu')
   smart = 0                              // Reset smart settings: focused preset (index in SMART_VALUES)
-  hidden = false                         // a demo runs: the TV menu is hidden (event 0x40f2 / 0x4148)
+  hidden = false                         // a demo or the Settings assistant runs: the TV menu is hidden
   smartSaved: Record<number, number> | null = null
+
+  // keys stop at the menu, except while a demo or the Settings assistant hides it (the keys those
+  // leave, volume and mute, go on to the TV)
+  get modal() {
+    return !this.hidden
+  }
 
   constructor(j: Juice) {
     this.j = j
@@ -131,6 +136,7 @@ export class MenuScreen implements Screen {
 
   key(k: RemoteKey): boolean {
     const nav = this.nav
+    if (this.hidden) return false
     if (k === 'Settings' || k === 'Exit') {
       if (this.smartSaved) for (const p of PICTURE) setProp(p, this.smartSaved[p]) // preview not stored
       this.smartSaved = null

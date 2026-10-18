@@ -17,6 +17,7 @@ export type TvState = {
   props: Record<number, number>
   zapSeq: number             // bumped on every channel/input change (banner, messages)
   volSeq: number
+  sltvHistory?: number       // Settings assistant A / B history (ceapnvm SltvHistoryPath, bit per step)
 }
 
 const KEY = 'museum.philips-eu.state.v1'

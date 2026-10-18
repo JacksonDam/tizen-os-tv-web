@@ -99,6 +99,11 @@ export function openPictureFormat() {
   repaint()
 }
 
+// the picture sliders around the factory values (100 / 50 / 50) as CSS filters (inferred)
+export function pictureFilter(contrast: number, brightness: number, colour: number) {
+  return `contrast(${0.5 + contrast / 200}) brightness(${0.6 + brightness / 125}) saturate(${colour / 50})`
+}
+
 // The picture of a 16:9 DVB broadcast in each format (CSS transform of the stand-in loop, inferred):
 // Auto format and Wide screen fill the screen, 4:3 shows the frame in the 4:3 centre, the expands and
 // Super zoom enlarge it.

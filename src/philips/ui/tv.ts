@@ -5,11 +5,12 @@ import { openSources, showBanner, updateMessage, volumeChanged } from './overlay
 import { openGuide } from './guide'
 import { openChannelList } from './chlist'
 import { openHome } from './home'
-import { openMenu } from './menu'
+import { openMenu, registerMenuAction } from './menu'
 import { registerInstallation } from './install'
 import { openQuickAccess } from './options'
 import { W } from '../fw/juice'
 import { repaint, show, timer } from './screens'
+import { sltvMusic, startSltv } from './sltv'
 
 // The TV layer: keys no OSD screen took (watching TV).
 
@@ -18,6 +19,15 @@ export function bootUi(j: Juice) {
   if (booted) return
   booted = true
   registerInstallation(j)
+  // TV settings > Settings assistant > Start now
+  registerMenuAction(142, ctl => {
+    startSltv(() => {
+      ctl.hidden = true
+    }, () => {
+      ctl.hidden = false
+      repaint()
+    })
+  })
   const q = new URLSearchParams(location.search)
   const at = q.get('menu')
   if (at !== null) openMenu(j, at ? at.split('.').map(Number) : [])
@@ -41,7 +51,7 @@ export function bootUi(j: Juice) {
   })
   updateMessage()
   repaint()
-  ;(window as unknown as { __ph: object }).__ph = { j, getTv }
+  ;(window as unknown as { __ph: object }).__ph = { j, getTv, sltv: sltvMusic }
 }
 
 export function tvKey(k: RemoteKey, j: Juice): boolean {
