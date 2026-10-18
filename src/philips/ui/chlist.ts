@@ -11,21 +11,25 @@ import { hide, isShown, repaint, show, timer, type Screen } from './screens'
 // list#173, name status#669); the red key opens the list choice (panel#318: list#174 All / Digital /
 // Radio / Analogue / Favourites 1-4) and status#675 is the help line (string 271).
 
-type ListId = 13 | 33 | 34 | 37 // list#174 values: All, Digital, Radio, Analogue
-const LIST_NAMES: Record<ListId, number> = { 13: 62, 33: 1021, 34: 1148, 37: 385 }
+// list#174 values: 13 All, 33 Digital, 34 Radio, 37 Analogue, 36 / 0 / 1 / 2 Favourites 1-4 (empty:
+// no favourites are set in the exhibit)
+type ListId = 13 | 33 | 34 | 37 | 36 | 0 | 1 | 2
+const LIST_IDS: ListId[] = [13, 33, 34, 37, 36, 0, 1, 2]
 
 function members(l: ListId, chs: TvChannel[]) {
   switch (l) {
     case 33: return chs.filter(c => !c.analogue && c.kind === 'tv')
     case 34: return chs.filter(c => c.kind === 'radio')
     case 37: return chs.filter(c => c.analogue)
-    default: return chs.filter(c => c.kind !== 'data')
+    case 13: return chs.filter(c => c.kind !== 'data')
+    default: return []
   }
 }
 
 export class ChannelList implements Screen {
   name = 'chlist'
   layer = 25
+  osd = 305
   modal = true
   list: ListId = 13
   row = 0
@@ -52,8 +56,18 @@ export class ChannelList implements Screen {
     env.hidden.add(W('panel', 316)) // "Empty"
     if (!r.length) env.hidden.delete(W('panel', 316))
     for (const w of [W('status', 671), W('status', 672), W('list', 175), W('list', 176), W('status', 676), W('list', 173)]) env.hidden.add(w)
-    if (!this.choosing) env.hidden.add(W('list', 174))
-    env.values.set(W('status', 667), strings.get(LIST_NAMES[this.list]))
+    // the list choice (red key): the application shows list#174 in panel#318; the rows and the help line give way to it (inferred: the list has no opaque
+    // background of its own, state style 178 is a frame)
+    // the red key's legend "Select list" (status#677) is up whenever the list is (Polish footage:
+    // "Wybierz listę")
+    env.show(W('status', 677))
+    if (this.choosing) {
+      env.show(W('list', 174))
+      for (const w of [W('dgrid', 15), W('status', 675), W('panel', 317)]) env.hidden.add(w)
+    }
+    // the list name: the caption of its value in list#174
+    const lw0 = W('list', 174)
+    env.values.set(W('status', 667), env.str(j.listCaptions(lw0)[j.listValueIds(lw0).indexOf(this.list)]))
     env.values.set(W('status', 674), '')
     env.values.set(W('status', 675), strings.get(271))
     const g = W('dgrid', 15)
@@ -70,7 +84,7 @@ export class ChannelList implements Screen {
   key(k: RemoteKey) {
     timer('chlist', 15000, () => hide('chlist'))
     if (this.choosing) {
-      const ids = [13, 33, 34, 37] as ListId[]
+      const ids = LIST_IDS
       if (k === 'Up') this.choice = Math.max(0, this.choice - 1)
       else if (k === 'Down') this.choice = Math.min(ids.length - 1, this.choice + 1)
       else if (k === 'Enter' || k === 'Right') {
@@ -94,7 +108,7 @@ export class ChannelList implements Screen {
       }
       case 'Red':
         this.choosing = true
-        this.choice = Math.max(0, [13, 33, 34, 37].indexOf(this.list))
+        this.choice = Math.max(0, LIST_IDS.indexOf(this.list))
         return true
       case 'Back':
       case 'Exit':

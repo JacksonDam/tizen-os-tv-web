@@ -22,6 +22,7 @@ const TIMEOUT = 10000
 export class QuickAccess implements Screen {
   name = 'options'
   layer = 25
+  osd = 326
   modal = true
   focus = QA_ITEMS.indexOf(37)
 
@@ -58,6 +59,7 @@ export class QuickAccess implements Screen {
 export class PictureFormat implements Screen {
   name = 'format'
   layer = 25
+  osd = 303
   modal = true
   draw(j: Juice, env: TvEnv) {
     env.allowedValues.set(PF_LIST, new Set(PF_VALUES))

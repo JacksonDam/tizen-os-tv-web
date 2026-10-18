@@ -83,6 +83,8 @@ export class Installation implements Screen {
 
   draw(j: Juice, env: TvEnv) {
     for (const p of STEPS_ALL) if (p !== STEP_PANEL[this.step]) env.hidden.add(W('panel', p))
+    // the application shows the current step (its panels do not activate with the frame)
+    env.show(W('panel', STEP_PANEL[this.step]))
     // the other wizards of panel#149 (first-time language, location, settings assistant)
     for (const p of [150, 170, 180, 187, 208, 207, 193]) env.hidden.add(W('panel', p))
     const s = this.search
@@ -106,7 +108,9 @@ export class Installation implements Screen {
         env.hidden.add(W('status', 407)) // "Settings": the cable network settings (DVB-C only)
         break
       case 'search':
-        // "Sorting...", "Channels found" (analogue-only countries) and "Network name:" (cable)
+        // the title "System searching. Please wait..." is shown by the application; "Sorting...",
+        // "Channels found" (analogue-only countries) and "Network name:" (cable) are not
+        env.show(W('status', 393))
         for (const w of [394, 397, 398]) env.hidden.add(W('status', w))
         break
       case 'stopped':
@@ -204,6 +208,8 @@ export class InstallationUpdate implements Screen {
 
   draw(j: Juice, env: TvEnv) {
     for (const p of Object.values(USTEP_PANEL)) if (p !== USTEP_PANEL[this.step]) env.hidden.add(W('panel', p))
+    env.show(W('panel', 220))
+    env.show(W('panel', USTEP_PANEL[this.step]))
     env.hidden.add(W('panel', 230))
     // "Channels added :" is the analogue-only countries' line (inferred)
     for (const w of [505, 510, 516]) env.hidden.add(W('status', w))

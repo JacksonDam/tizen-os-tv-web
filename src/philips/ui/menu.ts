@@ -91,9 +91,10 @@ export class MenuScreen implements Screen {
     env.cells.set(W('status', 281), r => chs[r]?.name)
     env.values.set(W('status', 318), SW_VERSION)
     env.values.set(W('status', 319), '')
-    // Reset smart settings: its legends and item text only while it is entered (inferred)
+    // Reset smart settings: its legends and item text only while it is entered
     const inSmart = this.nav.leaf && this.nav.focusedNode() === SMART_NODE
-    if (!inSmart) for (const w of [W('panel', 133), W('list', 124), W('list', 125), W('status', 342)]) env.hidden.add(w)
+    // (panel#133 does not activate with panel#132; the application shows it)
+    if (inSmart) env.show(W('panel', 133))
     env.overrides.set(SMART_PROP, SMART_VALUES[inSmart ? this.smart : 0])
     env.lists.set(W('list', 123), { focus: inSmart ? this.smart : 0, top: 0, expanded: true })
     this.prepareLeaf(env)

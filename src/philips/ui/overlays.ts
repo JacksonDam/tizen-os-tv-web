@@ -4,7 +4,7 @@ import { F, type Juice, W } from '../fw/juice'
 import { currentChannel, getTv, setSource, tune } from '../tv/store'
 import { strings, type TvEnv } from './env'
 import { P } from './props'
-import { hide, isShown, repaint, show, timer, type Screen } from './screens'
+import { hide, isShown, repaint, setSuspended, show, suspendedUnder, timer, type Screen } from './screens'
 import { INPUTS, inputName } from './sources'
 
 // The OSD manager's overlays (osdman#0 children; positions from JuiceOsdManagers +0x10 entries):
@@ -21,6 +21,7 @@ function at(p: number): [number, number] {
 export class VolumeOsd implements Screen {
   name = 'volume'
   layer = 40
+  osd = 327
   draw(j: Juice) {
     j.draw(W('panel', 327), 0, 0, F.FOCUS)
   }
@@ -28,6 +29,7 @@ export class VolumeOsd implements Screen {
 export class MuteOsd implements Screen {
   name = 'mute'
   layer = 41
+  osd = 294
   draw(j: Juice, env: TvEnv) {
     env.overrides.set(0x5a4, 11)
     const [x, y] = at(294)
@@ -37,10 +39,13 @@ export class MuteOsd implements Screen {
 export function volumeChanged() {
   const s = getTv()
   if (s.muted) {
-    show(new MuteOsd())
     hide('volume')
+    // the banner blocks the mute icon; it shows when the banner goes (as when suspended)
+    const m = new MuteOsd()
+    if (!show(m) && isShown('banner')) setSuspended('banner', [...suspendedUnder('banner').filter(x => x.name !== 'mute'), m])
     return
   }
+  setSuspended('banner', suspendedUnder('banner').filter(x => x.name !== 'mute'))
   hide('mute')
   show(new VolumeOsd())
   timer('volume', 3000, () => hide('volume'))
@@ -50,6 +55,7 @@ export function volumeChanged() {
 export class Banner implements Screen {
   name = 'banner'
   layer = 30
+  osd = 296
   details: boolean
   constructor(details: boolean) {
     this.details = details
@@ -99,13 +105,10 @@ export class Banner implements Screen {
   }
 }
 export function showBanner(details = false) {
-  // the picture messages share the top right corner with the banner and return after it
-  hide('message')
+  // the banner suspends the mute icon and the picture messages (OSD manager rules); they return
+  // when it goes
   show(new Banner(details))
-  timer('banner', details ? 8000 : 4000, () => {
-    hide('banner')
-    updateMessage()
-  })
+  timer('banner', details ? 8000 : 4000, () => hide('banner'))
 }
 
 // ---- messages ----
@@ -114,8 +117,10 @@ export class Message implements Screen {
   name = 'message'
   layer = 20
   panel: number
+  osd: number
   constructor(panel: number) {
     this.panel = panel
+    this.osd = panel
   }
   draw(j: Juice) {
     const [x, y] = at(this.panel)
@@ -132,7 +137,13 @@ export function updateMessage() {
     if (!ch) p = 328
     else if (ch.kind === 'tv' && ch.hd && !ch.analogue) p = 330
   }
-  if (p && !isShown('banner')) show(new Message(p))
+  // while the banner is up the message waits under it (suspended)
+  if (isShown('banner')) {
+    const rest = suspendedUnder('banner').filter(x => x.name !== 'message')
+    setSuspended('banner', p ? [...rest, new Message(p)] : rest)
+    return
+  }
+  if (p) show(new Message(p))
   else hide('message')
 }
 
@@ -140,6 +151,7 @@ export function updateMessage() {
 export class SourceList implements Screen {
   name = 'sources'
   layer = 25
+  osd = 304
   modal = true
   focus: number
   items = ['TV', ...INPUTS.map(i => i.id)]

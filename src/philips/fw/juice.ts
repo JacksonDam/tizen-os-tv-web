@@ -541,7 +541,7 @@ export class Juice {
     }
     // the scroll bar (+0x6c, mode +0x6e 0: n by N) at the grid origin: total, rows shown, first row
     const sb = m.s16(a + 0x6c)
-    if (sb >= 0 && m.u8(a + 0x6e) === 0) this.scrollBarDraw(sb, gx, gy, flags, g.count, rows, top)
+    if (sb >= 0 && m.u8(a + 0x6e) === 0 && g.count > 0) this.scrollBarDraw(sb, gx, gy, flags, g.count, rows, top)
     const sst = stateStyle(ctrl, flags & 1, false)
     this.jss(m.s16(a + 0xaa), gx + m.s16(a + 0xae), gy + m.s16(a + 0xb0), 0, 0, sst)
     this.jss(m.s16(a + 0xac), gx + m.s16(a + 0xae), gy + m.s16(a + 0xb2), 0, 0, sst)
@@ -869,10 +869,21 @@ export class Juice {
       // the last row of a full window drops its style's bottom piece (state | 0x10, 0x8cd7f8)
       const lastRow = k === visible[visible.length - 1] && visible.length >= rows
       this.jss(iss, xx, yy, m.s16(this.b2(ib) + 10), m.s16(this.b2(ib) + 8), lastRow ? st | 0x10 : st)
-      this.user = this.env.str(caps[k])
       const tx = alt ? m.s16(a + 0xc6) : m.s16(a + 0x84)
       const ty = alt ? m.s16(a + 0xc8) : m.s16(a + 0x86)
-      this.bel2Draw(ib, xx + tx, yy + ty, st & 0xf, undefined, m.s16(a + 0xc4))
+      // the item: its caption (+0x5b = 0, DrawListItems) or its bitmap / state style (1 / 2,
+      // FUN_008cc960), as for a single value
+      const mode = m.u8(a + 0x5b)
+      const cap = caps[k]
+      if (mode === 0) {
+        this.user = this.env.str(cap)
+        this.bel2Draw(ib, xx + tx, yy + ty, st & 0xf, undefined, m.s16(a + 0xc4))
+      } else if (mode === 1) {
+        this.drawBitmap(cap, xx + tx - ((this.bmpW(cap) * m.u8(this.b2(ib) + 4)) >> 1), yy + ty - ((this.bmpH(cap) * m.u8(this.b2(ib) + 5)) >> 1))
+      } else {
+        const s2 = st & 0xf
+        this.jss(cap, xx + tx - ((this.ssWidth(cap, s2) * m.u8(this.b2(ib) + 4)) >> 1), yy + ty - ((this.ssHeight(cap, s2) * m.u8(this.b2(ib) + 5)) >> 1), 0, 0, s2)
+      }
       if (radio) {
         const mark = k === cur ? m.u16(a + 0x8c) : m.u16(a + 0x8e)
         const mx = alt ? m.s16(a + 0x94) : m.s16(a + 0x90)
