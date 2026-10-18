@@ -83,7 +83,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
   )
   const [labelY, setLabelY] = useState(TOP_TEXT_Y)
   const [labels, setLabels] = useState<{ alpha: number; tr: string }[]>(() =>
-    list.map((_, i) => ({ alpha: first + i === startCentre ? 1 : 0, tr: 'none' })),
+    list.map(() => ({ alpha: 0, tr: 'none' })),
   )
   const [arrows, setArrows] = useState<{ mode: ArrowMode; seq: number }>({ mode: 'in', seq: 0 })
 
@@ -100,6 +100,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
       // background fades in over the TV picture (m_PlayBackgroundFadeIn @02bb9654, 833 ms linear)
       setBg({ alpha: 1, tr: `opacity ${ENTRANCE_MS}ms linear` })
       // top icons slide down from y -120 (250 ms, 34 ms per slot, from +416 ms) and fade in over 833 ms
+      setLabels(list.map((_, i) => ({ alpha: first + i === startCentre ? 1 : 0, tr: `opacity ${ENTRANCE_MS}ms linear` })))
       setIcons(list.map((_, i) => ({
         y: 0, alpha: 1,
         tr: `transform ${TOP_ANI_MS}ms linear ${HALF + TOP_ANI_LEAD * (first + i)}ms, opacity ${ENTRANCE_MS}ms linear`,
@@ -334,7 +335,7 @@ export function Hub({ close, onSetup }: { close: () => void; onSetup: () => void
               className="sh-top__name"
               style={{
                 left: labelLeft(o), top: labelY, width: TOP_TEXT_W, height: TOP_TEXT_H, lineHeight: `${TOP_TEXT_H}px`,
-                color: d.nameColor, opacity: l.alpha * icons[i].alpha, transition: `${l.tr}, top ${TOP_ANI_MS}ms linear`,
+                color: d.nameColor, opacity: l.alpha, transition: `${l.tr}, top ${TOP_ANI_MS}ms linear`,
               }}
             >
               {d.name}
