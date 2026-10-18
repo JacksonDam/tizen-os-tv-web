@@ -2,6 +2,11 @@
    panel's 1920x1080 OSD space (CHomeOSDInfo::t_InitFullHDResolution values, = stage px); the NNavi and
    More Apps screens say their own space where they use another. */
 
+@keyframes hub-installing {
+  from { left: -104px; }
+  to { left: 100%; }
+}
+
 @keyframes hub-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(var(--hub-marquee)); }
