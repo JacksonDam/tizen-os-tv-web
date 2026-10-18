@@ -1,0 +1,35 @@
+/* INFO banner (CViewerInfoWndAce), spec/tvview-info.md */
+
+/* show: the window slides down INFO_MOVE_ANI_OFFSET (50) while the alpha helper fades it in, 500 ms
+   (m_CreateAnimation 0x0250197c); hide: back up and out in 330 ms (PlayHideAni 0x02500c40).
+   Easing: CCAniBase acceleration types are not decoded (inferred ease-out / ease-in). */
+@keyframes f13-info-show {
+  from { opacity: 0; translate: 0 -50px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes f13-info-hide {
+  from { opacity: 1; translate: 0 0; }
+  to { opacity: 0; translate: 0 -50px; }
+}
+.f13-info-show { animation: f13-info-show 500ms cubic-bezier(0, 0, 0.58, 1) both; }
+.f13-info-hide { animation: f13-info-hide 330ms cubic-bezier(0.42, 0, 1, 1) both; }
+
+/* navigation (t_PlayNaviAni 0x025012b8, 3D-profile linker): the old sub window fades out over 250 ms
+   from 0 ms, the new one fades in over 250 ms from 80 ms; Up/Down also move them by
+   CHANNEL_INFO_MOVE_ANI_OFFSET (40): Up (navi 2) brings the new one up from below, Down (3) down from
+   above. Acceleration type 1/1 (inferred ease-in-out). */
+@keyframes f13-info-out-up { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 -40px; } }
+@keyframes f13-info-in-up { from { opacity: 0; translate: 0 40px; } to { opacity: 1; translate: 0 0; } }
+@keyframes f13-info-out-down { from { opacity: 1; translate: 0 0; } to { opacity: 0; translate: 0 40px; } }
+@keyframes f13-info-in-down { from { opacity: 0; translate: 0 -40px; } to { opacity: 1; translate: 0 0; } }
+@keyframes f13-info-out-side { from { opacity: 1; } to { opacity: 0; } }
+@keyframes f13-info-in-side { from { opacity: 0; } to { opacity: 1; } }
+.f13-info-out-up { animation: f13-info-out-up 250ms cubic-bezier(0.45, 0, 0.55, 1) both; }
+.f13-info-in-up { animation: f13-info-in-up 250ms cubic-bezier(0.45, 0, 0.55, 1) 80ms both; }
+.f13-info-out-down { animation: f13-info-out-down 250ms cubic-bezier(0.45, 0, 0.55, 1) both; }
+.f13-info-in-down { animation: f13-info-in-down 250ms cubic-bezier(0.45, 0, 0.55, 1) 80ms both; }
+.f13-info-out-side { animation: f13-info-out-side 250ms cubic-bezier(0.45, 0, 0.55, 1) both; }
+.f13-info-in-side { animation: f13-info-in-side 250ms cubic-bezier(0.45, 0, 0.55, 1) 80ms both; }
+
+/* pvr_progress2(_bg).bmp: 14x11 with 5 px caps (INFO_PROGRESS_BAR_STRETCH_WIDTH 8 stage px) */
+.f13-info-bar { position: absolute; }

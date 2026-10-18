@@ -1,0 +1,43 @@
+/* TV viewer overlays (spec/tvview.md). */
+
+/* 3-slice bars (CCImageCompositeDrawing with a 9-rect composite): caps of 5 OSD px, stretched middle */
+.f13-tvv-bar {
+  position: absolute;
+  height: 16.5px;              /* epg_progress(_bg).bmp, 11 px x1.5 */
+  border-style: solid;
+  border-width: 0 7.5px;
+  border-image-slice: 0 5 fill;
+  border-image-width: 0 7.5px;
+  border-image-repeat: stretch;
+  box-sizing: border-box;
+}
+
+/* channel number change (CViewerChannelBoxSmart m_PlayPositionAnimation / m_PlayAlphaAnimation):
+   new digits come down 10 px and fade in, old ones fade out, 200 ms */
+@keyframes f13-tvv-num-in {
+  from { opacity: 0; translate: 0 -6.667px; }   /* -10 stage px inside a zoom: 1.5 element */
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes f13-tvv-num-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+.f13-tvv-num-in { animation: f13-tvv-num-in 200ms cubic-bezier(0.45, 0, 0.55, 1) both; }
+.f13-tvv-num-out { animation: f13-tvv-num-out 200ms cubic-bezier(0.45, 0, 0.55, 1) both; }
+
+/* volume number change (CViewerVolumeSmart::m_PlayVolumeNumberAnimation): new digits from 10 px above
+   (VOLUME_NUM_POS_Y_ANI_OFFSET) down into place fading in, old digits up 10 px fading out, 200 ms */
+@keyframes f13-tvv-vol-in {
+  from { opacity: 0; translate: 0 -6.667px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@keyframes f13-tvv-vol-out {
+  from { opacity: 1; translate: 0 0; }
+  to { opacity: 0; translate: 0 -6.667px; }
+}
+.f13-tvv-vol-in { animation: f13-tvv-vol-in 200ms linear both; }
+.f13-tvv-vol-out { animation: f13-tvv-vol-out 200ms linear both; }
+
+/* viewer windows fade in (CViewerAnimationHelper, 200 ms) */
+@keyframes f13-tvv-fade { from { opacity: 0; } to { opacity: 1; } }
+.f13-tvv-fade { animation: f13-tvv-fade 200ms linear both; }
