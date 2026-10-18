@@ -1,12 +1,13 @@
 // The online Apps, Games and Social panels of the 2013 Smart Hub and the full-screen applications they
 // open (area apps2013; spec samsung-tv-qemu/extract/f13/spec/online-apps2013.md).
 import { openApp, registerApp } from '../../../../shell'
-import { APPS, GAMES } from '../../data'
+import { APPS, GAMES, SOCIAL } from '../../data'
 import { registerOnlinePanel } from '../../panels'
 import { AppsPanel } from '../apps/AppsPanel'
 import { MoreApps } from '../apps/MoreApps'
 import { GameHub, type HubParams } from '../games/GameHub'
 import { GamesPanel } from '../games/GamesPanel'
+import { requestSocial, SocialPanel } from '../social/SocialPanel'
 import { AppRunner } from './AppRunner'
 import { HubTest } from './HubTest'
 import './hubapps.css'
@@ -30,6 +31,20 @@ registerOnlinePanel(GAMES, GamesPanel, {
   submenu: (index, launch) => {
     if (index !== 0 && index !== 1) return false
     launch(() => openApp('gamehub', { view: index === 0 ? 'mine' : 'all', from: 'hub' } satisfies HubParams))
+    return true
+  },
+})
+
+registerOnlinePanel(SOCIAL, SocialPanel, {
+  // the Social sub menu: Friends' Picks, What's Hot, Friends, Video Call (m_GetSubMenuItemEnum(0xd, i) =
+  // 6-9, CHomeExecutor::m_ExecuteSocialSubMenuItem @04677c90). Video Call without Skype returns 9 ->
+  // event 0x11903b -> the "Install the Skype app" message. The other three run the Social application
+  // (CCT*, app 0xbe), which has nothing to show without linked accounts and is not built here: they open
+  // the Social Settings popup where the accounts are linked (inferred).
+  submenu: index => {
+    if (index === 3) requestSocial('videocall')
+    else if (index >= 0 && index <= 2) requestSocial('settings')
+    else return false
     return true
   },
 })
