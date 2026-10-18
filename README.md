@@ -4,6 +4,12 @@ Working 1:1 recreations of Samsung TV interfaces, each rebuilt from its own firm
 browser. Every exhibit mocks the TV's hardware (a tuner with a fictional channel lineup, HDMI devices,
 volume, power) so the whole interface can be used with the on-screen remote or the keyboard.
 
+Both TVs start online, on the fictional Wi-Fi network "Harbour View", with the Smart Hub terms agreed.
+What the real TVs would get from Samsung's servers (apps, films and shows, games, promotions, legal
+texts) is stubbed from one fictional catalogue (`src/shared/fictional.ts`) with generated placeholder
+artwork; apps the firmware cannot run open a placeholder screen. First-time setup walks through
+connecting and agreeing from a factory state.
+
 **Live:** https://jacksondam.com/tizen-os-tv-web/
 
 | Exhibit | Page | Firmware |
@@ -61,14 +67,24 @@ channel scan n times faster. State is kept in the browser's local storage, separ
 
 - **Power and boot** (`src/f2013/screens/setup`): every power-on shows the boot loader's "SMART TV" logo
   and five hexagons, then the TV's start-up wait. POWER toggles standby.
-- **Plug & Play**: the welcome movie, Language, Configure your TV (country, channel source, network
-  type), Auto Tuning with a mocked scan and Setup complete!, with the firmware's setup music. Without a
-  network the Smart Hub terms are never agreed, so setup ends on live TV, as on the real set. It runs
-  after a factory reset or with `?setup=1`.
-- **Smart Hub** (`src/f2013/screens/smarthub`): what a TV that has never been online shows. The firmware
-  falls back to a default panel list per country (UK: Games, Apps, Photos Videos & Music) on its 3D
-  carousel, with the panel-move sound, the top menu and side arrows; each panel offers Set Up Smart Hub,
-  which leads to the Welcome page and Network Settings.
+- **Plug & Play**: the welcome movie, Language, Configure your TV (country, channel source, Wi-Fi network
+  with the 2013 on-screen keyboard), Auto Tuning with a mocked scan, the Smart Hub terms, Software
+  Update and Setup complete!, with the firmware's setup music; OK opens the Smart Hub. Skipping the
+  network leaves the TV offline and setup ends on live TV, as on the real set. `?setup=1` starts it
+  from the factory state; a factory reset keeps the network and Smart Hub data, as its message says.
+- **Network** (`src/f2013/screens/net`, Menu > Network): Network Settings lists the fictional networks
+  and connects through the TV's own steps and keyboard (any password of 8 or more characters); Network
+  Status shows the connection, with Disconnect. Samsung account sign-in runs a Smart Hub widget that
+  is not in the firmware update, so it opens the placeholder and the TV stays signed out.
+- **Smart Hub** (`src/f2013/screens/smarthub`): online, the 3D carousel of Social, Games, Apps, On TV,
+  Films and TV Shows and Photos Videos & Music (the list comes from the server; this order follows UK
+  footage), with the top menu, side arrows, the bottom sub menu and the minimize motion when an item
+  runs. On TV shows the live picture and recommendations from the programme guide; Films and TV Shows
+  has categories, info pages and the player; Photos Videos & Music has the server's Most Popular feed
+  and a USB stick in its content browser; Apps has Recommended, My Apps, More Apps (sort, lock, delete)
+  and mocked installs; Games opens Game Hub; Social shows the no-accounts state. Offline or without the
+  terms each panel shows the firmware's Set Up Smart Hub page, which leads to the Smart Hub's own setup
+  (Welcome, Network Settings, terms).
 - **Menu** (`src/f2013/screens/menu`): Picture, Sound, Broadcasting, Network, Smart Features, System and
   Support with their icon animations and help images; 208 items taken from the firmware's menu code for a
   UK DVB-T/T2 set, with popups, sliders, PIN, message boxes and timers. Picture settings tint the live
