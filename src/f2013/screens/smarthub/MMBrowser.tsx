@@ -4,23 +4,22 @@ import { stubArt, STUB_USB, type StubClip } from '../../../shared/fictional'
 import { VIDEO } from '../../assets'
 import { openApp, registerApp, type AppProps } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
-import { ColorTag } from './ColorTag'
 import { IMG, MULTIMEDIA, ONTV } from './data'
+import { GB, GBFrame } from './GBFrame'
 
 // Photos, Videos & Music (exeDSP application 0x2d, CMMBrowserApp / CMMPlayApp), opened from the Smart
 // Hub sub menu (All Content 6, Photos 3, Videos 2, Music 4, Recorded TV 5: CHomeExecutor
 // m_GetSubMenuItemEnum) or straight into the player from a Most Popular item. The browser is the
-// "GoldenBridge" content view (CMMContentViewBase): it runs on a 1280 x 720 OSD
-// (CMMBOSDInfo::t_Init1280x720 @03888f78 is its only layout), so every value below is that OSD's x 1.5.
-// The player has its own 1920 x 1080 layout (CAceMPOSDInfo::t_InitWProPlayerTV1920x1080 @03adb164).
+// GoldenBridge content view (CMMContentViewBase) on the 1280 x 720 OSD (CMMBOSDInfo::t_Init1280x720
+// @03888f78), x 1.5; the player has its own 1920 x 1080 layout (CAceMPOSDInfo::
+// t_InitWProPlayerTV1920x1080 @03adb164).
 //
 // Content: the stub USB stick (STUB_USB): photos as generated artwork, videos as the stand-in loops, no
-// music and no recordings (each view then shows the firmware's empty-device text).
+// music and no recordings (those views show the firmware's empty-device texts).
 
 export type MMCategory = 'all' | 'photos' | 'videos' | 'music' | 'recorded'
 export type MMParams = { category?: MMCategory; from?: number; play?: StubClip; list?: StubClip[] }
 
-const S = 1.5 // CMMBOSDInfo 1280 x 720 -> stage
 const MM = `${IMG}/mm`
 
 type Item = { id: string; title: string; kind: 'photo' | 'video'; video?: string; seconds?: number; date?: string }
@@ -28,8 +27,10 @@ type Item = { id: string; title: string; kind: 'photo' | 'video'; video?: string
 const USB_PHOTOS: Item[] = STUB_USB.photos.map(p => ({ id: p.id, title: p.title, kind: 'photo', date: p.date }))
 const USB_VIDEOS: Item[] = STUB_USB.videos.map(v => ({ id: v.id, title: v.title, kind: 'video', video: v.file, seconds: v.seconds }))
 
-// Category titles: g_HomePanelWStringEng (the colour tag carries the sub menu item's text) and the
-// empty-device texts from g_MMWStringEng 791, 800, 891 (CMMContentViewBase::t_CreateNoFileText @0397ff0c).
+// The categories in the order of the Smart Hub sub menu the colour tag came from (inferred), their
+// texts (g_HomePanelWStringEng 100, 97, 98, 99, 81) and the empty-device texts (g_MMWStringEng 146, 800,
+// 392, 791, 891; CMMContentViewBase::t_CreateNoFileText @0397ff0c).
+const CATS: MMCategory[] = ['all', 'photos', 'videos', 'music', 'recorded']
 const CATEGORY: Record<MMCategory, { label: string; empty: string; items: Item[] }> = {
   all: { label: 'All Content', empty: 'There is no device connected.', items: [...USB_PHOTOS, ...USB_VIDEOS] },
   photos: { label: 'Photos', empty: 'No photos found on the connected device.', items: USB_PHOTOS },
@@ -38,16 +39,13 @@ const CATEGORY: Record<MMCategory, { label: string; empty: string; items: Item[]
   recorded: { label: 'Recorded TV', empty: 'No Recorded files found on the connected device.', items: [] },
 }
 
-// Grid geometry per view (CMMBOSDInfo): photos MM_GB_CONTENT_PHOTO_LIST_* 147 x 147 items, 3 rows, the
-// list centred at y 394, 554 high (CMMPhotoBrowserView::t_CreateList @038a3624: CMMGridLayoutList 3 x 10,
-// SetFocusableLayoutRange(1, 8), focused item +28); videos MM_GB_CONTENT_VIDEO_LIST_* 220 x 196, 2 rows,
-// centred at y 360, 410 high, columns 1-5. Where the columns sit was not traced: here they fill the width
-// right of the colour tag (MM_GB_COLOR_TAG_BG_W 266) so the level-2 tag stays clear (inferred), rows
-// packed around the list centre with GAP_Y between them (inferred).
+// Grids (CMMBOSDInfo): photos MM_GB_CONTENT_PHOTO_LIST_* 147 x 147 items, 3 rows around y 394
+// (CMMPhotoBrowserView::t_CreateList @038a3624: CMMGridLayoutList 3 x 10 with columns 1-8 focusable,
+// the focused item 28 larger); videos MM_GB_CONTENT_VIDEO_LIST_* 220 x 196, 2 rows around y 360,
+// columns 1-5. The focusable columns share the 1280 width; rows are packed with GAP_Y (inferred).
 type Grid = { w: number; h: number; rows: number; cols: number; cy: number; enlarge: number; gapY: number }
-const TAG_W = 266
-const PHOTO_GRID: Grid = { w: 147, h: 147, rows: 3, cols: 6, cy: 394, enlarge: 28, gapY: 6 }
-const VIDEO_GRID: Grid = { w: 220, h: 196, rows: 2, cols: 4, cy: 360, enlarge: 28, gapY: 12 }
+const PHOTO_GRID: Grid = { w: 147, h: 147, rows: 3, cols: 8, cy: 394, enlarge: 28, gapY: 6 }
+const VIDEO_GRID: Grid = { w: 220, h: 196, rows: 2, cols: 5, cy: 360, enlarge: 28, gapY: 12 }
 
 function fmtTime(s: number) {
   const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = Math.floor(s % 60)
@@ -62,9 +60,10 @@ export function MMBrowser({ params, close }: AppProps) {
   const p = (params ?? {}) as MMParams
   const from = p.from ?? MULTIMEDIA
   const direct = !!p.play
-  const category: MMCategory = p.category ?? 'all'
+  const [category, setCategory] = useState<MMCategory>(p.category ?? 'all')
   const [device, setDevice] = useState(category !== 'all') // All Content starts at the device list
   const [focus, setFocus] = useState(0)
+  const [bar, setBar] = useState<number | null>(null)       // focused tab while the bar has the focus
   const [player, setPlayer] = useState<{ list: Item[]; index: number } | null>(() => {
     if (!p.play) return null
     const list = (p.list ?? [p.play]).map(toItem)
@@ -77,12 +76,54 @@ export function MMBrowser({ params, close }: AppProps) {
   const perPage = grid.rows * grid.cols
   const page = Math.floor(focus / perPage)
   const pages = Math.max(1, Math.ceil(items.length / perPage))
+  const hasGrid = device && items.length > 0
 
   // back to Smart Hub on the panel the item came from (the hub reopens there, ./panels.ts contract)
   const toHub = () => openApp('smarthub', { panel: from })
 
   useRemote(key => {
     if (player) return false
+    if (bar !== null) {
+      // the sub category bar (CMMSubCategory::m_MoveFocus): Left / Right along the tabs, Enter opens
+      // that category, Up back to the content (inferred keys)
+      switch (key) {
+        case 'Left':
+        case 'Right': {
+          const j = bar + (key === 'Left' ? -1 : 1)
+          if (j < 0 || j >= CATS.length) playUi(UI_SOUND.NOKEY)
+          else {
+            playUi(UI_SOUND.MOVE)
+            setBar(j)
+          }
+          return true
+        }
+        case 'Enter':
+          playUi(UI_SOUND.SELECT)
+          setCategory(CATS[bar])
+          setDevice(CATS[bar] !== 'all')
+          setFocus(0)
+          setBar(null)
+          return true
+        case 'Up':
+          if (hasGrid || !device) {
+            playUi(UI_SOUND.MOVE)
+            setBar(null)
+          } else playUi(UI_SOUND.NOKEY)
+          return true
+        case 'Down':
+          playUi(UI_SOUND.NOKEY)
+          return true
+        case 'Back':
+          playUi(UI_SOUND.BACK)
+          setBar(null)
+          return true
+        case 'Exit':
+          close()
+          return true
+        default:
+          return false
+      }
+    }
     switch (key) {
       case 'Back':
         playUi(UI_SOUND.BACK)
@@ -96,8 +137,11 @@ export function MMBrowser({ params, close }: AppProps) {
       case 'Right':
       case 'Up':
       case 'Down': {
-        if (!device || !items.length) {
-          if (!device && key !== 'Up' && key !== 'Down') playUi(UI_SOUND.NOKEY)
+        if (!hasGrid) {
+          if (key === 'Down') {
+            playUi(UI_SOUND.MOVE)
+            setBar(CATS.indexOf(category))
+          } else playUi(UI_SOUND.NOKEY)
           return true
         }
         const c = focus % grid.cols, r = Math.floor((focus % perPage) / grid.cols)
@@ -105,7 +149,12 @@ export function MMBrowser({ params, close }: AppProps) {
         if (key === 'Left') j = c > 0 ? focus - 1 : page > 0 ? focus - perPage + grid.cols - 1 : focus
         if (key === 'Right') j = c < grid.cols - 1 ? focus + 1 : focus + perPage - grid.cols + 1
         if (key === 'Up') j = r > 0 ? focus - grid.cols : focus
-        if (key === 'Down') j = r < grid.rows - 1 ? focus + grid.cols : focus
+        if (key === 'Down') j = r < grid.rows - 1 && focus + grid.cols < items.length ? focus + grid.cols : -2
+        if (j === -2) {
+          playUi(UI_SOUND.MOVE)
+          setBar(CATS.indexOf(category))
+          return true
+        }
         if (j === focus || j < 0 || j >= items.length) {
           playUi(UI_SOUND.NOKEY)
           return true
@@ -138,67 +187,60 @@ export function MMBrowser({ params, close }: AppProps) {
   }
 
   const shown = items.slice(page * perPage, page * perPage + perPage)
-  const pitchX = (1280 - TAG_W) / grid.cols
+  const pitchX = 1280 / grid.cols
   const pitchY = grid.h + grid.gapY
   const top = grid.cy - (grid.rows * pitchY - grid.gapY) / 2
-  const cellX = (c: number) => (TAG_W + c * pitchX + (pitchX - grid.w) / 2) * S
-  const cellY = (r: number) => (top + r * pitchY) * S
+  const cellX = (c: number) => (c * pitchX + (pitchX - grid.w) / 2) * GB
+  const cellY = (r: number) => (top + r * pitchY) * GB
   const fi = focus - page * perPage
-  const fit = items[focus]
+  const gridFocus = bar === null
   return (
-    <div className="mmb">
-      {/* GoldenBridge/bg/allshare_bg.png, 1280 x 720 */}
-      <img className="mmb__bg" src={`${MM}/allshare_bg.png`} alt="" />
-      <ColorTag label={cat.label} panel={from === ONTV ? ONTV : MULTIMEDIA} />
-      {/* top bar (MM_TOP_BAR_Y 9, H 60): the device, the page at MM_TOP_BAR_PAGE_RIGHT_X 1253 (right) */}
-      {device && items.length ? (
+    <GBFrame
+      panel={from === ONTV ? ONTV : MULTIMEDIA}
+      tabs={CATS.map(c => CATEGORY[c].label)}
+      current={CATS.indexOf(category)}
+      barFocus={bar}
+      focusSet={from === ONTV ? 'sm' : 'apps'}
+      bg={<img className="mmb__bg" src={`${MM}/allshare_bg.png`} alt="" />}
+    >
+      {/* top bar (MM_TOP_BAR_Y 9, H 60): the device at the left, the page at MM_TOP_BAR_PAGE_RIGHT_X 1253 */}
+      {hasGrid ? (
         <>
-          <div className="mmb__top" style={{ left: 420, top: 9 * S, height: 60 * S }}>{STUB_USB.name}</div>
-          <div className="mmb__page" style={{ right: (1280 - 1253) * S, top: 9 * S, height: 60 * S }}>{page + 1}/{pages}</div>
+          <div className="mmb__top" style={{ left: 40 * GB, top: 9 * GB, height: 60 * GB }}>{STUB_USB.name}</div>
+          <div className="mmb__page" style={{ right: (1280 - 1253) * GB, top: 9 * GB, height: 60 * GB }}>{page + 1}/{pages}</div>
         </>
       ) : null}
-
       {!device ? (
-        // All Content: the device list (CMMAllDeviceView); the USB stick is the one device
-        <div className="mmb__device" style={{ left: 960 - 145 * S / 1.5, top: 300 }}>
+        // All Content: the device list (CMMAllDeviceView); the stub USB stick is the one device
+        <div className="mmb__device" style={{ left: 960 - 145, top: 230 }}>
           <img src={`${MM}/thumb_usb_hdd.png`} alt="" style={{ width: 290, height: 290 }} />
           <div>{STUB_USB.name}</div>
-          <i className="mmb__dev-focus" style={{ borderImageSource: `url("${MM}/thumb_high_focus.png")` }} />
+          {gridFocus ? <i className="mmb__dev-focus" style={{ borderImageSource: `url("${MM}/thumb_high_focus.png")` }} /> : null}
         </div>
       ) : !items.length ? (
-        // the empty-device text: MMB_MUSIC_VIEW_NO_FILE_TEXT_FONTSIZE 26, white, centred (inferred box)
-        <div className="mmb__empty" style={{ top: 330 * S, fontSize: 26 * S }}>{cat.empty}</div>
+        // the empty-device text, MMB_MUSIC_VIEW_NO_FILE_TEXT_FONTSIZE 26, white, centred (inferred box)
+        <div className="mmb__empty" style={{ top: 330 * GB, fontSize: 26 * GB }}>{cat.empty}</div>
       ) : (
         <>
           {shown.map((it, k) => {
             const c = k % grid.cols, r = Math.floor(k / grid.cols)
-            const f = k === fi
-            const e = f ? (grid.enlarge * S) / 2 : 0
+            const f = gridFocus && k === fi
+            const e = f ? (grid.enlarge * GB) / 2 : 0
             return (
-              <div key={it.id} className="mmb__cell" style={{ left: cellX(c) - e, top: cellY(r) - e, width: grid.w * S + e * 2, height: grid.h * S + e * 2, zIndex: f ? 2 : 1 }}>
+              <div key={it.id} className="mmb__cell" style={{ left: cellX(c) - e, top: cellY(r) - e, width: grid.w * GB + e * 2, height: grid.h * GB + e * 2, zIndex: f ? 2 : 1 }}>
                 <img src={it.kind === 'photo' ? stubArt(it.id, 400, 400, { label: false }) : stubArt(it.id, 440, 300, { label: false })} alt="" />
                 {it.kind === 'video' ? <span className="mmb__dur">{fmtTime(it.seconds ?? 0)}</span> : null}
-                <div className="mmb__title" style={{ fontSize: (it.kind === 'photo' ? 20 : 18) * S }}>{it.title}</div>
+                <div className="mmb__title" style={{ fontSize: (it.kind === 'photo' ? 20 : 18) * GB }}>{it.title}</div>
                 {f ? <i className="mmb__focus" style={{ borderImageSource: `url("${MM}/thumb_high_focus.png")` }} /> : null}
               </div>
             )
           })}
-          {/* page arrows: arrow_left_n / arrow_right_n at MM_GB_PAGE_LEFT/RIGHT_ARROW_X -572 / 539 from the list centre */}
-          {page > 0 ? <img className="mmb__arrow" src={`${MM}/arrow_left_n.png`} alt="" style={{ left: (640 - 572) * S, top: grid.cy * S - 29 * S }} /> : null}
-          {page < pages - 1 ? <img className="mmb__arrow" src={`${MM}/arrow_right_n.png`} alt="" style={{ left: (640 + 539) * S, top: grid.cy * S - 29 * S }} /> : null}
-          {/* the focused file's info bar: MM_GB_PHOTO_INFO_BAR (0, 634) 1280 x 86 / MM_GB_VIDEO_INFO_BAR (0, 558) 1280 x 162,
-              title at (42, 0 / 24) size 34, details size 24 */}
-          {fit ? (
-            <div className="mmb__info" style={{ top: (fit.kind === 'photo' ? 634 : 558) * S }}>
-              <div style={{ fontSize: 34 * S, top: (fit.kind === 'photo' ? 0 : 24) * S }}>{fit.title}</div>
-              <div style={{ fontSize: 24 * S, top: (fit.kind === 'photo' ? 46 : 76) * S, opacity: 0.6 }}>
-                {fit.kind === 'photo' ? fit.date : fmtTime(fit.seconds ?? 0)}
-              </div>
-            </div>
-          ) : null}
+          {/* page arrows (arrow_left_n / arrow_right_n) at MM_GB_PAGE_LEFT/RIGHT_ARROW_X -572 / 539 from the list centre */}
+          {page > 0 ? <img className="mmb__arrow" src={`${MM}/arrow_left_n.png`} alt="" style={{ left: (640 - 572) * GB, top: grid.cy * GB - 29 * GB }} /> : null}
+          {page < pages - 1 ? <img className="mmb__arrow" src={`${MM}/arrow_right_n.png`} alt="" style={{ left: (640 + 539) * GB, top: grid.cy * GB - 29 * GB }} /> : null}
         </>
       )}
-    </div>
+    </GBFrame>
   )
 }
 

@@ -620,3 +620,43 @@
   width: 38px;
   height: 38px;
 }
+
+/* ---- GoldenBridge frame (GBFrame.tsx) ---- */
+.gb {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: #fff;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+}
+.gb__bar {
+  position: absolute;
+  left: 0;
+  width: 1920px;
+}
+.gb__tag {
+  position: absolute;
+  transition: left 500ms ease-in-out, top 500ms ease-in-out, width 500ms ease-in-out, height 500ms ease-in-out;
+}
+.gb__focus {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 24px 24px 108px 24px;
+  border-image-slice: 16 16 72 16 fill;
+  transition: left 250ms linear;
+}
+.gb__tab {
+  position: absolute;
+  top: 0;
+  font-size: 51px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.gb__line {
+  position: absolute;
+}
