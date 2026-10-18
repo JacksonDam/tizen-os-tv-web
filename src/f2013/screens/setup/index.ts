@@ -2,12 +2,14 @@
 // See ~/workplace/samsung-tv-qemu/extract/f13/spec/setup.md.
 import { registerApp, registerHotkey, registerOverlay } from '../../shell'
 import { getTv, setTv } from '../../tv/store'
+import { AutoTuneApp } from './autotune/AutoTuneApp'
 import { BootScreen } from './BootScreen'
 import { Pnp } from './pnp/Pnp'
 import { powerOff, powerOn } from './power'
 
 registerOverlay({ id: 'boot', z: 0, component: BootScreen })
 registerApp({ id: 'pnp', component: Pnp, z: 500 })
+registerApp({ id: 'autotune', component: AutoTuneApp, z: 400 })
 
 // POWER toggles between standby and a cold boot.
 registerHotkey('Power', () => {

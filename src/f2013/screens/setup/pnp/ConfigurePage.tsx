@@ -1,0 +1,216 @@
+import { useEffect, useState } from 'react'
+import { useRemote } from '../../../../input/remote'
+import { F13 } from '../../../assets'
+import { playUi, UI_SOUND } from '../../../tv/sound'
+import { SOURCES } from '../../../tv/store'
+import { MessageBox, Popup, popupHeight, POPUP_INSET, POPUP_MARGIN } from '../wizard/widgets'
+import { Wizard } from '../wizard/Wizard'
+import { PNP_SMARTHUB_STEP, PNP_STEP, PNP_TOTAL, type PageProps } from './steps'
+import { pnp, saveConfigure, type ChannelSource, type NetworkType } from './state'
+import { COUNTRIES, S } from './strings'
+
+// Step 2: Configure your TV (CPlugPlayTVUsageEnvironmentActionWindow; spec/setup.md 3.3). Rows from
+// CMenuTreeManager::t_SetPNPTVUsageEnvironmentItem @0255000c: Country, Channel Source, Source (Set-top
+// box only), Network type, Wireless network (Wireless only). Title at list x 64 (428 wide), value at
+// x 540 right-aligned (CMenuWizardWindowTitleStringRenderer). Help window at (1248,252) 440x700.
+// Next with Wireless and no network chosen: the "Essential Details" message box (t_BeforeGoToNextWindow
+// @025b01f4, text M 0x909, OK, 30 s). The mocked set finds no wireless network and has no cable.
+
+type Row = 'country' | 'channelSource' | 'source' | 'networkType' | 'wireless'
+const NET_TYPES: NetworkType[] = ['Wireless', 'Wired', 'No Network']   // ReturnNetworkTypeList @02eddbf0
+const CH_SOURCES: ChannelSource[] = ['Aerial', 'Set-top box']          // CPlugPlayChannelSourceItem
+const WIFI_OPTIONS = [S.wps, S.addNetwork, S.refresh]                   // ReturnAPList with no AP
+const PNP_IMG = `${F13}/setup/pnp`
+const LIST_X = 176
+const LIST_Y = 308
+const LIST_W = 1032
+const ROW_H = 104
+const ROWS = 5
+const WIFI_SCAN_MS = 2500  // "Checking for wireless networks..." after Refresh (inferred)
+
+function inputs() {
+  return SOURCES.filter(s => s.id !== 'TV')
+}
+
+export function ConfigurePage({ hiding, go }: PageProps) {
+  const [, redraw] = useState(0)
+  const [focus, setFocus] = useState<'list' | 'prev' | 'next'>('list')
+  const [item, setItem] = useState(0)
+  const [popup, setPopup] = useState<Row | null>(null)
+  const [message, setMessage] = useState(false)
+  const [checking, setChecking] = useState(false)
+
+  const rows: Row[] = ['country', 'channelSource']
+  if (pnp.channelSource === 'Set-top box') rows.push('source')
+  rows.push('networkType')
+  if (pnp.networkType === 'Wireless') rows.push('wireless')
+  const row = rows[Math.min(item, rows.length - 1)]
+
+  useEffect(() => {
+    if (!checking) return
+    const t = setTimeout(() => setChecking(false), WIFI_SCAN_MS)
+    return () => clearTimeout(t)
+  }, [checking])
+
+  const value = (r: Row) => {
+    switch (r) {
+      case 'country': return COUNTRIES[pnp.country]
+      case 'channelSource': return pnp.channelSource === 'Aerial' ? S.aerial : S.setTopBox
+      case 'source': return inputs().find(s => s.id === pnp.stbSource)?.title ?? inputs()[0]?.title ?? ''
+      case 'networkType': return pnp.networkType
+      case 'wireless': return checking ? S.checkingWireless : S.select
+    }
+  }
+  const title = (r: Row) =>
+    ({ country: S.country, channelSource: S.channelSource, source: S.source, networkType: S.networkType, wireless: S.wirelessNetwork })[r]
+
+  const options = (r: Row): { items: string[]; value: number } => {
+    switch (r) {
+      case 'country': return { items: COUNTRIES, value: pnp.country }
+      case 'channelSource': return { items: [S.aerial, S.setTopBox], value: CH_SOURCES.indexOf(pnp.channelSource) }
+      case 'source': {
+        const list = inputs()
+        return { items: list.map(s => s.title), value: Math.max(0, list.findIndex(s => s.id === pnp.stbSource)) }
+      }
+      case 'networkType': return { items: NET_TYPES, value: NET_TYPES.indexOf(pnp.networkType) }
+      case 'wireless': return { items: WIFI_OPTIONS, value: -1 }
+    }
+  }
+
+  const pick = (r: Row, i: number) => {
+    if (r === 'country') pnp.country = i
+    else if (r === 'channelSource') {
+      pnp.channelSource = CH_SOURCES[i]
+      if (pnp.channelSource === 'Set-top box' && !pnp.stbSource) pnp.stbSource = inputs()[0]?.id ?? ''
+    } else if (r === 'source') pnp.stbSource = inputs()[i]?.id ?? ''
+    else if (r === 'networkType') pnp.networkType = NET_TYPES[i]
+    else if (r === 'wireless' && WIFI_OPTIONS[i] === S.refresh) setChecking(true)
+    // WPS(PBC) and Add Network need a router / the keyboard: nothing to connect to (inferred: closes)
+    setPopup(null)
+    redraw(n => n + 1)
+  }
+
+  const goNext = () => {
+    // CNetworkAddMenuItem::ReturnAPSelected: Wireless without a chosen network blocks Next
+    if (pnp.networkType === 'Wireless') {
+      setMessage(true)
+      return
+    }
+    saveConfigure()
+    // antenna type 2 (Set-top box) skips Auto Tuning (GetPlugPlayNextStep 3 -> clock check -> 11)
+    go(pnp.channelSource === 'Set-top box' ? 'complete' : 'autotune')
+  }
+
+  useRemote(key => {
+    if (hiding || popup || message) return true
+    if (focus === 'list') {
+      if (key === 'Up' || key === 'Down') {
+        const i = key === 'Up' ? item - 1 : item + 1
+        if (i >= 0 && i < rows.length) {
+          setItem(i)
+          playUi(16)
+        }
+      } else if (key === 'Enter') {
+        playUi(UI_SOUND.SELECT)
+        setPopup(row)
+      } else if (key === 'Right') {
+        setFocus('next')
+        playUi(16)
+      } else if (key === 'Left') {
+        setFocus('prev')
+        playUi(16)
+      }
+      return true
+    }
+    if (focus === 'next') {
+      if (key === 'Left') setFocus('list')
+      else if (key === 'Enter') {
+        playUi(UI_SOUND.SELECT)
+        goNext()
+      }
+      return true
+    }
+    if (key === 'Right') setFocus('list')
+    else if (key === 'Enter') {
+      playUi(UI_SOUND.SELECT)
+      go('language')
+    }
+    return true
+  })
+
+  const listFocused = focus === 'list' && !message
+  const help = helpFor(row)
+  const rowTop = (k: number) => LIST_Y + 102 + ROW_H * k
+  const pop = popup ? options(popup) : null
+  const popTop = popup && pop
+    ? Math.min(rowTop(rows.indexOf(popup)) - POPUP_INSET - POPUP_MARGIN, 1080 - 24 - popupHeight(pop.items.length))
+    : 0
+  return (
+    <>
+      <Wizard
+        title={S.configureTitle}
+        step={PNP_STEP.configure}
+        total={PNP_TOTAL}
+        smartHubStep={PNP_SMARTHUB_STEP}
+        prev="normal"
+        next="normal"
+        focus={listFocused ? 'content' : focus === 'list' ? 'content' : focus}
+        bubble={listFocused ? 'next' : undefined}
+        hiding={hiding}
+        pageKey="configure"
+      >
+        <div className={`pnp-dim${message ? ' pnp-dim--on' : ''}`}>
+          <div className="pnp-intro pnp-intro--list">{S.configureIntro}</div>
+          <div className="wl">
+            {rows.slice(0, ROWS).map((r, k) => {
+              const cls = !listFocused ? ' wl__row--dim' : k === item ? ' wl__row--focus' : ''
+              return (
+                <div key={r} className={`wl__row${cls}`} style={{ top: 102 + ROW_H * k }}>
+                  {listFocused && k === item && <div className="wl__focus" />}
+                  <span className="wl__title">{title(r)}</span>
+                  <span className="wl__value">{value(r)}</span>
+                </div>
+              )
+            })}
+          </div>
+          {/* help window (1248,252): text alone at the top; with a picture, the picture on top and the
+              text under it like the TV usage layout (TV_USAGE_PIG 842,189 / TV_USAGE_INFO_TEXT_PIG
+              842,380 of the 1280 OSD) (inferred: the CHelpWindow layout was not traced) */}
+          {help.img ? (
+            <>
+              <img className="pnp-helpimg" src={`${PNP_IMG}/${help.img}`} alt="" />
+              <div className="pnp-help pnp-help--below">{help.text}</div>
+            </>
+          ) : (
+            <div className="pnp-help pnp-help--top">{help.text}</div>
+          )}
+        </div>
+      </Wizard>
+      {popup && pop && (
+        <Popup
+          items={pop.items}
+          value={pop.value}
+          right={1920 - (LIST_X + LIST_W) - POPUP_INSET}
+          top={popTop}
+          onPick={i => pick(popup, i)}
+          onClose={() => setPopup(null)}
+        />
+      )}
+      {message && <MessageBox text={S.noNetworkAdvice} buttons={[S.ok]} timeoutMs={30000} onButton={() => setMessage(false)} />}
+    </>
+  )
+}
+
+function helpFor(r: Row): { text: string; img?: string } {
+  switch (r) {
+    case 'country': return { text: S.countryHelp }
+    case 'channelSource': return { text: S.channelSourceHelp }
+    case 'source': return { text: '' }
+    case 'networkType':
+      // ReturnNetworkTypeHelp @02edebc8
+      if (pnp.networkType === 'Wireless') return { text: S.wirelessHelp, img: 'wireless_built_in_5.png' }
+      if (pnp.networkType === 'Wired') return { text: S.wiredHelp, img: 'message_lan_1.png' }
+      return { text: S.noNetworkHelp }
+    case 'wireless': return { text: S.wirelessNetworkHelp, img: 'network_wifi.png' }
+  }
+}

@@ -1,3 +1,4 @@
+/* Plug & Play pages (MenuOSDInfo values of the 960x540 design x2 = stage px; images x1.5) */
 .pnp {
   position: absolute;
   inset: 0;
@@ -10,4 +11,130 @@
   width: 100%;
   height: 100%;
   background: #000;
+}
+
+/* intro text: FONT_SIZE_20 white, row gap 16; (240,200) 1600 wide, list pages (240,276) 940 wide */
+.pnp-intro {
+  position: absolute;
+  left: 240px;
+  top: 200px;
+  width: 1600px;
+  font-size: 40px;
+  line-height: 56px;
+  color: #fff;
+  white-space: pre-line;
+}
+.pnp-intro--list { top: 276px; width: 940px; height: 104px; }
+
+/* list widget: (176,308) 1032x724, rows 104 from y 102 (RISLIST_TOP_MARGIN), 5 visible */
+.wl {
+  position: absolute;
+  left: 176px;
+  top: 308px;
+  width: 1032px;
+  height: 724px;
+}
+.wl__row {
+  position: absolute;
+  left: 0;
+  width: 1032px;
+  height: 104px;
+  font-size: 40px;
+  color: #fff;
+}
+.wl__row--focus { color: #fdd910; }
+.wl__row--dim { color: rgba(255, 255, 255, 0.5); }
+/* Menu/wizard_highlight 82x82 as a 9-slice: 40 px source borders drawn as 60 (LIST_FOCUS_DIV_W),
+   LIST_5_ITEMS_FOCUS_H 168 centred on the row */
+.wl__focus {
+  position: absolute;
+  left: 0;
+  top: -32px;
+  width: 1032px;
+  height: 168px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 60px;
+  border-image: url('/f13/setup/wizard/wizard_highlight.png') 40 fill / 60px stretch;
+}
+.wl__check {
+  position: absolute;
+  left: 68px;
+  top: 28px;
+  width: 48px;
+  height: 48px;
+}
+.wl__check--dim { opacity: 0.5; }
+.wl__lang, .wl__title, .wl__value {
+  position: absolute;
+  top: 0;
+  height: 104px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.wl__lang { left: 144px; width: 744px; }
+.wl__title { left: 64px; width: 428px; }
+.wl__value { left: 540px; width: 428px; justify-content: flex-end; }
+/* Common/indi_arrow_up_hi_s / indi_arrow_down_hi_s 48x34 in an 80x56 box at list x 476 */
+.wl__arrow {
+  position: absolute;
+  left: 480px;
+  width: 72px;
+  height: 51px;
+}
+.wl__arrow--up { top: 46.5px; }
+.wl__arrow--down { top: 630.5px; }
+
+/* right-hand help: FONT_SIZE_17 #A9F8FF, row gap 16 */
+.pnp-help {
+  font-size: 34px;
+  line-height: 50px;
+  color: #a9f8ff;
+  white-space: pre-line;
+}
+.pnp-help--lang {
+  position: absolute;
+  left: 1264px;
+  top: 570px;
+  width: 440px;
+}
+/* language page remote image: 442x280 box at (1264,276), image centred at the bottom */
+.pnp-langimg {
+  position: absolute;
+  left: 1265px;
+  top: 289px;
+  width: 439.5px;
+  height: 267px;
+}
+/* Configure your TV help: WIZARD_HELP (1248,252) 440 wide; pictures at TV_USAGE_PIG (842,189)x1.5 */
+.pnp-help--top { position: absolute; left: 1248px; top: 252px; width: 440px; }
+.pnp-help--below { position: absolute; left: 1263px; top: 570px; width: 440px; }
+.pnp-helpimg { position: absolute; left: 1263px; top: 283.5px; width: 441px; }
+.pnp-dim { position: absolute; inset: 0; }
+.pnp-dim--on { opacity: 0.5; }
+
+/* Setup complete! */
+.pnp-complete {
+  position: absolute;
+  left: 160px;
+  top: 260px;
+  width: 1600px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 40px;
+  line-height: 56px;
+  color: #fff;
+  white-space: pre-line;
+}
+.pnp-cube {
+  position: absolute;
+  left: 664px;
+  top: 296px;
+  width: 588px;
+  height: 588px;
 }

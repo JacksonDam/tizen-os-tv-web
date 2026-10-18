@@ -1,0 +1,201 @@
+/* Auto Tuning (AutoTuning.tsx): CChannelSearchOSDInfo 960x540 values x2, bitmaps x1.5 */
+
+/* descriptions: DES_TEXT_SIZE 20, white, left, v-centred in 470x62 */
+.at-desc {
+  position: absolute;
+  left: 240px;
+  width: 940px;
+  height: 124px;
+  display: flex;
+  align-items: center;
+  font-size: 40px;
+  line-height: 50px;
+  color: #fff;
+}
+
+/* option rows: x 244 w 896 h 92; title 640 wide left, value 628 wide right-aligned (right edge 1140) */
+.at-row {
+  position: absolute;
+  left: 244px;
+  width: 896px;
+  height: 92px;
+  font-size: 40px;
+  color: #fff;
+}
+.at-row--focus { color: #fdd911; }
+.at-row--dim { opacity: 0.4; }
+.at-row__title, .at-row__value {
+  position: absolute;
+  top: 0;
+  height: 92px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+}
+.at-row__title { left: 0; width: 640px; }
+.at-row__value { left: 268px; width: 628px; justify-content: flex-end; }
+.at-focus {
+  position: absolute;
+  left: -68px;
+  top: -28px;
+  width: 1032px;
+  height: 148px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 61.5px;
+  border-image: url('/f13/setup/wizard/wizard_highlight.png') 41 fill / 61.5px stretch;
+}
+
+/* help at the right: HELP_TEXT_SIZE 17 #A9F8FF, row gap 7 */
+.at-help {
+  position: absolute;
+  left: 1256px;
+  top: 284px;
+  width: 440px;
+  font-size: 34px;
+  line-height: 48px;
+  color: #a9f8ff;
+}
+
+/* buttons: 200x50 controls, wizard_terms_btn_n / wizard_terms_btn_new_s 66x66 9-sliced at half size,
+   WIZARD_WINDOW_BUTTON_TEXT_SIZE 20 black, centred */
+.at-btn {
+  position: absolute;
+  top: 930px;
+  width: 400px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: #000;
+  isolation: isolate;
+}
+.at-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-width: 49.5px;
+  border-image: url('/f13/setup/scan/wizard_terms_btn_n.png') 33 fill / 49.5px stretch;
+}
+.at-btn--sel::before { border-image-source: url('/f13/setup/scan/wizard_terms_btn_new_s.png'); }
+
+/* "Channel N": DETAIL_TEXT_SIZE 18 white at (292,348), number 40 px after the label */
+.at-chan {
+  position: absolute;
+  left: 292px;
+  top: 348px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  font-size: 36px;
+  color: #fff;
+  white-space: nowrap;
+}
+.at-chan__found { color: #ff7f00; }
+
+/* progress: progress_bg_variable 22x21 9-slice (11x10) 536x32 at (292,408) */
+.at-bar {
+  position: absolute;
+  left: 292px;
+  top: 408px;
+  width: 536px;
+  height: 32px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 15px 16.5px;
+  border-image: url('/f13/setup/scan/progress_bg_variable.png') 10 11 fill / 15px 16.5px stretch;
+}
+.at-fill1 {
+  position: absolute;
+  left: 292px;
+  top: 408px;
+  width: 31.5px;
+  height: 31.5px;
+}
+.at-fill {
+  position: absolute;
+  left: 292px;
+  top: 408px;
+  height: 31.5px;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 15px 16.5px;
+  border-image: url('/f13/setup/scan/progress_bar_variable.png') 10 11 fill / 15px 16.5px stretch;
+}
+.at-pct {
+  position: absolute;
+  left: 852px;
+  top: 396px;
+  width: 100px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-size: 36px;
+  color: #fff;
+}
+
+/* count table: wizard_list_bg 18x18 9-slice at (292,480) 664 wide; text #477DB5 36 px */
+.at-table {
+  position: absolute;
+  left: 292px;
+  top: 480px;
+  width: 664px;
+}
+.at-table::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 13.5px;
+  border-image: url('/f13/setup/scan/wizard_list_bg.png') 9 fill / 13.5px stretch;
+}
+.at-cell {
+  position: absolute;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  font-size: 36px;
+  color: #477db5;
+  white-space: nowrap;
+}
+.at-cell--num { left: 516px; width: 100px; justify-content: flex-end; }
+.at-dot {
+  position: absolute;
+  left: 56px;
+  width: 15px;
+  height: 15px;
+}
+.at-line {
+  position: absolute;
+  left: 8px;
+  top: 250px;
+  width: 648px;
+  height: 4px;
+  background: #c9c6b5;
+}
+
+/* antenna animation air_1..5 / cable_1..5 (294x412) at (1256,240) */
+.at-ani {
+  position: absolute;
+  left: 1256px;
+  top: 240px;
+  width: 441px;
+  height: 618px;
+}
+/* live picture after the scan: 640x360 at (1080,480) */
+.at-preview {
+  position: absolute;
+  left: 1080px;
+  top: 480px;
+  width: 640px;
+  height: 360px;
+  object-fit: fill;
+  background: #000;
+}
+
+.at-app { position: absolute; inset: 0; }

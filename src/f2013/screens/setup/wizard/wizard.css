@@ -115,3 +115,129 @@
 .wiz-btn--sel { background-image: url('/f13/setup/wizard/wizard_btn_sel_new.png'); }
 .wiz-btn--dim { opacity: 0.5; }
 .wiz-btn--dim span { color: rgba(0, 0, 0, 0.5); }
+
+/* ---- option popup (CPopUpWidget, widgets.tsx) ---- */
+.pop { position: absolute; z-index: 50; font-weight: 500; }
+.pop::before {
+  /* AppCM/act_popup_shadow 48x48 over the whole box, slices (48-2)/2 */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 34.5px;
+  border-image: url('/f13/setup/popup/act_popup_shadow.png') 23 fill / 34.5px stretch;
+}
+.pop__inner {
+  /* the list window sits DEFAULTWND_SHADOW_BG 21/2 inside: #222D3B rectangle + sub_popup_bg frame */
+  position: absolute;
+  inset: 15.75px;
+  background: #222d3b;
+}
+.pop__inner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 72px;
+  border-image: url('/f13/setup/popup/sub_popup_bg.png') 48 / 72px stretch;
+}
+.pop__item { position: absolute; left: 0; right: 0; }
+.pop__focus {
+  position: absolute;
+  left: 50%;
+  width: 480px;
+  height: 127.5px;
+  margin-left: -240px;
+  border-style: solid;
+  border-width: 60px;
+  border-image: url('/f13/setup/popup/list_highlight.png') 40 fill / 60px stretch;
+}
+.pop__check {
+  position: absolute;
+  left: 36px;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+}
+.pop__text {
+  position: absolute;
+  left: 96px;
+  right: 24px;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  font-size: 36px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.pop__item--focus .pop__text { color: #fdd911; }
+.pop__arrow {
+  position: absolute;
+  left: 50%;
+  width: 63px;
+  height: 43.5px;
+  margin-left: -31.5px;
+}
+.pop__arrow--up { top: 0; }
+.pop__arrow--down { bottom: 0; }
+
+/* ---- message box (CMessageBox, widgets.tsx): 544 wide, centred ---- */
+.msg { position: absolute; z-index: 60; left: 552px; width: 816px; font-weight: 500; }
+.msg::before {
+  /* AppCM/act_popup_shadow, 21 px larger than the box */
+  content: '';
+  position: absolute;
+  inset: -15.75px;
+  border-style: solid;
+  border-width: 34.5px;
+  border-image: url('/f13/setup/popup/act_popup_shadow.png') 23 fill / 34.5px stretch;
+}
+.msg__fill {
+  /* BG_ALPHA_COLOR black at the OSD transparency (inferred 80 %) under the frame */
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+}
+.msg__fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-width: 40.5px;
+  border-image: url('/f13/setup/popup/message_popup_bg.png') 27 / 40.5px stretch;
+}
+.msg__text {
+  position: absolute;
+  left: 90px;
+  width: 636px;
+  font-size: 36px;
+  line-height: 56.7px;  /* 36 + MESSAGEBOX_TEXT_ROW_GAP 9 x1.5 (approx. line box) */
+  color: #fff;
+  text-align: center;
+  white-space: pre-line;
+}
+.msg__btn {
+  position: absolute;
+  width: 264px;
+  height: 79.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #fff;
+}
+.msg__btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-style: solid;
+  border-width: 39px;
+  border-image: url('/f13/setup/popup/btn_normal.png') 26 fill / 39px stretch;
+}
+.msg__btn--focus::before { border-image-source: url('/f13/setup/popup/btn_focused.png'); }
+.msg__btn { isolation: isolate; }

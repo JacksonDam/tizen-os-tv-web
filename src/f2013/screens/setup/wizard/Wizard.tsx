@@ -26,6 +26,8 @@ export type WizardProps = {
   close?: NavState
   buttons?: { label: string; disabled?: boolean }[]
   focus: WizFocus
+  bubble?: 'prev' | 'next'  // keep this circle's bubble up while the content has the focus
+                            // (CPlugPlayWizardWindow::t_ShowNavigationTextBox)
   hiding?: boolean         // the page content is playing its hide animation
   pageKey: string | number // a new key plays the content's show animation
   children?: ReactNode
@@ -66,18 +68,19 @@ function StepIndicator({ step, total, smartHubStep, tvStep }: Pick<WizardProps, 
   return <>{items}</>
 }
 
-function NavButton({ kind, state, focused }: { kind: 'prev' | 'next' | 'skip' | 'close'; state: NavState; focused: boolean }) {
+function NavButton({ kind, state, focused, forced = false }: { kind: 'prev' | 'next' | 'skip' | 'close'; state: NavState; focused: boolean; forced?: boolean }) {
   // a bubble shows next to the focused circle until it loses the focus or 10 s pass
   const [bubble, setBubble] = useState(false)
+  const shown = focused || forced
   useEffect(() => {
-    if (!focused) {
+    if (!shown) {
       setBubble(false)
       return
     }
     setBubble(true)
     const t = setTimeout(() => setBubble(false), BUBBLE_MS)
     return () => clearTimeout(t)
-  }, [focused])
+  }, [shown, focused])
   if (state === 'hidden') return null
   const file = { prev: 'preview', next: 'next', skip: 'skip', close: 'close' }[kind]
   const img = state === 'disabled' ? 'd' : focused ? 'h' : 'n'
@@ -113,8 +116,8 @@ export function Wizard(p: WizardProps) {
           )
         })}
       </div>
-      <NavButton kind="prev" state={p.prev ?? 'hidden'} focused={p.focus === 'prev'} />
-      <NavButton kind="next" state={p.next ?? 'hidden'} focused={p.focus === 'next'} />
+      <NavButton kind="prev" state={p.prev ?? 'hidden'} focused={p.focus === 'prev'} forced={p.bubble === 'prev'} />
+      <NavButton kind="next" state={p.next ?? 'hidden'} focused={p.focus === 'next'} forced={p.bubble === 'next'} />
       <NavButton kind="skip" state={p.skip ?? 'hidden'} focused={p.focus === 'skip'} />
       <div className={closeBelowSkip ? 'wiz-close--low' : undefined}>
         <NavButton kind="close" state={p.close ?? 'hidden'} focused={p.focus === 'close'} />
