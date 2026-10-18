@@ -215,3 +215,11 @@
 .m13-net-btn--sel { border-image: url('/f13/menu/net/wizard_terms_btn_s.png') 0 32 fill stretch; }
 .m13-net-btn--sel span { color: #fff; }
 .m13-net-popup { position: absolute; }
+
+/* self diagnosis (selftest.tsx) */
+.m13-st-photo { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; object-fit: fill; }
+.m13-st-info { position: absolute; display: flex; align-items: center; gap: 21px; padding: 0 26px; font-size: 26px; color: #fff; white-space: nowrap; }
+.m13-st-info-bg { position: absolute; inset: 0; border-style: solid; border-width: 78px 32px; border-color: transparent; border-image: url('/f13/menu/selftest/infobanner_00.png') 78 32 fill stretch; }
+.m13-st-info > span { position: relative; }
+.m13-st-info-value { color: #86b7e3; }
+.m13-st-speaker { position: absolute; width: 106px; height: 106px; }

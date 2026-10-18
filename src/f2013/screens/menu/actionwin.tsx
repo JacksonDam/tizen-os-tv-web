@@ -8,6 +8,7 @@ import { IMG } from './parts'
 import type { MenuItem } from './types'
 import type { Widget } from './widgets'
 import { NetworkSettings, NetworkStatus } from './network'
+import { PictureTest, SoundTest } from './selftest'
 
 // CMenuActionWindowBase on CDefaultWindow (AppMWOSDInfo / MenuOSDInfo, 1280x720 OSD space):
 //  - background AppCM/act_window_bg 9-slice (DEFAULTWND_BG_POSITION 2/24/139: corners 24 wide, top
@@ -180,6 +181,10 @@ export function actionWindow(it: MenuItem): Widget | null {
       return { kind: 'custom', item: it, hideMenu: true, render: p => <NetworkStatus {...p} openSettings={() => p.change?.(networkSettingsWidget(it))} /> }
     case 0x4d:   // Network Settings
       return networkSettingsWidget(it)
+    case 0x6ea:  // Self Diagnosis > Picture Test
+      return { kind: 'custom', item: it, hideMenu: true, render: p => <PictureTest item={it} {...p} /> }
+    case 0x6ec:  // Self Diagnosis > Sound Test
+      return { kind: 'custom', item: it, hideMenu: true, render: p => <SoundTest item={it} {...p} /> }
   }
   return null
 }

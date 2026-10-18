@@ -15,7 +15,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "hide action:0x16",
     "h": "Select a picture mode that best suits your viewing environment.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -41,7 +40,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "child",
     "h": "Select the angle that best suits your viewing position.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -63,7 +61,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Select the angle that best suits your viewing position.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -86,7 +83,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "hide action:0x28",
       "h": "Adjust viewing angle. Values closer to 10 are ideal for enjoying better picture quality from upper viewing positions.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "v": [
        1,
        10,
@@ -101,7 +97,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 7,
     "ok": "hide action:0x2e",
     "h": "Adjust backlight brightness to your preference. 20 is the brightest setting.",
-    "dis": "\"This function isn't available.\"",
     "v": [
      0,
      20,
@@ -114,7 +109,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 7,
     "ok": "hide action:0x29",
     "h": "Adjust contrast levels. The closer to 100, the more pronounced the light/dark contrast.",
-    "dis": "\"This function isn't available.\"",
     "v": [
      0,
      100,
@@ -127,7 +121,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 7,
     "ok": "hide action:0x2a",
     "h": "Adjust brightness levels. The closer to 100, the brighter the screen.",
-    "dis": "\"This function isn't available.\"",
     "v": [
      0,
      100,
@@ -140,7 +133,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 7,
     "ok": "hide action:0x2b",
     "h": "Adjust picture sharpness. The closer to 100, the sharper the image.",
-    "dis": "\"This function isn't available.\"",
     "v": [
      0,
      100,
@@ -153,7 +145,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 7,
     "ok": "hide action:0x2c",
     "h": "Adjust colour saturation levels. The closer to 100, the more intense the colours.",
-    "dis": "\"This function isn't available.\"",
     "v": [
      0,
      100,
@@ -166,7 +157,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 9,
     "ok": "hide action:0x2d",
     "h": "Adjust tint levels for green and red. The closer to 100 for each colour, the more vibrant the colour.",
-    "dis": "\"This function isn't available.\"",
     "v": [
      0,
      100,
@@ -179,7 +169,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Select the size and aspect ratio of the picture displayed on-screen.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       8,
@@ -221,7 +210,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0xa4",
       "h": "Select the size and aspect ratio of the picture displayed on-screen.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         8,
@@ -256,7 +244,7 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "hide action:0xa5",
       "h": "Adjust picture size and position.",
       "en": false,
-      "dis": "\"This function isn't available with the current picture size.\""
+      "dis": "This function isn't available with the current picture size."
      },
      {
       "id": 237,
@@ -264,7 +252,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 5,
       "ok": "dim1 widget",
       "h": "Select the desired picture size at the 4:3 WSS (Wide Screen Service) size or the original size.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -292,7 +279,7 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure 3D settings.",
-    "dis": "\"This function isn't available when 3D effect is disabled.\"",
+    "dis": "This function isn't available when 3D effect is disabled.",
     "k": [
      {
       "id": 243,
@@ -301,7 +288,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "hide action:0xf3",
       "h": "Select 3D input format.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -319,7 +305,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 6,
       "ok": "hide action:0x100",
       "h": "Adjust overall 3D perspective of on-screen image.",
-      "dis": "\"This function isn't available when 3D effect is disabled.\"",
+      "dis": "This function isn't available when 3D effect is disabled.",
       "v": [
        -5,
        5,
@@ -332,7 +318,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 6,
       "ok": "hide action:0x101",
       "h": "Adjust overall 3D depth.",
-      "dis": "\"This function isn't available.\"",
       "v": [
        1,
        10,
@@ -345,7 +330,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0x109",
       "h": "Switch left image to right, and vice versa.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -363,7 +347,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0xfd",
       "h": "Convert 3D image to 2D image.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -381,7 +364,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Set to automatically view in 3D when 3D input is detected.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -403,7 +385,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 6,
       "ok": "hide action:0x110",
       "h": "Optimise overall 3D picture clarity.",
-      "dis": "\"This function isn't available when 3D effect is disabled.\"",
+      "dis": "This function isn't available when 3D effect is disabled.",
       "v": [
        -1,
        1,
@@ -418,7 +400,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "hide action:0x7c1",
     "h": "View two sources on the TV at the same time.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -436,7 +417,7 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure advanced display settings to create your ideal viewing experience.",
-    "dis": "\"This function isn't available with the current picture mode.\"",
+    "dis": "This function isn't available with the current picture mode.",
     "k": [
      {
       "id": 82,
@@ -444,7 +425,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0x52",
       "h": "Balance contrast automatically to prevent excessive differences between light and dark levels.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -470,7 +450,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0x4d",
       "h": "Adjust black colour depth to enhance picture perspective.",
-      "dis": "\"This function isn't available when a PC is selected as the input source.\"",
+      "dis": "This function isn't available when a PC is selected as the input source.",
       "o": [
        [
         0,
@@ -496,7 +476,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 6,
       "ok": "hide action:0x91",
       "h": "Adjust the flesh tone colour by increasing or decreasing red levels.",
-      "dis": "\"This function isn't available when a PC is selected as the input source.\"",
+      "dis": "This function isn't available when a PC is selected as the input source.",
       "v": [
        -15,
        15,
@@ -509,7 +489,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0x5f",
       "h": "Display red, green or blue only when fine-tuning colour hue and saturation.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -535,7 +514,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "child",
       "h": "Configure colour space settings, i.e. the range of colours that can be shown on screen simultaneously.",
-      "dis": "\"This function isn't available when a PC is selected as the input source.\"",
+      "dis": "This function isn't available when a PC is selected as the input source.",
       "o": [
        [
         0,
@@ -557,7 +536,7 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "hide action:0x65",
         "h": "Choose a colour space.",
-        "dis": "\"This function isn't available when a PC is selected as the input source.\"",
+        "dis": "This function isn't available when a PC is selected as the input source.",
         "o": [
          [
           0,
@@ -613,7 +592,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 13,
         "ok": "hide action:0x70",
         "h": "Adjust red saturation levels.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          100,
@@ -626,7 +604,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 13,
         "ok": "hide action:0x71",
         "h": "Adjust green saturation levels.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          100,
@@ -639,7 +616,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 13,
         "ok": "hide action:0x72",
         "h": "Adjust blue saturation levels.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          100,
@@ -662,7 +638,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Adjust red, green and blue brightness levels so that the brightest part of the image becomes white.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 119,
@@ -670,7 +645,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x77",
         "h": "Adjust low-level red intensity.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          50,
@@ -683,7 +657,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x78",
         "h": "Adjust low-level green intensity.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          50,
@@ -696,7 +669,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x79",
         "h": "Adjust low-level blue intensity.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          50,
@@ -709,7 +681,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x7a",
         "h": "Adjust high-level red intensity.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          50,
@@ -722,7 +693,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x7b",
         "h": "Adjust high-level green intensity.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          50,
@@ -735,7 +705,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x7c",
         "h": "Adjust high-level blue intensity.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          50,
@@ -747,8 +716,7 @@ export const CATEGORIES: MenuItem[] = [
         "t": "Reset",
         "r": 0,
         "ok": "dim1 widget",
-        "h": "Restore white balance settings to default values.",
-        "dis": "\"This function isn't available.\""
+        "h": "Restore white balance settings to default values."
        }
       ]
      },
@@ -758,7 +726,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 6,
       "ok": "hide action:0x5a",
       "h": "Adjust the middle level of luminance.",
-      "dis": "\"This function isn't available.\"",
       "v": [
        -3,
        3,
@@ -771,7 +738,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Adjust brightness levels according to on-screen picture motion to reduce power consumption.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -791,7 +757,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure additional display settings to your own preferences.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 47,
@@ -799,7 +764,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0x2f",
       "h": "Select a colour tone that best suits your viewing needs.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         1,
@@ -825,7 +789,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0xb7",
       "h": "Reduce picture noise to avoid distracting lines and flickering.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -859,7 +822,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "hide action:0xc2",
       "h": "Reduce MPEG picture noise to improve video quality.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -889,7 +851,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Adjust the video signal black levels to optimise HDMI picture brightness and contrast.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         1,
@@ -907,7 +868,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Optimise picture quality for video or film.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -929,7 +889,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "child",
       "h": "Optimise screen settings to display fast action scenes.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -959,7 +918,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "dim1 widget",
         "h": "Optimise screen settings to display fast action scenes.",
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           0,
@@ -990,7 +948,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "hide action:0xe3",
         "h": "Adjust blur reduction levels for video sources.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          10,
@@ -1004,7 +961,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "hide action:0xe4",
         "h": "Adjust judder reduction levels for video sources with film signals.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          10,
@@ -1018,7 +974,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Make fast moving images clearer by controlling the LED backlight.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           0,
@@ -1036,8 +991,7 @@ export const CATEGORIES: MenuItem[] = [
         "r": 11,
         "ok": "dim1 widget",
         "h": "Restore Motion Plus settings to default values.",
-        "en": false,
-        "dis": "\"This function isn't available.\""
+        "en": false
        }
       ]
      },
@@ -1048,7 +1002,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "dim1 widget",
       "h": "Reduce diagonal noise in the picture, caused by the crosstalk of signals.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -1066,7 +1019,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Adjust brightness levels of individual on-screen areas for optimum contrast.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         4,
@@ -1093,8 +1045,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Picture Off",
     "r": 0,
     "ok": "",
-    "h": "The TV screen is turned off but the audio will continue. Press any key (except the Power or Volume buttons) on your remote to turn the screen back on.",
-    "dis": "\"This function isn't available.\""
+    "h": "The TV screen is turned off but the audio will continue. Press any key (except the Power or Volume buttons) on your remote to turn the screen back on."
    },
    {
     "id": 305,
@@ -1102,7 +1053,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 widget",
     "h": "Use this setting to apply the picture mode of your choice to either the current or all sources.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -1119,8 +1069,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Reset Picture",
     "r": 0,
     "ok": "dim1 widget",
-    "h": "Restore all picture settings to default.",
-    "dis": "\"This function isn't available.\""
+    "h": "Restore all picture settings to default."
    }
   ]
  },
@@ -1135,7 +1084,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 widget",
     "h": "You can select a sound mode to suit your personal preferences.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -1169,7 +1117,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure your preferred effect for sound output.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 360,
@@ -1177,7 +1124,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Experience surround sound as if you were sitting in a cinema or concert hall.",
-      "dis": "\"This function isn't available when headphones are connected.\"",
+      "dis": "This function isn't available when headphones are connected.",
       "o": [
        [
         0,
@@ -1195,7 +1142,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Emphasise voice while maintaining background sound levels.",
-      "dis": "\"This function isn't available when headphones are connected.\"",
+      "dis": "This function isn't available when headphones are connected.",
       "o": [
        [
         0,
@@ -1213,7 +1160,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "dim1 action:0x143",
       "h": "Use Equaliser to customise the sound settings for each speaker.",
-      "dis": "\"This function isn't available when headphones are connected.\""
+      "dis": "This function isn't available when headphones are connected."
      }
     ]
    },
@@ -1222,8 +1169,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Speaker Settings",
     "r": 0,
     "ok": "child",
-    "h": "\"Configure your TV's speaker settings.\"",
-    "dis": "\"This function isn't available.\"",
+    "h": "Configure your TV's speaker settings.",
     "k": [
      {
       "id": 379,
@@ -1231,7 +1177,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Select a speaker for sound output.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         1,
@@ -1249,7 +1194,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Equalise the volume levels when switching channels.",
-      "dis": "\"This function isn't available when external speakers are selected.\"",
+      "dis": "This function isn't available when external speakers are selected.",
       "o": [
        [
         0,
@@ -1273,7 +1218,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure additional settings for optimum audio output.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 385,
@@ -1281,7 +1225,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Set DTV audio output volume.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 386,
@@ -1290,7 +1233,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Set MPEG audio output level.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "v": [
          -10,
          0,
@@ -1304,7 +1246,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Set HE-AAC audio output level.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "v": [
          -10,
          0,
@@ -1319,7 +1260,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Configure Digital Audio Out settings.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 389,
@@ -1327,7 +1267,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "dim1 widget",
         "h": "Select digital audio output format.",
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           0,
@@ -1345,7 +1284,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 6,
         "ok": "hide action:0x18b",
         "h": "Adjust digital audio output delay time.",
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          250,
@@ -1360,7 +1298,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Set Dolby Digital Compression mode.",
-      "dis": "\"This function isn't available with the current Audio Format.\"",
+      "dis": "This function isn't available with the current Audio Format.",
       "o": [
        [
         0,
@@ -1379,8 +1317,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Reset Sound",
     "r": 0,
     "ok": "dim1 widget",
-    "h": "Restore all sound settings to default.",
-    "dis": "\"This function isn't available.\""
+    "h": "Restore all sound settings to default."
    }
   ]
  },
@@ -1394,16 +1331,14 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Auto Tuning",
     "r": 0,
     "ok": "child",
-    "h": "\"Scans all channels and stores them in the TV's memory.\"",
-    "dis": "\"This function isn't available.\"",
+    "h": "Scans all channels and stores them in the TV's memory.",
     "k": [
      {
       "id": 463,
       "t": "Auto Tuning",
       "r": 0,
       "ok": "app",
-      "h": "Configure auto-tuning settings to scan and store channels.",
-      "dis": "\"This function isn't available.\""
+      "h": "Configure auto-tuning settings to scan and store channels."
      },
      {
       "id": 533,
@@ -1411,7 +1346,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Auto-tune channels while your TV is in standby mode.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         1,
@@ -1466,7 +1400,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 widget",
     "h": "Choose your preferred method of receiving digital broadcasts.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -1483,40 +1416,35 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Channel List",
     "r": 0,
     "ok": "app",
-    "h": "You can see TV channels in several ways.",
-    "dis": "\"This function isn't available.\""
+    "h": "You can see TV channels in several ways."
    },
    {
     "id": 567,
     "t": "Guide",
     "r": 0,
     "ok": "dim1 widget",
-    "h": "Provide programme info for each channel.",
-    "dis": "\"This function isn't available.\""
+    "h": "Provide programme info for each channel."
    },
    {
     "id": 696,
     "t": "Schedule Manager",
     "r": 0,
     "ok": "dim1 widget",
-    "h": "Manage your scheduled lists",
-    "dis": "\"This function isn't available.\""
+    "h": "Manage your scheduled lists"
    },
    {
     "id": 697,
     "t": "Edit Channel",
     "r": 0,
     "ok": "app",
-    "h": "This provides channel editing functions.",
-    "dis": "\"This function isn't available.\""
+    "h": "This provides channel editing functions."
    },
    {
     "id": 698,
     "t": "Edit Favourites",
     "r": 0,
     "ok": "app",
-    "h": "This allows you to make and edit favourite channel lists.",
-    "dis": "\"This function isn't available.\""
+    "h": "This allows you to make and edit favourite channel lists."
    },
    {
     "id": 699,
@@ -1524,7 +1452,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "You can set a broadcast source to watch TV",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 477,
@@ -1532,7 +1459,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Change country for analogue channels.",
-      "dis": "\"This function isn't available.\"",
       "o": []
      },
      {
@@ -1540,8 +1466,7 @@ export const CATEGORIES: MenuItem[] = [
       "t": "Manual Tuning",
       "r": 0,
       "ok": "app",
-      "h": "\"Scan for channels manually and store them in the TV's memory.\"",
-      "dis": "\"This function isn't available.\""
+      "h": "Scan for channels manually and store them in the TV's memory."
      },
      {
       "id": 466,
@@ -1549,16 +1474,14 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "hide action:0x1d2",
       "h": "Improve channel reception quality by fine-tuning its reception frequency (analogue broadcasts only).",
-      "en": false,
-      "dis": "\"This function isn't available.\""
+      "en": false
      },
      {
       "id": 700,
       "t": "Transfer Channel List",
       "r": 0,
       "ok": "dim1 pin:0x2bc",
-      "h": "Import or export channel list. A USB should be connected.",
-      "dis": "\"This function isn't available.\""
+      "h": "Import or export channel list. A USB should be connected."
      }
     ]
    },
@@ -1568,7 +1491,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "child",
     "h": "Configures the subtitle options.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -1586,7 +1508,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Switch Subtitles on or off.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -1605,7 +1526,7 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "dim1 widget",
       "h": "Select the subtitle mode.",
       "en": false,
-      "dis": "\"This function isn't available when subtitles are off.\"",
+      "dis": "This function isn't available when subtitles are off.",
       "o": [
        [
         0,
@@ -1624,7 +1545,7 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "dim1 widget",
       "h": "Select the subtitle language.",
       "en": false,
-      "dis": "\"This function isn't available when subtitles are off.\"",
+      "dis": "This function isn't available when subtitles are off.",
       "o": []
      },
      {
@@ -1633,7 +1554,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Set the primary subtitle language.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         6649203,
@@ -1771,7 +1691,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Set the secondary subtitle language.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         6649203,
@@ -1911,7 +1830,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Customise audio options for viewing broadcast content.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 663,
@@ -1920,7 +1838,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "child",
       "h": "Select the audio language type.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": [],
       "k": [
        {
@@ -1930,7 +1847,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Select the audio language type.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "o": []
        },
        {
@@ -1939,7 +1855,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "dim1 widget",
         "h": "Set the primary audio language.",
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           6649203,
@@ -2077,7 +1992,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "dim1 widget",
         "h": "Set the secondary audio language.",
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           6649203,
@@ -2218,7 +2132,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "dim1 widget",
       "h": "Select the audio format.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         1,
@@ -2261,7 +2174,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "child",
       "h": "Add audio description to the main audio for people with visual impairment.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -2280,7 +2192,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Add audio description to the main audio for people with visual impairment.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           0,
@@ -2299,7 +2210,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Adjust audio description volume.",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "v": [
          0,
          100,
@@ -2316,7 +2226,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 pin:0x3f3",
     "h": "Block some programs.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       255,
@@ -2394,7 +2303,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 widget",
     "h": "Selects Digital Text.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -2413,7 +2321,6 @@ export const CATEGORIES: MenuItem[] = [
     "ok": "child",
     "h": "Set teletext language.",
     "en": false,
-    "dis": "\"This function isn't available.\"",
     "o": [],
     "k": [
      {
@@ -2423,7 +2330,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "dim1 widget",
       "h": "Set teletext language.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": []
      },
      {
@@ -2432,7 +2338,7 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Sets the primary teletext language.",
-      "dis": "\"This function is only available when the channel you're watching has Teletext information.\"",
+      "dis": "This function is only available when the channel you're watching has Teletext information.",
       "o": [
        [
         6649203,
@@ -2570,7 +2476,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Sets the secondary teletext language.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         6649203,
@@ -2710,7 +2615,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 widget",
     "h": "Select to use either the built-in or downloaded guide.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       1,
@@ -2728,8 +2632,7 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Show common interface menu and application information.",
-    "en": false,
-    "dis": "\"This function isn't available.\""
+    "en": false
    },
    {
     "id": 470,
@@ -2737,7 +2640,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 pin:0x1d6",
     "h": "Prevent your children from accessing harmful content by locking channels.",
-    "dis": "\"This function isn't available.\"",
     "o": [
      [
       0,
@@ -3009,9 +2911,8 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Sports Mode",
     "r": 0,
     "ok": "",
-    "h": "\"Sports Mode optimises your settings for when you're watching sports.\"",
-    "en": false,
-    "dis": "\"This function isn't available.\""
+    "h": "Sports Mode optimises your settings for when you're watching sports.",
+    "en": false
    },
    {
     "id": 28726,
@@ -3081,8 +2982,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Notifications",
     "r": 0,
     "ok": "app",
-    "h": "Check the latest notifications.",
-    "dis": "\"This function isn't available.\""
+    "h": "Check the latest notifications."
    },
    {
     "id": 28747,
@@ -3117,8 +3017,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Setup",
     "r": 0,
     "ok": "hide action:0x2ce",
-    "h": "Setup includes Smart Hub Setup as well as TV Setup.",
-    "dis": "\"This function isn't available.\""
+    "h": "Setup includes Smart Hub Setup as well as TV Setup."
    },
    {
     "id": 948,
@@ -3126,7 +3025,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 2,
     "ok": "dim1 widget",
     "h": "Set the menu language.",
-    "dis": "\"This function isn't available.\"",
     "o": []
    },
    {
@@ -3135,7 +3033,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure the time-related settings.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 807,
@@ -3143,7 +3040,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Set current date and time.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 808,
@@ -3151,7 +3047,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "dim1 widget",
         "h": "Choose your preferred method of setting the clock.",
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           1,
@@ -3170,23 +3065,21 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "child",
         "h": "You can set the current time manually.",
         "en": false,
-        "dis": "\"This function isn't available when Clock Mode is set to Auto.\"",
+        "dis": "This function isn't available when Clock Mode is set to Auto.",
         "k": [
          {
           "id": 1976,
           "t": "Date",
           "r": 2,
           "ok": "dim1 widget",
-          "h": "Set current date using the numeric or up/down buttons.",
-          "dis": "\"This function isn't available.\""
+          "h": "Set current date using the numeric or up/down buttons."
          },
          {
           "id": 1977,
           "t": "Time",
           "r": 2,
           "ok": "dim1 widget",
-          "h": "Set current time using the numeric or up/down buttons.",
-          "dis": "\"This function isn't available.\""
+          "h": "Set current time using the numeric or up/down buttons."
          }
         ]
        },
@@ -3197,7 +3090,6 @@ export const CATEGORIES: MenuItem[] = [
         "ok": "dim1 widget",
         "h": "Set the right time by selecting an offset",
         "en": false,
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           -720,
@@ -3309,7 +3201,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Set sleep timer to turn TV off automatically at a specified time.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3347,31 +3238,27 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Set your TV to turn itself on automatically at a specified time.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 930,
         "t": "On Timer 1",
         "r": 2,
         "ok": "dim1 action:0x3a2",
-        "h": "Configure On Timer 1.",
-        "dis": "\"This function isn't available.\""
+        "h": "Configure On Timer 1."
        },
        {
         "id": 931,
         "t": "On Timer 2",
         "r": 2,
         "ok": "dim1 action:0x3a3",
-        "h": "Configure On Timer 2.",
-        "dis": "\"This function isn't available.\""
+        "h": "Configure On Timer 2."
        },
        {
         "id": 932,
         "t": "On Timer 3",
         "r": 2,
         "ok": "dim1 action:0x3a4",
-        "h": "Configure On Timer 3.",
-        "dis": "\"This function isn't available.\""
+        "h": "Configure On Timer 3."
        }
       ]
      },
@@ -3381,31 +3268,27 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Set your TV to turn itself off automatically at a specified time.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 938,
         "t": "Off Timer 1",
         "r": 2,
         "ok": "dim1 action:0x3aa",
-        "h": "Configure Off Timer 1.",
-        "dis": "\"This function isn't available.\""
+        "h": "Configure Off Timer 1."
        },
        {
         "id": 939,
         "t": "Off Timer 2",
         "r": 2,
         "ok": "dim1 action:0x3ab",
-        "h": "Configure Off Timer 2.",
-        "dis": "\"This function isn't available.\""
+        "h": "Configure Off Timer 2."
        },
        {
         "id": 940,
         "t": "Off Timer 3",
         "r": 2,
         "ok": "dim1 action:0x3ac",
-        "h": "Configure Off Timer 3.",
-        "dis": "\"This function isn't available.\""
+        "h": "Configure Off Timer 3."
        }
       ]
      }
@@ -3417,7 +3300,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Set up input devices to use with the TV. You can check your device list and adjust the settings in this menu.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 1720,
@@ -3425,15 +3307,13 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Set up a keyboard to use with your TV. You can adjust the keyboard settings in this menu.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 1722,
         "t": "Keyboard Options",
         "r": 0,
         "ok": "dim1 action:0x6ba",
-        "h": "Set default keyboard options like language and type.",
-        "dis": "\"This function isn't available.\""
+        "h": "Set default keyboard options like language and type."
        }
       ]
      },
@@ -3443,7 +3323,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 0,
       "ok": "child",
       "h": "Set up a mouse to use with your TV. You can adjust the mouse settings in this menu.",
-      "dis": "\"This function isn't available.\"",
       "k": [
        {
         "id": 1733,
@@ -3451,7 +3330,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 0,
         "ok": "child",
         "h": "Set the default options for the mouse buttons.",
-        "dis": "\"This function isn't available.\"",
         "k": []
        }
       ]
@@ -3464,7 +3342,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure energy saving options.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 61,
@@ -3472,7 +3349,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Reduce the power consumption by adjusting the screen brightness.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3498,7 +3374,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "child",
       "h": "Automatically optimizes TV screen brightness to the in-room lighting.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3516,7 +3391,6 @@ export const CATEGORIES: MenuItem[] = [
         "r": 2,
         "ok": "dim1 widget",
         "h": "Automatically optimizes TV screen brightness to the in-room lighting.",
-        "dis": "\"This function isn't available.\"",
         "o": [
          [
           0,
@@ -3533,9 +3407,9 @@ export const CATEGORIES: MenuItem[] = [
         "t": "Min. Backlight",
         "r": 7,
         "ok": "hide action:0x46",
-        "h": "\"Min Backlight is Backlight with minimum brightness. Min Backlight operates if its value is lower than Backlight's.\"",
+        "h": "Min Backlight is Backlight with minimum brightness. Min Backlight operates if its value is lower than Backlight's.",
         "en": false,
-        "dis": "\"This function isn't available when the eco sensor is off.\"",
+        "dis": "This function isn't available when the eco sensor is off.",
         "v": [
          0,
          20,
@@ -3550,7 +3424,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Saves power by turning the TV off automatically when no signal is received from the current source.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3576,7 +3449,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Save power by turning TV off automatically when no user operation is received for 4 hours.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3596,7 +3468,6 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Configure other TV settings to your own preferences.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 1140,
@@ -3604,7 +3475,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Accelerate speed of video games played via a games console connected to the TV. There may be a slight degradation in graphic quality.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3623,7 +3493,6 @@ export const CATEGORIES: MenuItem[] = [
       "ok": "dim1 widget",
       "h": "Display mode optimised for BD Wise-capable DVDs, Blu-ray discs and home cinema products.",
       "en": false,
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3641,7 +3510,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Adjust menu box transparency.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3662,8 +3530,7 @@ export const CATEGORIES: MenuItem[] = [
       "t": "Sound Feedback",
       "r": 2,
       "ok": "dim1 widget",
-      "h": "\"Your Samsung TV gives sound feedback so that you know that it's doing what you want it to. Sound feedback is turned on by default. Turn off Sound Feedback or adjust its volume.\"",
-      "dis": "\"This function isn't available.\"",
+      "h": "Your Samsung TV gives sound feedback so that you know that it's doing what you want it to. Sound feedback is turned on by default. Turn off Sound Feedback or adjust its volume.",
       "o": [
        [
         0,
@@ -3689,7 +3556,6 @@ export const CATEGORIES: MenuItem[] = [
       "r": 2,
       "ok": "dim1 widget",
       "h": "Display Samsung logo when the TV is turned on.",
-      "dis": "\"This function isn't available.\"",
       "o": [
        [
         0,
@@ -3751,8 +3617,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Change PIN",
     "r": 0,
     "ok": "dim1 pin:0x3cb",
-    "h": "Enter a 4-digit code required to change the PIN.",
-    "dis": "\"This function isn't available.\""
+    "h": "Enter a 4-digit code required to change the PIN."
    }
   ]
  },
@@ -3766,8 +3631,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "e-Manual (Troubleshooting)",
     "r": 0,
     "ok": "app",
-    "h": "\"You can read about and learn how to use your TV's features.\"",
-    "dis": "\"This function isn't available.\""
+    "h": "You can read about and learn how to use your TV's features."
    },
    {
     "id": 1767,
@@ -3775,39 +3639,34 @@ export const CATEGORIES: MenuItem[] = [
     "r": 0,
     "ok": "child",
     "h": "Test the TV picture, sound and signal.",
-    "dis": "\"This function isn't available.\"",
     "k": [
      {
       "id": 1770,
       "t": "Picture Test",
       "r": 0,
       "ok": "hide action:0x6ea",
-      "h": "\"Test the TV picture. Perform this test if you experience a problem with your TV's picture.\"",
-      "dis": "\"This function isn't available.\""
+      "h": "Test the TV picture. Perform this test if you experience a problem with your TV's picture."
      },
      {
       "id": 1772,
       "t": "Sound Test",
       "r": 0,
       "ok": "hide action:0x6ec",
-      "h": "\"Test the TV sound. Perform this test if you experience a problem with your TV's sound.\"",
-      "dis": "\"This function isn't available.\""
+      "h": "Test the TV sound. Perform this test if you experience a problem with your TV's sound."
      },
      {
       "id": 1773,
       "t": "Signal Information",
       "r": 0,
       "ok": "hide action:0x6ed",
-      "h": "Show digital broadcasting signal information.",
-      "dis": "\"This function isn't available.\""
+      "h": "Show digital broadcasting signal information."
      },
      {
       "id": 1769,
       "t": "Reset",
       "r": 0,
       "ok": "dim1 pin:0x6e9",
-      "h": "All settings, except network settings, will return to factory defaults.",
-      "dis": "\"This function isn't available.\""
+      "h": "All settings, except network settings, will return to factory defaults."
      }
     ]
    },
@@ -3849,8 +3708,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Use Mode",
     "r": 2,
     "ok": "dim1 widget",
-    "h": "\"Select the mode that is suitable for where you'll use the TV.\"",
-    "dis": "\"This function isn't available.\"",
+    "h": "Select the mode that is suitable for where you'll use the TV.",
     "o": [
      [
       0,
@@ -3867,8 +3725,7 @@ export const CATEGORIES: MenuItem[] = [
     "t": "Contact Samsung",
     "r": 0,
     "ok": "dim1 action:0x6e5",
-    "h": "Contact information for assistance with your TV.",
-    "dis": "\"This function isn't available.\""
+    "h": "Contact information for assistance with your TV."
    }
   ]
  }

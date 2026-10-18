@@ -30,6 +30,7 @@ export type MsgBox = {
   buttons?: string[]              // none = auto-close box
   onButton?: (index: number) => Widget | null | void  // next widget (another box) or null to close
   timeout?: number
+  icon?: string                   // CMessageBox::SetMsgIcon at MENU_MSG_BOX_ICON (40,30)
 }
 
 type Props = {
@@ -323,7 +324,7 @@ function MenuControlBar({ item, row, onClose, onExitMenu, onValue }: Props & { i
 // 197 px up to 3 rows, + 37 per row beyond; without: 149, + 32 per row beyond 3); buttons 176x53,
 // 13 px from the bottom, 5 px apart; centred on the screen.
 
-function MessageBox({ box, focus }: { box: MsgBox; focus: number }) {
+export function MessageBox({ box, focus, bottom }: { box: MsgBox; focus: number; bottom?: number }) {
   const ref = useRef<HTMLDivElement>(null)
   const [rows, setRows] = useState(1)
   useEffect(() => {
@@ -346,10 +347,11 @@ function MessageBox({ box, focus }: { box: MsgBox; focus: number }) {
   const bw = 176, gap = 5
   const total = btns.length * bw + (btns.length - 1) * gap
   return (
-    <div className="m13-msg" style={{ left: (1280 - W) / 2, top: (720 - H) / 2, width: W, height: H }}>
+    <div className="m13-msg" style={{ left: (1280 - W) / 2, top: bottom === undefined ? (720 - H) / 2 : 720 - H - bottom, width: W, height: H }}>
       <div className="m13-msg-shadow" style={{ left: -10, top: -10, width: W + 21, height: H + 21 }} />
       <div className="m13-msg-alpha" style={{ opacity: transparencyAlpha() }} />
       <div className="m13-msg-bg" />
+      {box.icon && <img src={box.icon} style={{ position: 'absolute', left: 40, top: 30 }} alt="" />}
       <div ref={ref} className="m13-msg-text" style={{ top: Y, textAlign: rows > 1 ? 'left' : 'center' }}>{box.text}</div>
       {btns.map((b, i) => (
         <div key={i} className={`m13-btn${i === focus ? ' m13-btn--focus' : ''}`} style={{ left: (W - total) / 2 + i * (bw + gap), top: H - 13 - 53, width: bw, height: 53 }}>
