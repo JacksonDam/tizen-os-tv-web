@@ -254,3 +254,6 @@
 .m13-tm-day > i.m13-tm-check--on::after { content: ''; position: absolute; left: 4px; top: 4px; width: 12px; height: 12px; background: #000; }
 .m13-tm-day-focus { position: absolute; left: -14px; top: -14px; width: 109px; height: 125px; border-style: solid; border-width: 41px 40px 42px 40px; border-color: transparent; border-image: url('/f13/menu/list_highlight.png') 41 40 42 40 fill stretch; }
 .m13-tm-popup { position: absolute; z-index: 2; }
+.m13-net-innerbox { position: absolute; border: 14px solid transparent; border-image: url('/f13/menu/net/act_window_innerbox.png') 14 fill stretch; }
+.m13-wfd { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; background: url('/f13/menu/net/wizard_bg.png') 0 0 / 100% 100% no-repeat, #1673cc; }
+.m13-wfd-text { position: absolute; display: flex; justify-content: center; text-align: center; color: #fff; white-space: pre-wrap; }

@@ -6,8 +6,9 @@ import { getSetting } from '../../tv/store'
 import { TRANSPARENCY_ALPHA } from './osd'
 import { IMG } from './parts'
 import type { MenuItem } from './types'
+import { getValue, optionText } from './values'
 import type { Widget } from './widgets'
-import { NetworkSettings, NetworkStatus } from './network'
+import { NetworkSettings, NetworkStatus, ScreenMirroring, WifiDirect } from './network'
 import { PictureTest, SoundTest } from './selftest'
 import { Equaliser } from './equaliser'
 import { SignalInformation } from './siginfo'
@@ -184,6 +185,10 @@ export function actionWindow(it: MenuItem): Widget | null {
       return { kind: 'custom', item: it, hideMenu: true, render: p => <NetworkStatus {...p} openSettings={() => p.change?.(networkSettingsWidget(it))} /> }
     case 0x4d:   // Network Settings
       return networkSettingsWidget(it)
+    case 0x4f:   // Wi-Fi Direct (network app)
+      return { kind: 'custom', item: it, hideMenu: true, render: p => <WifiDirect tvName={tvName()} {...p} /> }
+    case 0x5b:   // AllShare Settings > Screen Mirroring (WFD app, full screen)
+      return { kind: 'custom', item: it, hideMenu: true, render: p => <ScreenMirroring tvName={tvName()} {...p} /> }
     case 0x143:  // Sound Effect > Equaliser
       return { kind: 'custom', item: it, render: p => <Equaliser {...p} /> }
     case 0x6ea:  // Self Diagnosis > Picture Test
@@ -197,6 +202,13 @@ export function actionWindow(it: MenuItem): Widget | null {
   }
   return null
 }
+
+// the TV name (CWLANWrapper::GetTVName): System > Device Name's current entry
+function tvName() {
+  const it = { id: 0x51, t: '', o: DEVICE_NAMES.map((n, i) => [i, n] as [number, string]) }
+  return optionText(it, getValue(it))
+}
+const DEVICE_NAMES = ['[TV] Samsung', '[TV] Living room', '[TV] Bed room', '[TV] Small room', '[TV] Kitchen', '[TV] Home', 'User Input']
 
 function networkSettingsWidget(it: MenuItem): Widget {
   return { kind: 'custom', item: it, hideMenu: true, render: p => <NetworkSettings {...p} /> }

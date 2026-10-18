@@ -340,3 +340,90 @@ function NetPopup({ items, focus, current }: { items: string[]; focus: number; c
     </div>
   )
 }
+
+// ---------------------------------------------------------------------------------------------
+// Network > Wi-Fi Direct (CNetworkWifiDirectWindow): CDefaultWindow (253,88) 773x544, title N 0x84 size
+// 26; "Device Name : <<A>>" (N 0x88, the TV name) at (29,72) and N 0x85 at (29,110), size 24; inner box
+// Common/act_window_innerbox (18,177) 586x330 at the OSD transparency; device list (21,178) 7 rows of 53;
+// the search animation (Common/loading_48, 250 ms) at (653,205) while searching; buttons 160x53 at
+// x 605: Stop / Refresh (y 306) and Close (y 368). The window opens searching (t_SetButton: 120 s
+// alarm); nothing is in range, so the list stays empty (inferred: after the 120 s the search stops).
+
+export function WifiDirect({ close, exitMenu, tvName }: AWProps & { tvName: string }) {
+  const [searching, setSearching] = useState(true)
+  const [frame, setFrame] = useState(0)
+  const [focus, setFocus] = useState(0)
+  useEffect(() => {
+    if (!searching) return
+    const ani = setInterval(() => setFrame(f => (f + 1) % 18), 250)
+    const t = setTimeout(() => setSearching(false), 120000)
+    return () => {
+      clearInterval(ani)
+      clearTimeout(t)
+    }
+  }, [searching])
+  useRemote((k: RemoteKey) => {
+    if (k === 'Up' || k === 'Down') {
+      const f = k === 'Up' ? 0 : 1
+      if (f !== focus) {
+        setFocus(f)
+        playUi(UI_SOUND.MOVE)
+      }
+      return true
+    }
+    if (k === 'Enter') {
+      playUi(UI_SOUND.SELECT)
+      if (focus === 1) close()
+      else setSearching(s => !s)
+      return true
+    }
+    if (baseKeys(k, { close, exitMenu })) return true
+    return k !== 'Home' && k !== 'VolumeUp' && k !== 'VolumeDown' && k !== 'Mute'
+  })
+  const W = 773, H = 544
+  return (
+    <div className="m13-awin" style={{ left: 253, top: 88, width: W, height: H }}>
+      <div className="m13-msg-shadow" style={{ left: -10, top: -10, width: W + 21, height: H + 21 }} />
+      <div className="m13-msg-alpha" style={{ opacity: transparencyAlpha() }} />
+      <div className="m13-awin-bg" />
+      <div className="m13-awin-title" style={{ width: W, height: AW.TITLE_H }}>Wi-Fi Direct</div>
+      <div className="m13-net-msg" style={{ left: 29, top: 72, width: 600, height: 32, fontSize: 24 }}>{`Device Name : ${tvName}`}</div>
+      <div className="m13-net-msg" style={{ left: 29, top: 110, width: 600, height: 64, fontSize: 24, alignItems: 'flex-start' }}>Select your Wi-Fi Direct device to connect to.</div>
+      <div className="m13-net-innerbox" style={{ left: 18, top: 177, width: 586, height: 330, opacity: transparencyAlpha() }} />
+      {searching && <div className="m13-net-loading" style={{ left: 653, top: 205, backgroundPosition: `${-frame * 64}px 0` }} />}
+      {[searching ? 'Stop' : 'Refresh', 'Close'].map((b, i) => (
+        <div key={i} className={`m13-btn${i === focus ? ' m13-btn--focus' : ''}`} style={{ position: 'absolute', left: 605, top: i ? 368 : 306, width: 160, height: 53 }}>
+          <span>{b}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ---------------------------------------------------------------------------------------------
+// Network > AllShare Settings > Screen Mirroring (CWFDWindow, WFDOSDInfo 1280x720, state 1 "ready"):
+// full screen AppCM/wizard_bg, title "Screen Mirroring" (W 4) at (177,64) 925x56 size 42 #5ff9ff centred,
+// NetworkSetup/WFD/setting_mirroring at (536,184), the TV name at (177,402) 925x56 size 26 and W 0
+// at (177,456) 925x160 size 26 centred / top, row gap 8. Waits for a phone (120 s, SetState(1));
+// RETURN / EXIT close it (inferred: the timeout closes it too).
+
+export function ScreenMirroring({ close, exitMenu, tvName }: AWProps & { tvName: string }) {
+  useEffect(() => {
+    const t = setTimeout(close, 120000)
+    return () => clearTimeout(t)
+  }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+  useRemote((k: RemoteKey) => {
+    if (baseKeys(k, { close, exitMenu })) return true
+    return k !== 'VolumeUp' && k !== 'VolumeDown' && k !== 'Mute' && k !== 'Power'
+  })
+  return (
+    <div className="m13-wfd">
+      <div className="m13-wfd-text" style={{ left: 177, top: 64, width: 925, height: 56, fontSize: 42, color: '#5ff9ff', alignItems: 'center' }}>Screen Mirroring</div>
+      <img src={`${NET}/setting_mirroring.png`} style={{ position: 'absolute', left: 536, top: 184 }} alt="" />
+      <div className="m13-wfd-text" style={{ left: 177, top: 402, width: 925, height: 56, fontSize: 26, alignItems: 'center' }}>{tvName}</div>
+      <div className="m13-wfd-text" style={{ left: 177, top: 456, width: 925, height: 160, fontSize: 26, lineHeight: '34px' }}>
+        Ready for connection. To get started, launch AllShare Cast on your device.
+      </div>
+    </div>
+  )
+}
