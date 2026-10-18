@@ -5,6 +5,7 @@ import { getTv, setTv } from '../../tv/store'
 import { AutoTuneApp } from './autotune/AutoTuneApp'
 import { BootScreen } from './BootScreen'
 import { Pnp } from './pnp/Pnp'
+import { saveLastPage } from './pnp/steps'
 import { powerOff, powerOn } from './power'
 
 registerOverlay({ id: 'boot', z: 0, component: BootScreen })
@@ -24,6 +25,7 @@ if (typeof location !== 'undefined') {
   const q = new URLSearchParams(location.search).get('setup')
   if (q === '1') setTv({ setupDone: false })
   else if (q === '0') setTv({ setupDone: true })
+  if (q === '1' || q === '0') saveLastPage(null)   // a fresh run / no run to resume
 }
 
 // Test hook for captures: window.__setup.open('autotune') etc.
