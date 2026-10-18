@@ -20,10 +20,17 @@ export const INPUTS: Input[] = [
 ]
 
 // ceaphypgsel__hyselstr_getString: dynamic strings 1946..1961 name the connectors in the Connections
-// menu (pairs: label, list caption) (inferred order).
+// menu (pairs: label, list caption) for its eight connector lists list#68..#75 (properties
+// 0x234..0x23b); the side input has its own list (list#76 "Side", property 0x233, with camera and
+// game devices), so the connector lists name the rear inputs and an unused one is unavailable
+// (inferred order).
+const REAR = INPUTS.filter(i => i.id !== 'SIDE')
 export function sourceName(slot: number) {
-  const inp = INPUTS[slot >> 1]
+  const inp = REAR[slot >> 1]
   return inp ? strings.get(inp.name) : ''
+}
+export function connectorListAvailable(prop: number) {
+  return prop < 0x234 || prop > 0x23b || prop - 0x234 < REAR.length
 }
 export function inputName(id: string) {
   if (id === 'TV') return strings.get(511)

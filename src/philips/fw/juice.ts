@@ -390,7 +390,10 @@ export class Juice {
     }
   }
   // juicewidgetcommon__jwc_Draw2 + FUN_008fe45c (the scrolling-caption path is drawn clipped)
-  jwcDraw(w: number, x: number, y: number, st: number, alt: boolean) {
+  // last: the row is the last of a full menu column (flag 0x800): the caption's state style is drawn
+  // without its bottom piece (state | 0x10, jwc_Draw2)
+  jwcDraw(w: number, x: number, y: number, st0: number, alt: boolean, last = false) {
+    const st = last ? st0 | 0x10 : st0
     const j = this.jwcOf(w)
     if (!j || this.wstate(w) < 2) return
     const m = this.m
@@ -489,7 +492,7 @@ export class Juice {
       case CLS.icon: return this.iconDraw(w, x, y, flags)
       case CLS.dgrid: return this.dgridDraw(w, x, y, flags)
       default: {
-        if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags, flags & F.SELECTED), !!(flags & F.ALT))
+        if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags, flags & F.SELECTED), !!(flags & F.ALT), !!(flags & F.LAST))
       }
     }
   }
@@ -503,7 +506,7 @@ export class Juice {
     const a = this.T.JuiceDynamicGrids + idxOf(w) * 0xc0
     const ctrl = this.env.ctrl(this.prop(w), w)
     if (flags & F.HELP) this.helpDraw(w, x, y)
-    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT))
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT), !!(flags & F.LAST))
     if (flags & F.NOBODY) return
     let gx = x
     let gy = y
@@ -677,7 +680,7 @@ export class Juice {
       }
     }
     const cst = this.st(w, flags & 0x2001, flags & 2)
-    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, cst, !!(flags & F.ALT))
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, cst, !!(flags & F.ALT), !!(flags & F.LAST))
     if (flags & F.HELP) this.helpDraw(w, x, y)
   }
 
@@ -697,7 +700,7 @@ export class Juice {
       this.statusBody(w, px, py, flags, val)
     }
     if (flags & F.HELP) this.helpDraw(w, x, y)
-    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags & 0x2001, flags & 2), !!(flags & F.ALT))
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, this.st(w, flags & 0x2001, flags & 2), !!(flags & F.ALT), !!(flags & F.LAST))
   }
   // FUN_008f2ae4: the state style of the view, then the control's value (types 1 number, 2 / 5 string)
   // with its text background; also the status' vector draw, used for the cells of dynamic grids
@@ -719,7 +722,8 @@ export class Juice {
     else { bi = m.s16(ctl + 0xa); tx = m.s16(v + 4); ty = m.s16(v + 6); tss = m.s16(v + 0x10) }
     if (bi < 0) return
     const s = String(val)
-    this.jss(tss, px, py, m.s16(this.b2(bi) + 10), m.s16(this.b2(bi) + 8), st)
+    // the text background of the last row of a full column drops its bottom piece (flag 0x800)
+    this.jss(tss, px, py, m.s16(this.b2(bi) + 10), m.s16(this.b2(bi) + 8), flags & F.LAST ? st | 0x10 : st)
     if (m.u8(v + 0x16)) {
       // FUN_008f2ae4 wrap branch: the text is anchored like the label (anchor point, alignment within
       // the label's styled box, one line high) and handed to JWrapString with the view's clip width,
@@ -783,7 +787,7 @@ export class Juice {
       this.listItems(w, x1, y1, flags)
     }
     if (flags & F.HELP) this.helpDraw(w, x, y)
-    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 0x2001, !!(flags & 2)), !!(flags & F.ALT))
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 0x2001, !!(flags & 2)), !!(flags & F.ALT), !!(flags & F.LAST))
     if (flags & F.ITEMS && m.u8(a + 0x5a)) {
       // the current value next to the caption (collapsed list)
       const idx = this.listValueIndex(w)
@@ -925,7 +929,7 @@ export class Juice {
     const p = this.prop(w)
     const ctrl = this.env.ctrl(p, w)
     if (flags & F.HELP) this.helpDraw(w, x, y)
-    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT))
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT), !!(flags & F.LAST))
     if (flags & F.NOBODY) return
     this.fill(m.s16(a + 0xc2), x + m.s16(a + 0xc8), y + m.s16(a + 0xca), m.s16(a + 0xc4), m.s16(a + 0xc6))
     if (!(flags & F.NOOFFSET)) { x += m.u16(a + 0xba); y += m.u16(a + 0xbc) }
@@ -1018,7 +1022,7 @@ export class Juice {
     const a = this.T.JuiceButtons + idxOf(w) * 0x74
     const ctrl = this.env.ctrl(this.prop(w), w)
     if (flags & F.HELP) this.helpDraw(w, x, y)
-    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT))
+    if (!(flags & F.NOCAPTION)) this.jwcDraw(w, x, y, stateStyle(ctrl, flags & 1, !!(flags & 2)), !!(flags & F.ALT), !!(flags & F.LAST))
     if (flags & F.NOBODY) return
     x += m.s16(a + 0x66)
     y += m.s16(a + 0x68)

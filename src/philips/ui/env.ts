@@ -3,7 +3,7 @@ import { dynString } from '../fw/dyn'
 import { LANGUAGES, Strings } from '../fw/strings'
 import { getTv, setTv } from '../tv/store'
 import { ABSENT_PROPS, DEFAULTS, P } from './props'
-import { sourceName } from './sources'
+import { connectorListAvailable, sourceName } from './sources'
 
 // The TV application's side of the widget engine: strings in the menu language, property values from
 // the mocked TV (../tv/store.ts), availability of the model's features, and the per-screen widget
@@ -34,6 +34,7 @@ export class TvEnv implements Env {
     // Digital: Test reception shows the symbol rate (property 0x3ae) for cable installations only
     // (inferred: DVB-T has no symbol rate)
     if (prop === 0x3ae) return getProp(P.installMode) !== 1
+    if (!connectorListAvailable(prop)) return false
     return !ABSENT_PROPS.has(prop)
   }
   ctrl(_prop: number, w: number) {
