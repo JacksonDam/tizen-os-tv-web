@@ -37,3 +37,7 @@
 }
 .f13-tvv-vol-in { animation: f13-tvv-vol-in 200ms linear both; }
 .f13-tvv-vol-out { animation: f13-tvv-vol-out 200ms linear both; }
+
+/* viewer windows fade in (CViewerAnimationHelper, 200 ms) */
+@keyframes f13-tvv-fade { from { opacity: 0; } to { opacity: 1; } }
+.f13-tvv-fade { animation: f13-tvv-fade 200ms linear both; }
