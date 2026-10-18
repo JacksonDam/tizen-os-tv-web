@@ -30,7 +30,12 @@ export function Bmp({ src, x = 0, y = 0, w, h, style, className }: {
   const s: CSSProperties = { position: 'absolute', left: x, top: y, ...style }
   if (w !== undefined) s.width = w
   if (h !== undefined) s.height = h
-  if (w === undefined && h === undefined) s.zoom = IMG_SCALE
+  if (w === undefined && h === undefined) {
+    // CSS zoom also scales the element's own left/top, so place it in zoomed units
+    s.zoom = IMG_SCALE
+    s.left = x / IMG_SCALE
+    s.top = y / IMG_SCALE
+  }
   return <img className={className} src={img(src)} alt="" draggable={false} style={s} />
 }
 
