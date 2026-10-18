@@ -24,8 +24,12 @@ const EXHIBITS: Exhibit[] = [
   },
 ]
 
+// Hidden exhibit: a Philips TV, not listed as a card. Holding the P key for about a second opens it.
+const EGG_HOLD_MS = 1000
+
 export function Lobby() {
   const [focus, setFocus] = useState(EXHIBITS.length - 1)
+  const [charge, setCharge] = useState(0) // 0..1 while the P key is held
   const cards = useRef<(HTMLAnchorElement | null)[]>([])
 
   useEffect(() => {
@@ -38,6 +42,46 @@ export function Lobby() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
+
+  // Hold-to-open: ramp a charge from 0 to 1 while P is down; at full charge, go to the Philips page.
+  useEffect(() => {
+    let raf = 0
+    let start = 0
+    let opened = false
+    const tick = (t: number) => {
+      if (!start) start = t
+      const c = Math.min(1, (t - start) / EGG_HOLD_MS)
+      setCharge(c)
+      if (c >= 1) {
+        if (!opened) {
+          opened = true
+          location.href = `${BASE}philips/`
+        }
+        return
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    const onDown = (e: KeyboardEvent) => {
+      if ((e.key === 'p' || e.key === 'P') && !e.repeat && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        start = 0
+        raf = requestAnimationFrame(tick)
+      }
+    }
+    const reset = (e?: KeyboardEvent) => {
+      if (e && e.key !== 'p' && e.key !== 'P') return
+      cancelAnimationFrame(raf)
+      if (!opened) setCharge(0)
+    }
+    window.addEventListener('keydown', onDown)
+    window.addEventListener('keyup', reset)
+    window.addEventListener('blur', () => reset())
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('keydown', onDown)
+      window.removeEventListener('keyup', reset)
+    }
+  }, [])
+
   useEffect(() => {
     cards.current[focus]?.focus()
   }, [focus])
@@ -68,6 +112,11 @@ export function Lobby() {
         Unofficial recreation, not affiliated with Samsung.{' '}
         <a href="https://github.com/JacksonDam/tizen-os-tv-web">Source on GitHub</a>
       </footer>
+      {charge > 0 && (
+        <div className="lobby__charge" aria-hidden>
+          <div className="lobby__charge-fill" style={{ transform: `scaleX(${charge})` }} />
+        </div>
+      )}
     </main>
   )
 }
