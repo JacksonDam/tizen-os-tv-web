@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useRemote } from '../../../../input/remote'
 import { F13 } from '../../../assets'
 import { playUi, UI_SOUND } from '../../../tv/sound'
+import { POPUP_INSET, POPUP_ITEM_H, POPUP_MARGIN, POPUP_W, popupHeight, VISIBLE } from './popupGeometry'
 
 // Shared AppMW widgets the setup pages open: the option popup (CPopUpWidget) and the message box
 // (CMessageBox). Values are AppMWOSDInfo constants of the 1280x720 OSD, x1.5 on the stage
@@ -16,17 +17,6 @@ const POP = `${F13}/setup/popup`
 // the AppCM/sub_popup_bg frame (m_CreateBackgroundImage @01927db8). List (m_CreateList @01927ac4):
 // item POPUPWIDGET_ITEM_H 48, margins 22 top and bottom, focus Common/list_highlight 9-slice
 // 320x85; text at POPUPWIDGET_TEXT_X/Y 64,8 (220x40), check mark at CHECKBOX_X/Y 24,8.
-const POPUP_H = [128, 162, 210, 258, 306, 354, 402]
-export const POPUP_W = 325 * 1.5
-export const POPUP_ITEM_H = 48 * 1.5
-export const POPUP_MARGIN = 22 * 1.5
-export const POPUP_INSET = 21 * 0.75 // half the 21 px shadow, x1.5
-const VISIBLE = 7
-
-export function popupHeight(n: number) {
-  return POPUP_H[Math.min(n, VISIBLE) - 1] * 1.5
-}
-
 export type PopupProps = {
   items: string[]
   value: number            // the checked item
