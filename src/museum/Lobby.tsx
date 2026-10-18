@@ -74,14 +74,16 @@ export function Lobby() {
       timer = undefined
       if (!opened) setCharge(0)
     }
+    const onBlur = () => reset()
     window.addEventListener('keydown', onDown)
     window.addEventListener('keyup', reset)
-    window.addEventListener('blur', () => reset())
+    window.addEventListener('blur', onBlur)
     return () => {
       cancelAnimationFrame(raf)
       clearTimeout(timer)
       window.removeEventListener('keydown', onDown)
       window.removeEventListener('keyup', reset)
+      window.removeEventListener('blur', onBlur)
     }
   }, [])
 

@@ -49,6 +49,7 @@ const DEFAULT_SETTINGS: Record<number, number> = {
   29: 40, // Sharpness
   30: 0, // Color temperature -> Normal
   13: 0, // Sleeptimer -> Off
+  11: 1, // Mode selection -> Home (inferred: a set installed at home, not in a shop)
 }
 
 const initial: TvState = {

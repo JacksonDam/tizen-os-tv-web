@@ -73,6 +73,9 @@ html, body, #root {
 .ph-ambilight__side--l { left: -10%; }
 .ph-ambilight__side--r { right: -10%; }
 
+/* the on-screen remote sits above the wash, which only lights the letterbox around the TV */
+.shell > .rc { position: relative; z-index: 1; }
+
 /* ---- standby ---- */
 .ph-standby {
   position: absolute;
