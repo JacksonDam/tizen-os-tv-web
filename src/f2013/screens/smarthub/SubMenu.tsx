@@ -11,8 +11,28 @@ import {
 // The focus box (the panel's sub image as a 9-part composite) moves between buttons in 250 ms; entering
 // from the panel it rises from y 1080 at half height, leaving it drops back and fades in its last 50 ms
 // (AnimateSubmenuFocus @02bd0ca8 cases 2-5).
+// Coming back from an item (`back` set: the index of the button that ran it, or -1) the elements rise
+// on CHomeSubMenuWindow::OnBeginNormalizeWindow @02bd16d8's own schedule, that button already in place.
 
-export type SubSlide = { shown: boolean; base: number }
+export type SubSlide = { shown: boolean; base: number; back?: number }
+
+// OnBeginNormalizeWindow: element k (button 2i, line 2i + 1) rises with delay and duration both from
+// GBHOME_COMMON_GRID_ANIMATION_DURATION - 30; each element starts GBHOME_ANI_SUBMENU_PRECEDENCE_TIME - 10 i
+// after the one before, and each item's pair runs 30 + PRECEDENCE - 10 n ms shorter than the last.
+function normalizeTiming(n: number, k: number) {
+  let delay = GRID_MS - 30
+  let ms = GRID_MS - 30
+  for (let i = 0; i < n; i++) {
+    if (k === 2 * i) return { ms, delay }
+    delay += SUB_STAGGER_MS - 10 * i
+    if (i < n - 1) {
+      if (k === 2 * i + 1) return { ms, delay }
+      delay += SUB_STAGGER_MS - 10 * i
+    }
+    ms -= 30 + SUB_STAGGER_MS - 10 * n
+  }
+  return { ms, delay }
+}
 export type SubFocus = { index: number; visible: boolean }
 
 export function SubMenu({ panel, items, slide, focus }: { panel: number; items: string[]; slide: SubSlide; focus: SubFocus }) {
@@ -21,10 +41,17 @@ export function SubMenu({ panel, items, slide, focus }: { panel: number; items: 
   const w = SUB_W[n]
   const xs = SUB_X[n]
   const lines = SUB_LINE_X[n] ?? []
-  const el = (k: number): CSSProperties => ({
-    transform: `translateY(${slide.shown ? 0 : SUB_MOVE_Y}px)`,
-    transition: `transform ${SUB_SHOW_MS}ms linear ${slide.base + SUB_STAGGER_MS * k}ms`,
-  })
+  const el = (k: number): CSSProperties => {
+    if (slide.back !== undefined && slide.shown) {
+      if (k === slide.back * 2) return { transform: 'translateY(0)' }
+      const t = normalizeTiming(n, k)
+      return { transform: 'translateY(0)', transition: `transform ${t.ms}ms linear ${t.delay}ms` }
+    }
+    return {
+      transform: `translateY(${slide.shown ? 0 : SUB_MOVE_Y}px)`,
+      transition: `transform ${SUB_SHOW_MS}ms linear ${slide.base + SUB_STAGGER_MS * k}ms`,
+    }
+  }
   const fx = xs[Math.max(0, Math.min(n - 1, focus.index))]
   const img = `${IMG}/${SUBMENU_FOCUS_IMG[panel]}`
   return (

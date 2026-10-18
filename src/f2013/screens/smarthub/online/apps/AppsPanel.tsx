@@ -6,6 +6,7 @@ import { playUi, UI_SOUND } from '../../../../tv/sound'
 import { getSetting } from '../../../../tv/store'
 import { PinPopup } from './MoreApps'
 import { APPS } from '../../data'
+import { FLIP, FlipItem, type FlipTable } from '../../flip'
 import type { OnlinePanelProps } from '../../panels'
 import { fw, LIGHT, MEDIUM } from '../hubapps/assets'
 import {
@@ -56,6 +57,15 @@ function cellRect(t: Table, i: number) {
   }
   return { x: GRID_X + (i % COLS) * (CELL_W + GAP), y: SUB_Y + Math.floor(i / COLS) * (SUB_H + GAP), w: CELL_W, h: SUB_H }
 }
+
+// the item flip of the two tables (flip.tsx): one rectangle per table cell; the promotion covers cells
+// 8 and 9 of Recommended
+const REC_FLIP: FlipTable = {
+  layout: FLIP.appsRecommended,
+  rect: c => ({ x: GRID_X + c * (CELL_W + GAP), y: MAIN_Y, w: CELL_W, h: MAIN_H }),
+  merged: [[PIA_INDEX, PIA_INDEX + 1]],
+}
+const MY_FLIP: FlipTable = { layout: FLIP.appsMine, rect: c => cellRect('my', c) }
 
 export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
   const installed = useInstalled()
@@ -185,24 +195,35 @@ export function AppsPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
       {Array.from({ length: PIA_INDEX + 1 }, (_, i) => {
         const r = cellRect('rec', i)
         const focused = focus?.t === 'rec' && focus.i === i
-        if (i === PIA_INDEX) return <PiaCell key={i} r={r} focused={focused} label={piaLabel} />
+        if (i === PIA_INDEX) {
+          return (
+            <FlipItem key={i} table={REC_FLIP} cell={PIA_INDEX}>
+              <PiaCell r={r} focused={focused} />
+            </FlipItem>
+          )
+        }
         const id = RECOMMENDED[i]
         const app = id ? appById(id) : undefined
         return (
-          <AppCell
-            key={i} r={r} focused={focused} kind="rec"
-            id={id} name={app?.name} locked={!!id && locked.includes(id)} download={id ? downloads.get(id) : undefined}
-          />
+          <FlipItem key={i} table={REC_FLIP} cell={i}>
+            <AppCell
+              r={r} focused={focused} kind="rec"
+              id={id} name={app?.name} locked={!!id && locked.includes(id)} download={id ? downloads.get(id) : undefined}
+            />
+          </FlipItem>
         )
       })}
+      <PiaLabel label={piaLabel} />
       {Array.from({ length: SUB_ROWS * COLS }, (_, i) => {
         const id = myApps[i]
         const app = id ? appById(id) : undefined
         return (
-          <AppCell
-            key={`m${i}`} r={cellRect('my', i)} focused={focus?.t === 'my' && focus.i === i} kind="my"
-            id={id} name={app?.name} locked={!!id && locked.includes(id)} download={undefined}
-          />
+          <FlipItem key={`m${i}`} table={MY_FLIP} cell={i}>
+            <AppCell
+              r={cellRect('my', i)} focused={focus?.t === 'my' && focus.i === i} kind="my"
+              id={id} name={app?.name} locked={!!id && locked.includes(id)} download={undefined}
+            />
+          </FlipItem>
         )
       })}
       {focus && <Highlight table={focus.t} r={cellRect(focus.t, focus.i)} />}
@@ -291,24 +312,28 @@ function AppCell({ r, focused, kind, id, name, locked, download }: {
 }
 
 // The promotion (PIA, renderer user type 1) in the merged cell: the server's banner image; here a stub
-// banner for the promoted app. Its label "Ad" (0xdd; "Sponsored" 0xdc in the US) is a separate text
-// drawing at HOMEPANEL_PIA_LABEL_X/Y (1545, 368), 190x21, size 16, right/middle, 0xffffff7f at
-// GBHOME_APPS_PIA_TEXT_OPACITY 0.5.
-function PiaCell({ r, focused, label }: { r: R; focused: boolean; label: string }) {
+// banner for the promoted app.
+function PiaCell({ r, focused }: { r: R; focused: boolean }) {
   const app = appById(PROMOTED)
   const ex = focused ? ENLARGE_W / 2 : 0
   const ey = focused ? ENLARGE_H / 2 : 0
   const style: CSSProperties = { left: r.x - ex, top: r.y - ey, width: r.w + ex * 2, height: r.h + ey * 2, transition: `all ${ANI_MS}ms` }
   return (
-    <>
-      <div className="hub-cell" style={style}>
-        <div className="hub-cell__bg" style={{ opacity: 0.15 }} />
-        <img src={stubArt(`pia-${PROMOTED}`, r.w, r.h, { label: app?.name ?? '', size: 30 })} alt="" style={{ position: 'absolute', left: ex, top: ey, width: r.w, height: r.h }} />
-      </div>
-      <div className="hub-abs" style={{ left: 1545, top: 368, width: 190, height: 21, lineHeight: '21px', fontSize: 16, textAlign: 'right', color: '#ffff7f', opacity: 0.5, fontWeight: MEDIUM }}>
-        {label}
-      </div>
-    </>
+    <div className="hub-cell" style={style}>
+      <div className="hub-cell__bg" style={{ opacity: 0.15 }} />
+      <img src={stubArt(`pia-${PROMOTED}`, r.w, r.h, { label: app?.name ?? '', size: 30 })} alt="" style={{ position: 'absolute', left: ex, top: ey, width: r.w, height: r.h }} />
+    </div>
+  )
+}
+
+// The promotion's label "Ad" (0xdd; "Sponsored" 0xdc in the US) is a separate text drawing at
+// HOMEPANEL_PIA_LABEL_X/Y (1545, 368), 190x21, size 16, right/middle, 0xffffff7f at
+// GBHOME_APPS_PIA_TEXT_OPACITY 0.5. It belongs to the panel, not the table, so it does not flip.
+function PiaLabel({ label }: { label: string }) {
+  return (
+    <div className="hub-abs" style={{ left: 1545, top: 368, width: 190, height: 21, lineHeight: '21px', fontSize: 16, textAlign: 'right', color: '#ffff7f', opacity: 0.5, fontWeight: MEDIUM }}>
+      {label}
+    </div>
   )
 }
 

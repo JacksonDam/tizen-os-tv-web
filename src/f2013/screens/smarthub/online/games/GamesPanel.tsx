@@ -3,6 +3,7 @@ import { STUB_GAMES, stubArt } from '../../../../../shared/fictional'
 import { useRemote } from '../../../../../input/remote'
 import { openApp } from '../../../../shell'
 import { playUi, UI_SOUND } from '../../../../tv/sound'
+import { FLIP, FlipItem, type FlipTable } from '../../flip'
 import type { OnlinePanelProps } from '../../panels'
 import { fw, MEDIUM } from '../hubapps/assets'
 import { useDownloads, useInstalledGames } from '../hubapps/catalog'
@@ -44,6 +45,15 @@ function rect(i: number) {
   const col = i % 4
   const big = i < 4
   return { x: X + col * (W + GAP_X), y: big ? Y : SMALL_Y, w: W, h: big ? H_BIG : H_SMALL }
+}
+
+// the item flip (flip.tsx): the table's 3 x 4 cells; a hot game covers cells c and c + 4, a new one is
+// cell 8 + c
+const ROW_Y = [Y, Y + H_SMALL + 16, SMALL_Y]
+const FLIP_TABLE: FlipTable = {
+  layout: FLIP.games,
+  rect: c => ({ x: X + (c % 4) * (W + GAP_X), y: ROW_Y[Math.floor(c / 4)], w: W, h: H_SMALL }),
+  merged: [[0, 4], [1, 5], [2, 6], [3, 7]],
 }
 
 export function GamesPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
@@ -119,26 +129,28 @@ export function GamesPanel({ active, exitUp, exitDown, launch }: OnlinePanelProp
         const dl = downloads.get(g.id)
         const isInstalled = installed.includes(g.id)
         return (
-          <div key={g.id} className="hub-cell" style={{ left: r.x - ex, top: r.y - ey, width: r.w + 2 * ex, height: r.h + 2 * ey, transition: `all ${ANI_MS}ms` }}>
-            <img src={fw(big ? 'HomePanel/thumbnail/blank_games_hot.png' : 'HomePanel/thumbnail/blank_games_new.png')} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
-            <img src={stubArt(`game-${g.id}-hot`, W, big ? H_BIG : H_SMALL, { label: g.name, size: big ? 40 : 30 })} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
-            {NEW_GAMES.has(g.id) && <img src={fw('HomePanel/icon/g_bullet_new.png')} alt="" style={{ position: 'absolute', left: 323, top: -2, width: 53, height: 38 }} />}
-            {isInstalled && !dl && <img src={fw('HomePanel/icon/g_icon_installed.png')} alt="" style={{ position: 'absolute', left: 337, top: big ? 401 : 170, width: 45, height: 45 }} />}
-            {dl && (
-              <>
-                <div className="hub-progress" style={{ left: 20, top: r.h - 20 - 14, width: W - 40, height: 14, borderWidth: '6px 7px', borderImage: `url(${fw(dl.phase === 'installing' ? 'HomePanel/progress/00_h_common_progress_installing_bg.png' : 'HomePanel/progress/00_h_common_progress_bg.png')}) 4 5 fill` }} />
-                {dl.phase === 'downloading' && dl.progress >= 10 && (
-                  <div className="hub-progress" style={{ left: 20, top: r.h - 20 - 14, width: ((W - 40) * dl.progress) / 100, height: 14, borderWidth: '6px 7px', borderImage: `url(${fw('HomePanel/progress/00_h_common_progres.png')}) 4 5 fill` }} />
-                )}
-                {dl.phase === 'installing' && (
-                  // installing: the moving 00_h_common_progress_installing.png (69x12) over the bar
-                  <div style={{ position: 'absolute', left: 20, top: r.h - 20 - 14, width: W - 40, height: 14, overflow: 'hidden' }}>
-                    <img src={fw('HomePanel/progress/00_h_common_progress_installing.png')} alt="" style={{ position: 'absolute', top: -2, height: 18, animation: 'hub-installing 1200ms linear infinite' }} />
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <FlipItem key={g.id} table={FLIP_TABLE} cell={k < 4 ? k : 8 + (k - 4)}>
+            <div className="hub-cell" style={{ left: r.x - ex, top: r.y - ey, width: r.w + 2 * ex, height: r.h + 2 * ey, transition: `all ${ANI_MS}ms` }}>
+              <img src={fw(big ? 'HomePanel/thumbnail/blank_games_hot.png' : 'HomePanel/thumbnail/blank_games_new.png')} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+              <img src={stubArt(`game-${g.id}-hot`, W, big ? H_BIG : H_SMALL, { label: g.name, size: big ? 40 : 30 })} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+              {NEW_GAMES.has(g.id) && <img src={fw('HomePanel/icon/g_bullet_new.png')} alt="" style={{ position: 'absolute', left: 323, top: -2, width: 53, height: 38 }} />}
+              {isInstalled && !dl && <img src={fw('HomePanel/icon/g_icon_installed.png')} alt="" style={{ position: 'absolute', left: 337, top: big ? 401 : 170, width: 45, height: 45 }} />}
+              {dl && (
+                <>
+                  <div className="hub-progress" style={{ left: 20, top: r.h - 20 - 14, width: W - 40, height: 14, borderWidth: '6px 7px', borderImage: `url(${fw(dl.phase === 'installing' ? 'HomePanel/progress/00_h_common_progress_installing_bg.png' : 'HomePanel/progress/00_h_common_progress_bg.png')}) 4 5 fill` }} />
+                  {dl.phase === 'downloading' && dl.progress >= 10 && (
+                    <div className="hub-progress" style={{ left: 20, top: r.h - 20 - 14, width: ((W - 40) * dl.progress) / 100, height: 14, borderWidth: '6px 7px', borderImage: `url(${fw('HomePanel/progress/00_h_common_progres.png')}) 4 5 fill` }} />
+                  )}
+                  {dl.phase === 'installing' && (
+                    // installing: the moving 00_h_common_progress_installing.png (69x12) over the bar
+                    <div style={{ position: 'absolute', left: 20, top: r.h - 20 - 14, width: W - 40, height: 14, overflow: 'hidden' }}>
+                      <img src={fw('HomePanel/progress/00_h_common_progress_installing.png')} alt="" style={{ position: 'absolute', top: -2, height: 18, animation: 'hub-installing 1200ms linear infinite' }} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
+          </FlipItem>
         )
       })}
       {focus && (

@@ -4,6 +4,7 @@ import { stubArt, STUB_POPULAR, type StubClip } from '../../../shared/fictional'
 import { openApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { HP_SCALE, IMG, MULTIMEDIA } from './data'
+import { FLIP, FlipItem, type FlipTable } from './flip'
 import { Glow } from './kit'
 import { registerOnlinePanel, type OnlinePanelProps } from './panels'
 
@@ -28,6 +29,10 @@ const ENL_W = 10, ENL_H = 7         // GBHOME_MULTIMEDIA_GRID_DATA_ENLARGED_WIDT
 const GLOW_DX = -28, GLOW_DY = -30  // GBHOME_MULTIMEDIA_GRID_FOCUS_IMAGE_X/Y_OFFSET
 const PAGES = 4, PER_PAGE = 15
 const REFRESH = { x: 170, y: 138, w: 82 } // GBHOME_MULTIMEDIA_REFRESH_BUTTON_*
+const cellX = (c: number) => GX + (CW + SW) * c
+const cellY = (r: number) => GY + (CH + SH) * r
+// the item flip (flip.tsx): one item per cell of the 3 x 5 table
+const FLIP_TABLE: FlipTable = { layout: FLIP.multimedia, rect: k => ({ x: cellX(k % 5), y: cellY(Math.floor(k / 5)), w: CW, h: CH }) }
 
 export function MultimediaPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
   const [page, setPage] = useState(1)
@@ -96,8 +101,6 @@ export function MultimediaPanel({ active, exitUp, exitDown, launch }: OnlinePane
   }, active)
 
   const fc = focus % 5, fr = Math.floor(focus / 5)
-  const cellX = (c: number) => GX + (CW + SW) * c
-  const cellY = (r: number) => GY + (CH + SH) * r
   return (
     <div className="mmp">
       <div className={`mmp__refresh${active && focus === -1 ? ' mmp__refresh--focus' : ''}`} style={{ left: REFRESH.x, top: REFRESH.y, width: REFRESH.w, height: REFRESH.w }}>
@@ -108,7 +111,11 @@ export function MultimediaPanel({ active, exitUp, exitDown, launch }: OnlinePane
       {items.map((it, i) => {
         const c = i % 5, r = Math.floor(i / 5)
         const f = active && focus === i
-        return <Cell key={it.id} it={it} x={cellX(c) - (f ? ENL_W / 2 : 0)} y={cellY(r) - (f ? ENL_H / 2 : 0)} focused={f} />
+        return (
+          <FlipItem key={it.id} table={FLIP_TABLE} cell={i}>
+            <Cell it={it} x={cellX(c) - (f ? ENL_W / 2 : 0)} y={cellY(r) - (f ? ENL_H / 2 : 0)} focused={f} />
+          </FlipItem>
+        )
       })}
       <Glow
         x={focus === -1 ? REFRESH.x : cellX(fc) - ENL_W / 2}

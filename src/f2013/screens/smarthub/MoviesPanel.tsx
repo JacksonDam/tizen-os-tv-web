@@ -4,6 +4,7 @@ import { stubArt, STUB_TITLES, type StubTitle } from '../../../shared/fictional'
 import { openApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { MOVIES } from './data'
+import { FLIP, FlipItem, type FlipTable } from './flip'
 import { Glow, TextBox } from './kit'
 import { registerOnlinePanel, type OnlinePanelProps } from './panels'
 
@@ -29,6 +30,16 @@ const ENL_W = 12, ENL_H = 8                 // GBHOME_PREFERRED_GRID_DATA_ENLARG
 const GLOW_DX = -28, GLOW_DY = -31          // GBHOME_PREFERRED_GRID_FOCUS_IMAGE_X/Y_OFFSET
 
 type Slot = { x: number; y: number; w: number; h: number; t: StubTitle }
+
+// the item flip (flip.tsx): the table's cells, rows 234 / 282 / 282 high (GBHOME_PREFERRED_GRID_DATA_HEIGHT,
+// + ITEM_TXT_HEIGHT) 0 then 2 apart; merged: column 0 rows 0-2 (featured), columns 1-3 rows 0-1 (films)
+const ROW_Y = [Y0, Y0 + 234, SMALL_Y]
+const ROW_H = [234, 282, 282]
+const FLIP_TABLE: FlipTable = {
+  layout: FLIP.movies,
+  rect: k => ({ x: COLX[k % 4], y: ROW_Y[Math.floor(k / 4)], w: W[k % 4], h: ROW_H[Math.floor(k / 4)] }),
+  merged: [[0, 4, 8], [1, 5], [2, 6], [3, 7]],
+}
 
 function featuredSlots(): Slot[] {
   const films = STUB_TITLES.filter(t => t.kind === 'movie')
@@ -94,11 +105,13 @@ export function MoviesPanel({ active, exitUp, exitDown, launch }: OnlinePanelPro
         const fo = active && focus === i
         const ex = fo ? ENL_W / 2 : 0, ey = fo ? ENL_H / 2 : 0
         return (
-          <div key={s.t.id} className="mvp__item" style={{ left: s.x - ex, top: s.y - ey, width: s.w + ex * 2, zIndex: fo ? 2 : 1 }}>
-            <img src={stubArt(s.t.id, s.w, s.h, { label: s.t.title, size: Math.round(s.w * 0.09) })} alt="" style={{ height: s.h + ey * 2 }} />
-            {fo ? <TextBox style={{ left: 0, top: s.h + ey * 2, width: s.w + ex * 2, height: BOX_H }} /> : null}
-            <div className="mvp__cap" style={{ top: s.h + ey * 2 + 2, height: CAP_H, color: fo ? '#000' : 'rgba(255, 255, 255, 0.8)' }}>{s.t.title}</div>
-          </div>
+          <FlipItem key={s.t.id} table={FLIP_TABLE} cell={i <= 3 ? i : 8 + (i - 3)}>
+            <div className="mvp__item" style={{ left: s.x - ex, top: s.y - ey, width: s.w + ex * 2, zIndex: fo ? 2 : 1 }}>
+              <img src={stubArt(s.t.id, s.w, s.h, { label: s.t.title, size: Math.round(s.w * 0.09) })} alt="" style={{ height: s.h + ey * 2 }} />
+              {fo ? <TextBox style={{ left: 0, top: s.h + ey * 2, width: s.w + ex * 2, height: BOX_H }} /> : null}
+              <div className="mvp__cap" style={{ top: s.h + ey * 2 + 2, height: CAP_H, color: fo ? '#000' : 'rgba(255, 255, 255, 0.8)' }}>{s.t.title}</div>
+            </div>
+          </FlipItem>
         )
       })}
       <Glow x={f.x - ENL_W / 2} y={f.y - ENL_H / 2} w={f.w + ENL_W} h={f.h + ENL_H + BOX_H} dx={GLOW_DX} dy={GLOW_DY} show={active} />

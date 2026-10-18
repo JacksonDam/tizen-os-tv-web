@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useRemote } from '../../../input/remote'
 import { programmeAt, nextProgramme, type Channel, type GuideProgramme } from '../../../tv/channels'
 import { VIDEO } from '../../assets'
@@ -6,6 +6,7 @@ import { closeApp } from '../../shell'
 import { playUi, UI_SOUND } from '../../tv/sound'
 import { currentChannel, currentSource, currentVideo, getTv, tuneChannel, useTv } from '../../tv/store'
 import { hhmm, IMG, ONTV } from './data'
+import { FLIP, FlipItem, useFlip, type FlipTable } from './flip'
 import { Glow, TextBox } from './kit'
 import { registerOnlinePanel, type OnlinePanelProps } from './panels'
 
@@ -39,6 +40,17 @@ const TITLE_BLUE = 'rgba(2, 141, 229, 0.8)' // 0xff028de5 at GBHOME_SMARTLIVE_TI
 const TV_PROVIDER = { source: 'TV', name: 'Aerial' }
 
 type Pick = { chIndex: number; ch: Channel; prog: GuideProgramme }
+
+// the item flip (flip.tsx): the table's 3 x 6 cells; the picture covers cells 0-2 and 6-8
+const FLIP_TABLE: FlipTable = {
+  layout: FLIP.onTv,
+  rect: k => ({ x: colX(k % 6), y: ROWS[Math.floor(k / 6)], w: COL, h: 240 }),
+  merged: [[0, 1, 2, 6, 7, 8]],
+}
+// The picture the pieces of item 0 carry: CCTableLayoutListControl::m_SeparateForLayoutAni renders the
+// item, live picture included, into one image before t_OnBeginMinimizeWindow hides the video object, so
+// the pieces show the frame of that moment; it stays theirs for the way back (layout 1 -> 0 cuts nothing).
+let still: string | null = null
 
 // The table position of each item (column, row) for key moves; item 0 covers columns 0-2, rows 0-1.
 function cellOf(i: number): { c: number; r: number } {
@@ -92,6 +104,26 @@ export function OnTvPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
   const { rec, next } = useMemo(() => picks(now), [now.getMinutes(), tuneSeq])
   const video = useTv(currentVideo)
   const [focus, setFocus] = useState(0)
+  // the live picture goes as the minimize motion starts and comes back when Smart Hub has come back
+  // (CHomeSmartLivePanel::t_OnBeginMinimizeWindow @02bd9ca4 hides the video object +0x1d84 and turns the
+  // video off; t_OnEndNormalizeWindow @02bd9a10 shows it again); meanwhile the pieces carry the still
+  const flip = useFlip()
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [frame, setFrame] = useState<string | null>(null)
+  useLayoutEffect(() => {
+    if (flip?.dir !== 'out') return
+    const v = videoRef.current
+    still = null
+    if (v && v.videoWidth) {
+      const c = document.createElement('canvas')
+      c.width = VIDEO_W
+      c.height = VIDEO_H
+      c.getContext('2d')?.drawImage(v, 0, 0, VIDEO_W, VIDEO_H)
+      still = c.toDataURL('image/jpeg', 0.9)
+    }
+    setFrame(still)
+  }, [flip?.dir])
+  const pigStill = flip ? (flip.dir === 'out' ? frame : still) : null
 
   const run = (fn: () => void) => (launch ? launch(fn) : fn())
 
@@ -161,17 +193,23 @@ export function OnTvPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
       </div>
 
       {/* item 0: the live picture */}
-      <div className="ontv__pig" style={{ left: X0, top: Y0, width: VIDEO_W, height: VIDEO_H }}>
-        {video ? <video key={video} src={`${VIDEO}${video}`} autoPlay muted loop playsInline /> : null}
-      </div>
-      {focus === 0 && active ? (
-        <TextBox style={{ left: X0, top: Y0 + VIDEO_H, width: VIDEO_W, height: BOX_H0 }} />
-      ) : null}
-      <div
-        className="ontv__cap"
-        style={{ left: X0 + 10, top: Y0 + TEXT_Y0, width: VIDEO_W - 20, height: TEXT_H0, color: focus === 0 && active ? '#000' : '#fff' }}
-      >
-        {pigHead}{pigTail ? <span style={{ color: '#3b61ae' }}> {pigTail}</span> : null}
+      <FlipItem table={FLIP_TABLE} cell={0}>
+        <div className="ontv__pig" style={{ left: X0, top: Y0, width: VIDEO_W, height: VIDEO_H }}>
+          {pigStill ? <img src={pigStill} alt="" /> : null}
+        </div>
+        {focus === 0 && active ? (
+          <TextBox style={{ left: X0, top: Y0 + VIDEO_H, width: VIDEO_W, height: BOX_H0 }} />
+        ) : null}
+        <div
+          className="ontv__cap"
+          style={{ left: X0 + 10, top: Y0 + TEXT_Y0, width: VIDEO_W - 20, height: TEXT_H0, color: focus === 0 && active ? '#000' : '#fff' }}
+        >
+          {pigHead}{pigTail ? <span style={{ color: '#3b61ae' }}> {pigTail}</span> : null}
+        </div>
+      </FlipItem>
+      {/* the video object (CCVideoObject, m_InitializePanel @02bdb67c) over item 0 */}
+      <div className="ontv__pig ontv__video" style={{ left: X0, top: Y0, width: VIDEO_W, height: VIDEO_H, visibility: flip ? 'hidden' : 'visible' }}>
+        {video ? <video ref={videoRef} key={video} src={`${VIDEO}${video}`} autoPlay muted loop playsInline /> : null}
       </div>
 
       {rec.map((p, k) => {
@@ -180,7 +218,9 @@ export function OnTvPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
         const total = p.prog.end.getTime() - p.prog.start.getTime()
         const frac = Math.max(0, Math.min(1, (now.getTime() - p.prog.start.getTime()) / total))
         return (
-          <Item key={i} x={colX(c)} y={ROWS[r]} p={p} focused={active && focus === i} progress={frac} now={now} />
+          <FlipItem key={i} table={FLIP_TABLE} cell={r * 6 + c}>
+            <Item x={colX(c)} y={ROWS[r]} p={p} focused={active && focus === i} progress={frac} now={now} />
+          </FlipItem>
         )
       })}
 
@@ -191,7 +231,9 @@ export function OnTvPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps
         <i />
       </div>
       {next.map((p, c) => (
-        <Item key={7 + c} x={colX(c)} y={ROWS[2]} p={p} focused={active && focus === 7 + c} upcoming now={now} />
+        <FlipItem key={7 + c} table={FLIP_TABLE} cell={12 + c}>
+          <Item x={colX(c)} y={ROWS[2]} p={p} focused={active && focus === 7 + c} upcoming now={now} />
+        </FlipItem>
       ))}
 
       <Glow x={fx} y={fy} w={fw} h={fh} dx={GLOW_DX} dy={GLOW_DY} show={active} />

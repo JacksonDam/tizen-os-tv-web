@@ -12,8 +12,8 @@ import './smarthub.css'
 // application in Smart Hub setup mode (RunApp(0xbd, 0xbd, 0x523)), whose Welcome page is drawn here.
 // openApp('smarthub', { page: 'welcome' }) reopens the setup at its Welcome page, as the network
 // wizard's "previous" result (code 2) does (CHomeWizardWindowManager::PreparePNP @02c02f90).
-// openApp('smarthub', { panel }) opens the carousel with that panel centred (returning from an item a
-// panel ran).
+// openApp('smarthub', { panel }) comes back to the carousel with that panel centred (returning from an
+// item a panel ran): the normalize motion, the panel's items unfolding (Hub.tsx, flip.tsx).
 //
 // Online (spec/online-net2013.md): Start runs the network app's Network Settings wizard in its Smart
 // Hub setup scenario (step 1 of 7, the Menu module); once connected its Next / OK comes back here with
@@ -79,5 +79,13 @@ export function SmartHub({ close, params }: AppProps) {
       </div>
     )
   }
-  return <Hub key={hubKey} close={close} onSetup={() => setMode('welcome')} startPanel={hubKey ? undefined : p?.panel} />
+  return (
+    <Hub
+      key={hubKey}
+      close={close}
+      onSetup={() => setMode('welcome')}
+      startPanel={hubKey ? undefined : p?.panel}
+      normalize={!hubKey && p?.panel !== undefined}
+    />
+  )
 }

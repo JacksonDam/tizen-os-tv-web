@@ -12,7 +12,11 @@ import type { ComponentType } from 'react'
 //
 // An app a body launches replaces the Smart Hub (openApp(<its id>)), as the firmware closes the Smart
 // Hub to run an app; returning from it reopens the Smart Hub on that panel with
-// openApp('smarthub', { panel: <panel id> }).
+// openApp('smarthub', { panel: <panel id> }), which plays the normalize motion.
+//
+// Table items: a body wraps each item in <FlipItem> (./flip.tsx) with its table's flip layout and cell
+// rectangles, so the items fold away while the carousel hands over (launch) and unfold when the Smart
+// Hub comes back.
 
 export type OnlinePanelProps = {
   // The panel is the centred one and its body owns the keys (not the top menu, the sub menu or a move

@@ -39,6 +39,15 @@
   height: 1080px;
   transform-origin: 960px 540px;
 }
+/* one table item during the item flip (flip.tsx): the whole panel, turned about the cell's corner */
+.sh-flip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+}
 
 /* ---- default-panel page (CHomePanelWindowBase::InitializeDefaultPanel) ---- */
 .sh-promo {
@@ -315,7 +324,9 @@
   background: #000;
   overflow: hidden;
 }
-.ontv__pig video {
+.ontv__pig video,
+.ontv__pig img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: fill;

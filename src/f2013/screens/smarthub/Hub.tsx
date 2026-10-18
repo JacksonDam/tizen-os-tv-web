@@ -13,6 +13,7 @@ import {
   PANELS, PIVOT_Z, SUB_W, SUB_X, SUB_Y, SUBMENU, SUB_MOVE_LEAD_MS, TOP_ANI_LEAD,
   TOP_ANI_MS, TOP_ICON_GAP_X, TOP_INIT_Y, TOP_TEXT_H, TOP_TEXT_W, TOP_TEXT_X, TOP_TEXT_Y,
 } from './data'
+import { FlipContext, normalizeMs, type Flip } from './flip'
 import { getOnlinePanel, getOnlinePanelOptions } from './panels'
 import { PromoPanel } from './PromoPanel'
 import { runOwnSubmenu } from './submenuActions'
@@ -28,7 +29,7 @@ import { SubMenu, type SubFocus, type SubSlide } from './SubMenu'
 type PanelAnim = { rot: number; scale: number; alpha: number; tr: string; shown: boolean }
 type IconAnim = { y: number; alpha: number; tr: string }
 type Overlay = { img: 'focus' | 'selected'; alpha: number; tr: string }
-type Phase = 'enter' | 'idle' | 'move' | 'exit' | 'minimize'
+type Phase = 'enter' | 'idle' | 'move' | 'exit' | 'minimize' | 'normalize'
 type ArrowMode = 'in' | 'out'
 type Zone = 'top' | 'content' | 'sub'
 type Minimize = { kind: 'item' | 'submenu'; sub: number } | null
@@ -47,6 +48,10 @@ const HALF = Math.round(MOVE_MS / 2) // the top menu's out-then-in fades (m_Init
 const MIN_FLIP_MS = 660
 const MIN_MS = 500
 
+// What Smart Hub had focused when it handed over to an item (CHomePanelMainWindow::OnMinimizeWindow
+// keeps the focused window, +0x608); coming back to that panel restores it.
+let minimized: { panel: number; zone: Zone; sub: number } | null = null
+
 function nextFrame(fn: () => void) {
   requestAnimationFrame(() => requestAnimationFrame(fn))
 }
@@ -61,7 +66,12 @@ function isOnlineNow() {
   return isConnected(s.network) && s.smartHub.agreed
 }
 
-export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup: () => void; startPanel?: number }) {
+// `normalize`: Smart Hub comes back from an item one of its panels ran (the hub task normalizes,
+// CHomePanelApp::t_OnEndNormalizing @02bae604 -> CHomePanelMainWindow::OnNormalizeWindow @02bbb810)
+// instead of opening.
+export function Hub({ close, onSetup, startPanel, normalize = false }: {
+  close: () => void; onSetup: () => void; startPanel?: number; normalize?: boolean
+}) {
   const online = useMemo(isOnlineNow, [])
   const list = useMemo(() => (online ? ONLINE_PANELS : defaultPanelList(getSetting('country', 'United Kingdom'))), [online])
   const n = list.length
@@ -88,7 +98,7 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
   const [zone, setZoneState] = useState<Zone>('content')
   const zoneRef = useRef<Zone>('content')
   const [idle, setIdle] = useState(false)
-  const phase = useRef<Phase>('enter')
+  const phase = useRef<Phase>(normalize ? 'normalize' : 'enter')
   const setPhase = (p: Phase) => {
     phase.current = p
     setIdle(p === 'idle')
@@ -99,24 +109,41 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
   }
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
-  // ---- panels: activation start state (OnBeginActivateAnimation @02bc0afc) ----
+  // what was focused when this panel handed over (normalize only)
+  const [back] = useState(() => (normalize && minimized?.panel === list[startCentre - first] ? minimized : null))
+  useEffect(() => {
+    minimized = null
+  }, [])
+
+  // ---- panels: activation start state (OnBeginActivateAnimation @02bc0afc); coming back, the panels
+  // are at their places with alpha 0 (the minimize faded them) ----
   const [panels, setPanels] = useState<PanelAnim[]>(() =>
     list.map((_, i) => {
       const s = slotOf(first + i, startCentre)
+      if (normalize) return { rot: NORMAL_ROTATE[row][s], scale: NORMAL_SCALE[s], alpha: 0, tr: 'none', shown: stateOf(s) < 2 }
       if (s === 2) return { rot: INIT_ROTATE_CENTRE, scale: INIT_SCALE, alpha: 0, tr: 'none', shown: true }
       return { rot: INTRO_INIT_ROTATE[row][s], scale: NORMAL_SCALE[s], alpha: 0, tr: 'none', shown: stateOf(s) < 2 }
     }),
   )
-  const [bg, setBg] = useState({ alpha: 0, tr: 'none' })
-  const [icons, setIcons] = useState<IconAnim[]>(() => list.map(() => ({ y: TOP_INIT_Y, alpha: 0, tr: 'none' })))
+  // OnNormalizeWindow shows the scene root at once: background and top menu (CHomeTopMenuWindow::
+  // OnBeginNormalizeWindow @02bc5668 sets every icon to alpha 255 and only the centred name visible)
+  const [bg, setBg] = useState({ alpha: normalize ? 1 : 0, tr: 'none' })
+  const [icons, setIcons] = useState<IconAnim[]>(() =>
+    list.map(() => (normalize ? { y: 0, alpha: 1, tr: 'none' } : { y: TOP_INIT_Y, alpha: 0, tr: 'none' })),
+  )
   const [overlays, setOverlays] = useState<Overlay[]>(() =>
     list.map((_, i) => ({ img: 'selected', alpha: first + i === startCentre ? 1 : 0, tr: 'none' })),
   )
   const [labelY, setLabelY] = useState(TOP_TEXT_Y)
   const [labels, setLabels] = useState<{ alpha: number; tr: string }[]>(() =>
-    list.map(() => ({ alpha: 0, tr: 'none' })),
+    list.map((_, i) => ({ alpha: normalize && first + i === startCentre ? 1 : 0, tr: 'none' })),
   )
-  const [arrows, setArrows] = useState<{ mode: ArrowMode; seq: number }>({ mode: 'in', seq: 0 })
+  // coming back the arrows wait at their start (CHomeSideIndicatorWindow::OnBeginNormalizeWindow @02bca7d0
+  // -> m_initArrows) and play their entrance when the motion ends (OnEndNormalizeWindow @02bc9e00)
+  const [arrows, setArrows] = useState<{ mode: ArrowMode; seq: number }>({ mode: normalize ? 'out' : 'in', seq: 0 })
+  // the item flip of the centred panel's tables (flip.tsx); coming back it starts folded (layout 1, as
+  // OnEndMinimizeWindow @02bc05a0 leaves it) and t0 is set when the motion starts
+  const [flip, setFlip] = useState<Flip | null>(() => (normalize ? { dir: 'in', t0: -1 } : null))
   // sub menus: one per panel, hidden 108 px low until their panel is centred
   const [subs, setSubs] = useState<SubSlide[]>(() => list.map(() => ({ shown: false, base: 0 })))
   const [subFocus, setSubFocus] = useState<SubFocus>({ index: 0, visible: false })
@@ -132,6 +159,10 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
 
   // ---- opening (m_PlayActivating, activate path) ----
   useEffect(() => {
+    if (normalize) {
+      playNormalize()
+      return
+    }
     nextFrame(() => {
       // centre panel: +45 deg, 0.9, alpha 0 -> normal over 833 ms, linear (m_animatePanel @02bc0914)
       setPanels(ps => ps.map((p, i) => {
@@ -164,6 +195,33 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
     later(ENTRANCE_MS + MID_ACTIVATE_MS, () => setPhase('idle'))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // ---- coming back (CHomePanelMainWindow::m_PlayNormalizeWindow @02bb9f2c) ----
+  function playNormalize() {
+    const type = list[startCentre - first]
+    nextFrame(() => {
+      // every panel from alpha 0 to its slot alpha in GBHOME_ANI_MINIMIZE_WINDOW_ITEM_FLIP_TOTAL_DURATION,
+      // linear (CHomePanelWindowBase::OnBeginNormalizeWindow @02bc066c), while the centred panel's tables
+      // unfold (PlayFlipAnimation, layout 0)
+      setPanels(ps => ps.map((p, i) => ({ ...p, alpha: NORMAL_ALPHA[slotOf(first + i, startCentre)], tr: `opacity ${MIN_FLIP_MS}ms linear` })))
+      setFlip({ dir: 'in', t0: document.timeline.currentTime as number })
+      // the sub menu rises again (CHomeSubMenuWindow::OnBeginNormalizeWindow @02bd16d8); the button that
+      // ran its item is back in place at once
+      setSubs(ss => ss.map((s, i) => (first + i === startCentre ? { shown: true, base: 0, back: back?.zone === 'sub' ? back.sub : -1 } : s)))
+    })
+    // the motion ends when every table has unfolded (normalizeMs); then the arrows come in and the focus
+    // goes back to the window that had it, else to the panel (m_ProcessEndNormalizeWindowAnimation @02bbaa88)
+    later(normalizeMs(type), () => {
+      setFlip(null)
+      setArrows(a => ({ mode: 'in', seq: a.seq + 1 }))
+      if (back?.zone === 'sub' && subOf(type).length) {
+        setZone('sub')
+        subFocusRef.current = back.sub
+        setSubFocus({ index: back.sub, visible: true })
+      }
+      setPhase('idle')
+    })
+  }
 
   // ---- moving the carousel (m_OnMovePanel @02bba4ac, CHomePanelWindowBase::m_animateMovePanel @02bc1ea0) ----
   function move(dir: 1 | -1, steps = 1) {
@@ -301,15 +359,18 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
   }
 
   // ---- running an item (events 0x11901d-0x11901f -> OnMinimizeWindow, m_CompleteMinimizeMotion) ----
-  // Panels fade out over 660 ms, the top menu and arrows over 500 ms, the sub menu slides away; from a
-  // sub menu item the colour tag grows from the button into the top-left corner (type 2,
-  // CHomeSubMenuWindow::OnBeginMinimizeWindow @02bd1b2c). Then the item runs (0x11901a ->
-  // CHomeExecutor) and Smart Hub gives way to it.
+  // Panels fade out over 660 ms while the centred panel's items flip away, the top menu and arrows fade
+  // over 500 ms, the sub menu slides away; from a sub menu item the colour tag grows from the button
+  // into the top-left corner (type 2, CHomeSubMenuWindow::OnBeginMinimizeWindow @02bd1b2c). Then the
+  // item runs (0x11901a -> CHomeExecutor) and Smart Hub gives way to it.
   function launch(run: () => void, kind: 'item' | 'submenu' = 'item') {
     if (phase.current === 'minimize' || phase.current === 'exit') return
     setPhase('minimize')
+    minimized = { panel: centreType(), zone: zoneRef.current, sub: subFocusRef.current }
     const lin = `${MIN_FLIP_MS}ms linear`
     setPanels(ps => ps.map(p => ({ ...p, alpha: 0, tr: `opacity ${lin}` })))
+    // the centred panel's tables fold away (flip.tsx), the focus glow goes at once
+    setFlip({ dir: 'out', t0: document.timeline.currentTime as number })
     setTopAlpha({ alpha: 0, tr: `opacity ${MIN_MS}ms linear` })
     setArrows(a => ({ mode: 'out', seq: a.seq }))
     // the other sub menu buttons slide down (220 ms each from 250 ms, 34 ms apart)
@@ -421,36 +482,37 @@ export function Hub({ close, onSetup, startPanel }: { close: () => void; onSetup
             const Body = bodyOf(type)
             const isCentre = first + i === focusPanel
             return (
-              <div
-                key={i}
-                className="sh-panel"
-                style={{
-                  transform: `translateZ(${-PIVOT_Z}px) rotateY(${p.rot}deg) translateZ(${PIVOT_Z}px) scale(${p.scale}, ${p.scale})`,
-                  opacity: p.alpha,
-                  transition: p.tr,
-                  visibility: p.shown ? 'visible' : 'hidden',
-                }}
-              >
-                {Body ? (
-                  <Body
-                    active={idle && isCentre && zone === 'content'}
-                    width={1920}
-                    height={1080}
-                    exitUp={() => {
-                      if (zoneRef.current !== 'content' || phase.current !== 'idle') return
-                      playUi(UI_SOUND.MOVE)
-                      setTopFocus(true)
-                    }}
-                    exitDown={() => {
-                      if (zoneRef.current !== 'content' || phase.current !== 'idle') return
-                      if (!enterSub()) playUi(UI_SOUND.NOKEY)
-                    }}
-                    launch={launchItem}
-                  />
-                ) : (
-                  <PromoPanel type={type} focused={zone === 'content' && isCentre} />
-                )}
-              </div>
+              <FlipContext.Provider key={i} value={first + i === centre ? flip : null}>
+                <div
+                  className="sh-panel"
+                  style={{
+                    transform: `translateZ(${-PIVOT_Z}px) rotateY(${p.rot}deg) translateZ(${PIVOT_Z}px) scale(${p.scale}, ${p.scale})`,
+                    opacity: p.alpha,
+                    transition: p.tr,
+                    visibility: p.shown ? 'visible' : 'hidden',
+                  }}
+                >
+                  {Body ? (
+                    <Body
+                      active={idle && isCentre && zone === 'content'}
+                      width={1920}
+                      height={1080}
+                      exitUp={() => {
+                        if (zoneRef.current !== 'content' || phase.current !== 'idle') return
+                        playUi(UI_SOUND.MOVE)
+                        setTopFocus(true)
+                      }}
+                      exitDown={() => {
+                        if (zoneRef.current !== 'content' || phase.current !== 'idle') return
+                        if (!enterSub()) playUi(UI_SOUND.NOKEY)
+                      }}
+                      launch={launchItem}
+                    />
+                  ) : (
+                    <PromoPanel type={type} focused={zone === 'content' && isCentre} />
+                  )}
+                </div>
+              </FlipContext.Provider>
             )
           })}
         </div>
