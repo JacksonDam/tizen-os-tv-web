@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRemote, type RemoteKey } from '../input/remote'
 import { PH } from './assets'
 import { MENU, type MenuNode } from './menuData'
@@ -22,6 +22,12 @@ export function PhilipsMenu({ close }: { close: () => void }) {
   const level = stack[stack.length - 1]
   const items = level.node.children ?? []
   const focused = items[level.focus]
+  const focusRef = useRef<HTMLLIElement>(null)
+
+  // keep the highlighted row visible when a list is longer than the panel
+  useEffect(() => {
+    focusRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [level.focus, stack.length])
 
   // keep a tiny live copy of the focused item's stored value so the row re-renders on change
   const settingsSig = useTv(s => (focused ? s.settings[focused.id] : undefined))
@@ -121,7 +127,7 @@ export function PhilipsMenu({ close }: { close: () => void }) {
         </div>
         <ul className="ph-menu__list">
           {items.map((it, i) => (
-            <MenuRow key={it.id} node={it} lang={lang} focused={i === level.focus} />
+            <MenuRow key={it.id} node={it} lang={lang} focused={i === level.focus} rowRef={i === level.focus ? focusRef : undefined} />
           ))}
         </ul>
       </div>
@@ -134,10 +140,10 @@ export function PhilipsMenu({ close }: { close: () => void }) {
   )
 }
 
-function MenuRow({ node, lang, focused }: { node: MenuNode; lang: 0 | 1 | 2; focused: boolean }) {
+function MenuRow({ node, lang, focused, rowRef }: { node: MenuNode; lang: 0 | 1 | 2; focused: boolean; rowRef?: React.Ref<HTMLLIElement> }) {
   const value = useValue(node, lang)
   return (
-    <li className={`ph-row ${focused ? 'ph-row--on' : ''}`}>
+    <li ref={rowRef} className={`ph-row ${focused ? 'ph-row--on' : ''}`}>
       <span className="ph-row__label">{node.label[lang]}</span>
       <span className="ph-row__value">{value}</span>
     </li>

@@ -43,33 +43,35 @@ export function Lobby() {
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // Hold-to-open: ramp a charge from 0 to 1 while P is down; at full charge, go to the Philips page.
+  // Hold-to-open: while P is held, a timer runs to full after EGG_HOLD_MS and opens the hidden Philips
+  // page; a rAF loop fills the progress line meanwhile (purely visual, so a throttled frame clock
+  // never delays the open).
   useEffect(() => {
     let raf = 0
+    let timer: ReturnType<typeof setTimeout> | undefined
     let start = 0
     let opened = false
     const tick = (t: number) => {
       if (!start) start = t
-      const c = Math.min(1, (t - start) / EGG_HOLD_MS)
-      setCharge(c)
-      if (c >= 1) {
-        if (!opened) {
-          opened = true
-          location.href = `${BASE}philips/`
-        }
-        return
-      }
-      raf = requestAnimationFrame(tick)
+      setCharge(Math.min(1, (t - start) / EGG_HOLD_MS))
+      if (!opened) raf = requestAnimationFrame(tick)
     }
     const onDown = (e: KeyboardEvent) => {
-      if ((e.key === 'p' || e.key === 'P') && !e.repeat && !e.metaKey && !e.ctrlKey && !e.altKey) {
-        start = 0
-        raf = requestAnimationFrame(tick)
-      }
+      if ((e.key !== 'p' && e.key !== 'P') || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return
+      if (timer) return
+      start = 0
+      raf = requestAnimationFrame(tick)
+      timer = setTimeout(() => {
+        opened = true
+        setCharge(1)
+        location.href = `${BASE}philips/`
+      }, EGG_HOLD_MS)
     }
     const reset = (e?: KeyboardEvent) => {
       if (e && e.key !== 'p' && e.key !== 'P') return
       cancelAnimationFrame(raf)
+      clearTimeout(timer)
+      timer = undefined
       if (!opened) setCharge(0)
     }
     window.addEventListener('keydown', onDown)
@@ -77,6 +79,7 @@ export function Lobby() {
     window.addEventListener('blur', () => reset())
     return () => {
       cancelAnimationFrame(raf)
+      clearTimeout(timer)
       window.removeEventListener('keydown', onDown)
       window.removeEventListener('keyup', reset)
     }

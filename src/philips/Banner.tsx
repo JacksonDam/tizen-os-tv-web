@@ -8,12 +8,12 @@ import { currentChannel, currentSource, useTv } from './store'
 function useFlash(dep: unknown, ms: number) {
   const [on, setOn] = useState(false)
   const t = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const first = useRef(true)
+  // Initialised to the current dep so the first mount (and React 18 StrictMode's double-invoked
+  // effect, where dep is unchanged) does not flash; only a real change to dep does.
+  const last = useRef(dep)
   useEffect(() => {
-    if (first.current) {
-      first.current = false
-      return
-    }
+    if (last.current === dep) return
+    last.current = dep
     setOn(true)
     clearTimeout(t.current)
     t.current = setTimeout(() => setOn(false), ms)

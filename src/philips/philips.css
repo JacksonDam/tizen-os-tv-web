@@ -167,7 +167,8 @@ html, body, #root {
 }
 .ph-menu__logo { height: 44px; width: auto; }
 .ph-menu__title { font-size: 36px; font-weight: 700; color: #0b2947; }
-.ph-menu__list { list-style: none; margin: 0; padding: 12px 0; }
+.ph-menu__list { list-style: none; margin: 0; padding: 12px 0; max-height: 640px; overflow-y: auto; scrollbar-width: none; }
+.ph-menu__list::-webkit-scrollbar { display: none; }
 
 .ph-row {
   display: flex;
