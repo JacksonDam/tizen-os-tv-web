@@ -81,7 +81,7 @@ export class Juice {
       'JuiceStatusControls', 'JuiceLists', 'JuiceSliders', 'JuiceButtons', 'JuiceTexts', 'JuiceNavigators',
       'JuiceBel2s', 'JuiceStyleTexts', 'JuiceStateStyles', 'JuiceBitmapGroups', 'JuiceDynamicGrids',
       'JuiceNumericGroupEdits', 'JuiceIcons', 'JuiceAnimators', 'JuiceMultiLineStatuss', 'JuiceDateTimes',
-      'JuiceOrganizers', 'JuiceScrollBars']) {
+      'JuiceOrganizers', 'JuiceScrollBars', 'JuiceListVars']) {
       this.T[k] = m.addr(k)
     }
   }
@@ -835,12 +835,11 @@ export class Juice {
     this.jss(m.s16(a + 0xca), x + m.s16(a + 0xce), y + m.s16(a + 0xd0), 0, 0, sst)
     this.jss(m.s16(a + 0xcc), x + m.s16(a + 0xce), y + m.s16(a + 0xd2), 0, 0, sst)
   }
+  // FUN_008cceb0: rows shown = +0x64 + JuiceListVars[+0x10] + 1 (the vars' initial value in .data;
+  // lists with a layout table, +0x19 = 1, take it from the table entry, not used by this set's lists)
   listRows(w: number) {
     const a = this.T.JuiceLists + idxOf(w) * 0xe0
-    const pitch = this.m.s16(a + 0x66) || 1
-    const h = this.m.s16(a + 0x1c)
-    const r = this.m.u8(a + 0x64) + 1
-    return Math.max(r, h > 0 ? Math.floor(h / pitch) : r)
+    return this.m.u8(a + 0x64) + this.m.u8(this.T.JuiceListVars + idxOf(w) * 0x18 + 0x10) + 1
   }
   valueAllowed(w: number, v: number) {
     return this.env.allowed?.(w, v) ?? true
