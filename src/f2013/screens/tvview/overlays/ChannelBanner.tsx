@@ -162,7 +162,7 @@ export function ChannelBanner() {
   const typed = useDirect()
   const [v, setV] = useState<View>({ shown: false, index: 0, dir: -1, seq: 0, numAnim: 0, prevNum: '' })
   const lastChange = useRef(0)
-  const first = useRef(true)
+  const lastSeq = useRef(tuneSeq)
   const [, tick] = useReducer((x: number) => x + 1, 0)
 
   const show = (dir: number) => {
@@ -189,10 +189,8 @@ export function ChannelBanner() {
 
   // every channel change made while watching shows the banner
   useEffect(() => {
-    if (first.current) {
-      first.current = false
-      return
-    }
+    if (tuneSeq === lastSeq.current) return
+    lastSeq.current = tuneSeq
     const dir = pendingDir
     pendingDir = -1
     if (getTv().source === 'TV' && !fg) show(dir)
