@@ -591,7 +591,7 @@ function CompletePage({ next, keys }: PageProps) {
 
 // ---- wizard-ending (ending-page.edc PART_TV_IMAGE, WizardVideoManager): the Ending_Movie plays full
 // screen with its own sound (/opt/data/Ending_Movie/22_Basic/oobe_video_a_ambient_2k.mp4 on a TV like
-// this). The movie is factory-installed and not in the firmware update; public/video/oobe_ending.mp4 is
+// this). The movie is factory-installed and not in the firmware update; public/video/oobe_ending_2160p60.mp4 is
 // a capture of the real TV's ending movie (YouTube v8deoPhBRYU, 0:01.75-0:16.5, "2023 to 2025 Samsung
 // TV first boot"). No key handler is attached to the player, so it can't be skipped (inferred). When it
 // completes (m_PlayCompleteCB) the wizard finishes and the TV opens the Smart Hub, which the movie's
@@ -639,7 +639,7 @@ function EndingPage({ stopBgm, finish, keys, volume }: PageProps & { volume: num
         <video
           ref={video}
           className="wz-ending__video"
-          src={`${import.meta.env.BASE_URL}video/oobe_ending.mp4`}
+          src={`${import.meta.env.BASE_URL}video/oobe_ending_2160p60.mp4`}
           playsInline
           onEnded={finish}
           onError={() => setFallback(true)}
