@@ -14,8 +14,7 @@ html, body, #root {
   background: #000;
 }
 
-/* The TV (scaled 1920x1080 stage) with the on-screen remote docked to its right. The host is
-   transparent so the Ambilight wash behind it shows through the letterbox. */
+/* The TV (scaled 1920x1080 stage) with the on-screen remote docked to its right. */
 .shell {
   position: fixed;
   inset: 0;
@@ -55,26 +54,6 @@ html, body, #root {
 }
 .ph-live--black { background: #000; }
 
-/* ---- Ambilight (behind the stage, bleeding into the letterbox) ---- */
-.ph-ambilight {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.ph-ambilight__side {
-  position: absolute;
-  top: 6%;
-  bottom: 6%;
-  width: 34%;
-  filter: blur(120px);
-  opacity: 0.8;
-}
-.ph-ambilight__side--l { left: -10%; }
-.ph-ambilight__side--r { right: -10%; }
-
-/* the on-screen remote sits above the wash, which only lights the letterbox around the TV */
-.shell > .rc { position: relative; z-index: 1; }
 
 /* ---- standby ---- */
 .ph-standby {
@@ -249,5 +228,4 @@ html, body, #root {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .ph-ambilight__side { transition: none !important; }
 }

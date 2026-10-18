@@ -3,7 +3,7 @@ import { PH } from './assets'
 import { currentChannel, currentSource, useTv } from './store'
 
 // Channel banner (on tune), volume bar (on volume change) and mute badge, drawn over the picture in
-// the Philips OSD style. Kept simple and translucent, as on the 2009 set.
+// the Philips OSD style. Kept simple and translucent, as on the 2008 set.
 
 function useFlash(dep: unknown, ms: number) {
   const [on, setOn] = useState(false)

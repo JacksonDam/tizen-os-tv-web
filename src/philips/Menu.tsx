@@ -2,21 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRemote, type RemoteKey } from '../input/remote'
 import { PH } from './assets'
 import { MENU, type MenuNode } from './menuData'
-import { getSetting, setSetting, setTv, useTv, type AmbiMode } from './store'
+import { forModel } from './model'
+import { getSetting, setSetting, setTv, useTv } from './store'
 
-// The Philips LC08SP on-screen menu: a left-docked blue-gradient "wallpaper" panel with a drill-down
+// The Philips 42PFL5603D/27 (LC08 platform) on-screen menu: a left-docked blue-gradient "wallpaper" panel with a drill-down
 // list, a white glossy highlight bar on the focused row, the PHILIPS logo, a flat-TV illustration on
 // the root, and a help line at the bottom. Driven entirely by the firmware menu tree + strings
 // (src/philips/menuData.ts). Layout proportions are rebuilt to match the set's look (inferred: the
 // exact OSD coordinates were not measured from the firmware).
 
-const AMBI_MODES: AmbiMode[] = ['color', 'relaxed', 'moderate', 'dynamic'] // Ambilight "Mode" item 52
+// the firmware tree without the items this model lacks (./model.ts)
+const ROOT = forModel(MENU)
 
 type Level = { node: MenuNode; focus: number }
 
 export function PhilipsMenu({ close }: { close: () => void }) {
   const lang = useTv(s => s.lang)
-  const [stack, setStack] = useState<Level[]>([{ node: MENU, focus: 1 }])
+  const [stack, setStack] = useState<Level[]>([{ node: ROOT, focus: 1 }])
   const [toast, setToast] = useState<string | null>(null)
 
   const level = stack[stack.length - 1]
@@ -59,9 +61,6 @@ export function PhilipsMenu({ close }: { close: () => void }) {
       const cur = getSetting(node.id, 0)
       const next = ((cur + dir) % n + n) % n
       setSetting(node.id, next)
-      // item 50 = Ambilight on/off, item 52 = Ambilight mode: drive the live Ambilight
-      if (node.id === 50) setTv({ ambilight: next === 0 ? 'off' : 'moderate' })
-      if (node.id === 52) setTv({ ambilight: AMBI_MODES[next] ?? 'moderate' })
     } else if (node.kind === 'slider' || node.kind === 'balance') {
       const [lo, hi] = node.range ?? [0, 100]
       const step = (hi - lo) / 20

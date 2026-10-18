@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { DEFAULT_LINEUP, type Channel } from '../tv/channels'
 import type { Lang } from './menuData'
 
-// Mocked hardware and state of the Philips LC08SP set: power, input source, tuner channels, volume
+// Mocked hardware and state of the Philips 42PFL5603D/27 (LC08 platform): power, input source, tuner channels, volume
 // and the on-screen menu's setting values (keyed by the firmware menu item id). Persisted per
 // browser, separately from the other exhibits. The channel lineup is the museum's shared fictional
 // lineup (src/tv/channels.ts) with its stand-in video loops.
@@ -20,9 +20,6 @@ export const SOURCES: Source[] = [
   { id: 'SIDE', title: 'Side AV', video: '' },
 ]
 
-// Ambilight (Philips 9000-series feature): a coloured wash behind the set, driven by the picture.
-export type AmbiMode = 'off' | 'color' | 'relaxed' | 'moderate' | 'dynamic'
-
 export type TvState = {
   power: 'on' | 'standby'
   source: SourceId
@@ -33,7 +30,6 @@ export type TvState = {
   muted: boolean
   lang: Lang
   settings: Record<number, number> // menu item id -> chosen option index or slider value
-  ambilight: AmbiMode
   switchSeq: number
   tuneSeq: number
 }
@@ -62,7 +58,6 @@ const initial: TvState = {
   muted: false,
   lang: 0,
   settings: { ...DEFAULT_SETTINGS },
-  ambilight: 'moderate',
   switchSeq: 0,
   tuneSeq: 0,
 }

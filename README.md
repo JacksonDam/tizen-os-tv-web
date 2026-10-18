@@ -19,7 +19,7 @@ connecting and agreeing from a factory state.
 
 Built with Vite, React and TypeScript as a multi-page site: the lobby (`index.html`, `src/museum`) and
 one page per exhibit (`2013/index.html` with `src/f2013`, `2025/index.html` with the rest of `src`).
-There is also an unlisted exhibit (`philips/index.html`, `src/philips`): a 2009-10 Philips LC08SP set,
+There is also an unlisted exhibit (`philips/index.html`, `src/philips`): a 2008 Philips 42PFL5603D/27 (LC08 platform),
 rebuilt from its MediaTek firmware package, which the lobby opens when P is held for a second.
 Each TV is a fixed 1920x1080 stage that scales to the window, with an on-screen remote docked beside it
 (`src/stage`, `src/remote`). The exhibits share the key router (`src/input/remote.ts`), the channel
