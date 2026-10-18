@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useRemote } from '../../input/remote'
 import { requestPin } from '../../tv/shell'
+import { NOT_AGREED, setDisclaimer } from '../../tv/online'
+import { resetLauncher } from '../home/launcher'
 import { Ring } from './ui'
 
 // Reset Smart Hub (org.tizen.smarthub-reset, spec3/diag.md 4.6): a transparent window over the caller.
@@ -8,6 +10,9 @@ import { Ring } from './ui'
 // on your TV will be reset (takes about 1 min).", Cancel) -> P_PopupBasicBottom_02 "Resetting all
 // settings…" with a progress circle and its percentage -> C_PopupToast_White "Reset is complete.".
 // The PIN pad is the shared one (requestPin); the reset itself is mocked and runs faster than 1 min.
+// Its effect: the terms client resets its agreement DB ("Smarthub reset, need to reset service",
+// "Start to reset DB", com.samsung.tv.termsclient), so the Smart Hub terms are no longer agreed and the
+// home goes back to "Welcome. Start your Smart Hub!"; the launcher goes back to its default apps.
 
 const T = {
   title: 'Reset Smart Hub',
@@ -35,7 +40,11 @@ export function SmartHubReset({ onDone }: { onDone: (reset: boolean) => void }) 
 
   useEffect(() => {
     if (phase === 'resetting') {
-      if (value >= 100) return setPhase('complete')
+      if (value >= 100) {
+        setDisclaimer(NOT_AGREED)
+        resetLauncher() // AppListManagerST.OnTriggerSmartHubReset -> LauncherReset
+        return setPhase('complete')
+      }
       const t = setTimeout(() => setValue(v => v + 1), RESET_MS / 100)
       return () => clearTimeout(t)
     }

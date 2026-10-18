@@ -260,3 +260,53 @@
 /* ---- ending page: the movie full screen ---- */
 .wz-ending { position: absolute; inset: 0; background: #000; }
 .wz-ending__video, .wz-ending__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* ---- Network: Wi-Fi list, password (layout inferred; the UG's EDC is not in the update) ---- */
+.wz-page__list--wifi { top: 404px; }
+.wz-wifi { display: flex; align-items: center; gap: 24px; }
+.wz-wifi__icon { width: 48px; height: 48px; filter: brightness(0) invert(1); }
+.wz-list__row.is-focused .wz-wifi__icon { filter: none; }
+.wz-msg--wifi { top: 790px; color: rgba(255, 255, 255, 0.8); font-size: 28px; }
+.wz-pw { position: absolute; left: 584px; top: 404px; width: 752px; }
+.wz-pw__field {
+  height: 72px;
+  border-radius: 16px;
+  background: #fff;
+  color: #000;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 32px;
+}
+.wz-pw__count { margin-top: 8px; text-align: right; font-size: 24px; color: rgba(255, 255, 255, 0.6); }
+.wz-pw__show {
+  position: absolute;
+  top: 0;
+  left: 784px;
+  width: 352px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  border-radius: 16px;
+  font-size: 28px;
+}
+.wz-pw__show.is-focused { background: var(--plate-focused); color: #000; box-shadow: var(--focus-shadow); }
+.wz-pw__box { width: 32px; height: 32px; border: 3px solid currentColor; border-radius: 6px; box-sizing: border-box; }
+.wz-pw__box.is-on { background: #33adff; border-color: #33adff; }
+/* ---- Terms: a document (its text is the server stub) ---- */
+.wz-doc {
+  position: absolute;
+  left: 281px;
+  width: 1358px;
+  top: 380px;
+  height: 440px;
+  padding: 32px 40px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 28px;
+  line-height: 44px;
+  color: rgba(255, 255, 255, 0.8);
+}

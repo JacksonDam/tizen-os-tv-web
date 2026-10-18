@@ -76,6 +76,7 @@ export const S = {
   TV_SID_TNC_CDMAR_USE_SMART_HUB_AGREE_TNC_PN_SKIP:
     'To use Smart Hub, you need to agree to the Smart Hub Terms and Conditions and Privacy Notice. Are you sure you want to skip?',
   TV_SID_LOADING_PLEASE_WAIT: 'Loading, Please wait…',
+  COM_IDS_BTN_CLOSE: 'Close',
 
   // ---- Network (net) ----
   TV_SID_OOBE_CAJUL_REMOTE_CONNECT_ENTERTAINMENT_UR_LOVE: 'Connect to the Entertainment You Love',
@@ -86,6 +87,18 @@ export const S = {
   TV_SID_NETWORK_BASIC_DEVICE_INFO_IP_ETC_NETWORK:
     'Basic device information, such as the IP address, model name, etc., will be transmitted to Samsung for network connection.',
   SID_IP_ADDRESS: 'IP Address',
+  TV_SID_OOBE_CAJUL_REMOTE_SELECT_WIFI: 'Select Wi-Fi.',
+  TV_SID_NWSETTINGS_CANOV_SEACRCH_WIFI_NW_SIGNAL: 'Searching for a Wi-Fi network signal...',
+  COM_MIX_ENTER_THE_PASSWORD_FOR: (a: string) => `Enter the password for ${a}.`,
+  SID_SHOW_PASSWORD: 'Show Password',
+  TV_SID_VERIFYING_WIRELESS_NETWORK_CONNECTION: 'Checking wireless network connection…',
+  TV_SID_OOBE_WIRELESS_CONNECTION: 'Wireless Connection',
+  COM_SID_REFRESH_ABBR_7: 'Refresh',
+  SID_SKIP: 'Skip',
+  SID_YES: 'Yes',
+  SID_NO: 'No',
+  PJT_SID_OOBE_SKIP_NETWORK_SETUP_MOVE_NEXT_TV_SMART:
+    'Are you sure you want to skip network setup and move to the next step? An Internet connection is required to use smart features.',
   SID_NETWORK_ERROR_MSG: 'Network interference occurred. Please try again later.',   // terms
   SID_OK: 'OK',
   COM_SID_PREVIOUS: 'Previous',

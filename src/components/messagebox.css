@@ -57,6 +57,7 @@
   line-height: 48px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.8); /* CC_Basic180 */
+  white-space: pre-line;
 }
 .msgbox__buttons { display: flex; gap: 8px; margin-top: 8px; }
 /* C_ButtonBasicText_02 with CP_Plane_PopupBTN_FS: black plate, 15% white stroke, T24 label, 30 x 7 u. */

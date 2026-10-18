@@ -10,9 +10,10 @@ import { ChangePinPopup } from './ChangePinPopup'
 import { FactoryResetPopup } from './FactoryResetPopup'
 import { ToastOverlay } from './toast'
 import { setSetupPending, setupPending } from './setupState'
-import { SetupWizard } from './wizard/SetupWizard'
+import { SetupWizard, SmartHubSetup } from './wizard/SetupWizard'
 
 registerApp('setup', SetupWizard)                     // com.samsung.tv.wizard ("setup" wizard)
+registerApp('smarthub-setup', SmartHubSetup)          // com.samsung.tv.wizard type=SMARTHUB_SETUP
 registerPopup('changepin', ChangePinPopup)            // setting-ui popup.changepin
 registerPopup('factoryreset', FactoryResetPopup)      // setting-ui popup.reset (self-diagnosis-reset)
 registerPinPrompt(requestPinImpl)                     // EnterPinPopup for pinprompt rows and apps
