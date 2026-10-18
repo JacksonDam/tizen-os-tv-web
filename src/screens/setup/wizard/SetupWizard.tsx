@@ -7,6 +7,11 @@ import { MessageBox } from '../../../components/MessageBox'
 import { playFeedback, useMoveSound } from '../../../tv/sound'
 import { SOURCES, setTv, useTv } from '../../../tv/store'
 import { ChannelSearch } from '../../channels/ChannelSearch'
+import { ACCESS_POINTS, FACTORY, getNet, isConnected, setNet, useNet, type AccessPoint } from '../../connections/network'
+import { wifiIcon } from '../../connections/netUtil'
+import { Keyboard, InputText } from '../../../components/keyboard/Keyboard'
+import { useTextEntry } from '../../../components/keyboard/textEntry'
+import { AGREED, NOT_AGREED, SERVER_TEXT_STUB, setDisclaimer } from '../../../tv/online'
 import { PinBoxes } from '../PinBoxes'
 import { DEFAULT_PIN, setPin } from '../pinStore'
 import { setSetupPending } from '../setupState'
@@ -22,8 +27,8 @@ import '../pin.css'
 //                         LanguageCustomLayout ("Hi!" in the focused language, "Select your language.")
 //   wizard-country        "Select Your Country or Region"
 //   wizard-connection-guide  "Connect Your Devices to the Screen": ANT IN and HDMI ports with the devices
-//   NetworkSetting...     SystemSetupNetworkUG: the wired connection (mocked as connected)
-//   wizard-terms          ug-wizard-terms: Smart Hub agreement (Agree / Disagree)
+//   NetworkSetting...     SystemSetupNetworkUG: the Wi-Fi list, password and connection check
+//   wizard-terms          ug-wizard-terms: Smart Hub agreement (Agree / Disagree), skipped offline
 //   wizard-tvusage        "Select Your TV Source"
 //   channel-scan          the channel scan app, embedded (Antenna only)
 //   wizard-pin            "Create a PIN" (countries that refuse 0000, inferred: France)
@@ -35,10 +40,24 @@ import '../pin.css'
 //
 // The setup music (21'_OOBE_BGM.mp3, wizard-config_TV.json bgm_path) starts on the start page
 // (WizardPageControl::ControlBGM) and loops until the ending movie takes the audio focus.
+//
+// First-time setup starts from a factory TV: no saved network and no Smart Hub agreement, so the
+// network and Smart Hub steps really connect and agree (the museum's TV is online and agreed otherwise).
+//
+// The same wizard runs the Smart Hub setup that the home's Set Up Now and sign-in banner start
+// (Disclaimer.Launch(SmartHubSetup) -> com.samsung.tv.wizard type=SMARTHUB_SETUP,
+// CoBA.Core/Util/Disclaimer.cs LaunchSmartHubSetup): wizard-smarthub-setting.json, i.e. the network pages
+// (group 1, skipped when the TV is already online, inferred from NetworkDummyStartPage), wizard-terms
+// (group 2) and the Samsung account, voice and promotion pages, which skip on this TV. No start page, so
+// no music; it ends back on the Smart Hub.
 
 type PageId = 'start' | 'country' | 'connection' | 'network' | 'terms' | 'tvsource' | 'scan' | 'pin' | 'complete' | 'ending'
 type Source = 'antenna' | 'box' | 'none'
-type WizState = { language: string; country: string; source: Source; agreed: boolean; languageSeen: boolean }
+type WizState = {
+  language: string; country: string; source: Source; agreed: boolean; languageSeen: boolean
+  online: boolean      // the network step connected (or the TV already was): wizard-terms runs
+}
+export type WizardMode = 'setup' | 'smarthub'
 
 const SETUP = `${TV}/setup`
 
@@ -48,8 +67,9 @@ const STEP: Partial<Record<PageId, number>> = {
 }
 const TOTAL_STEPS = 4
 
-function flow(st: WizState): PageId[] {
-  const p: PageId[] = ['start', 'country', 'connection', 'network', 'terms', 'tvsource']
+function flow(st: WizState, mode: WizardMode, skipNetwork: boolean): PageId[] {
+  if (mode === 'smarthub') return [...(skipNetwork ? [] : ['network' as const]), ...(st.online ? ['terms' as const] : [])]
+  const p: PageId[] = ['start', 'country', 'connection', 'network', ...(st.online ? ['terms' as const] : []), 'tvsource']
   if (st.source === 'antenna') p.push('scan')
   if (PIN_SETUP_COUNTRIES.has(st.country)) p.push('pin')
   p.push('complete', 'ending')
@@ -72,13 +92,34 @@ export type PageProps = {
 }
 
 export function SetupWizard({ onExit }: AppProps) {
+  return <Wizard mode="setup" onExit={onExit} />
+}
+
+// com.samsung.tv.wizard type=SMARTHUB_SETUP (registered as its own app so the shell can tell it apart).
+export function SmartHubSetup({ onExit }: AppProps) {
+  return <Wizard mode="smarthub" onExit={onExit} />
+}
+
+function Wizard({ mode, onExit }: { mode: WizardMode; onExit: AppProps['onExit'] }) {
+  // First-time setup: the factory network and no agreement (once; StrictMode mounts twice).
+  const [skipNetwork] = useState(() => {
+    if (mode === 'setup') {
+      setNet(s => ({ ...FACTORY, bt: s.bt }))
+      setDisclaimer(NOT_AGREED)
+      return false
+    }
+    return isConnected(getNet())
+  })
   const [st, setSt] = useState<WizState>(() => {
     const lang = LANGUAGES.find(l => l.locale === DEFAULT_LANGUAGE)!
-    return { language: lang.locale, country: lang.country, source: 'antenna', agreed: false, languageSeen: false }
+    return {
+      language: lang.locale, country: lang.country, source: 'antenna', agreed: false, languageSeen: false,
+      online: isConnected(getNet()),
+    }
   })
   const [index, setIndex] = useState(0)
   const [leaving, setLeaving] = useState(false)
-  const pages = flow(st)
+  const pages = flow(st, mode, skipNetwork)
   const page = pages[Math.min(index, pages.length - 1)]
 
   // ---- BGM ----
@@ -86,6 +127,7 @@ export function SetupWizard({ onExit }: AppProps) {
   const muted = useTv(s => s.muted)
   const bgm = useRef<HTMLAudioElement | null>(null)
   useEffect(() => {
+    if (mode !== 'setup') return
     const a = new Audio(`${SETUP}/oobe_bgm.m4a`)
     a.loop = true // m_SetLooding
     bgm.current = a
@@ -100,7 +142,7 @@ export function SetupWizard({ onExit }: AppProps) {
       a.pause()
       bgm.current = null
     }
-  }, [])
+  }, [mode])
   useEffect(() => {
     if (bgm.current) bgm.current.volume = gain(volume, muted)
   }, [volume, muted])
@@ -128,14 +170,25 @@ export function SetupWizard({ onExit }: AppProps) {
       setLeaving(false)
     }, 500)
   }, [])
-  const next = useCallback(() => go(index + 1), [go, index])
+  const finish = useCallback(() => {
+    if (mode === 'setup') setSetupPending(false)
+    onExit('hub')
+  }, [mode, onExit])
+  // the Smart Hub setup ends after its last page (no complete or ending page)
+  const next = useCallback(() => {
+    if (index + 1 >= pages.length) {
+      if (mode === 'smarthub') finish()
+      return
+    }
+    go(index + 1)
+  }, [go, index, pages.length, mode, finish])
   const prev = useCallback(() => {
     if (index > 0) go(index - 1)
-  }, [go, index])
-  const finish = useCallback(() => {
-    setSetupPending(false)
-    onExit('hub')
-  }, [onExit])
+    else if (mode === 'smarthub') {
+      // Back on the first page leaves the Smart Hub setup (inferred)
+      onExit('hub')
+    }
+  }, [go, index, mode, onExit])
 
   const pageKeys = useRef<((key: RemoteKey) => boolean) | null>(null)
   const keys = useCallback((fn: (key: RemoteKey) => boolean) => {
@@ -144,6 +197,12 @@ export function SetupWizard({ onExit }: AppProps) {
 
   // The wizard owns every key during setup. The embedded scan and popups sit above this handler.
   useRemote(key => {
+    // Outside first-time setup the wizard can be left: Home returns to the Smart Hub, Exit to the
+    // picture (inferred; PnP blocks both).
+    if (mode === 'smarthub' && (key === 'Home' || key === 'Exit')) {
+      onExit(key === 'Home' ? 'hub' : 'live')
+      return true
+    }
     if (leaving) return true
     if (page === 'scan') return true // keys the scan let through (Home, Exit...) stop here
     pageKeys.current?.(key)
@@ -379,78 +438,263 @@ function ConnectionPage({ next, prev, keys }: PageProps) {
   )
 }
 
-// ---- Network (SystemSetupNetworkUG: NetworkWiredConnecting -> NetworkConnectSuccess). The mocked TV
-// has its LAN cable in: the wired check runs for 2 s (inferred) and succeeds. ----
+// ---- Network (SystemSetupNetworkUG-efl: NetworkSetting -> NetworkWireless -> NetworkWirelessConnecting ->
+// NetworkConnectSuccess, wizard-network pages in wizard-config_TV.json / wizard-smarthub-setting.json).
+// The mocked TV has no LAN cable, so the UG goes to Wi-Fi: it scans ("Searching for a Wi-Fi network
+// signal..."), lists the neighbourhood's networks with the oobe_icon_n_wifi signal icons, asks for the
+// password of a secured one ("Enter the password for <<A>>.") with the on-screen keyboard, checks the
+// connection and reports success. Skip asks PJT_SID_OOBE_SKIP_NETWORK_SETUP_MOVE_NEXT_TV_SMART first.
+// Strings from ug-SystemSetupNetworkUG-efl.mo (the ones the library references); layout and timings
+// inferred (the UG's EDC is not in the update). Secured networks accept any WPA2 password of 8 or more
+// characters (mock, as in Network Settings). ----
 
-function NetworkPage({ next, prev, keys }: PageProps) {
-  const [ok, setOk] = useState(false)
+const NET_SCAN_MS = 2000      // (inferred)
+const NET_CONNECT_MS = 3500   // (inferred), as Network Settings
+
+type NetStage =
+  | { id: 'scan' }
+  | { id: 'list' }
+  | { id: 'password'; ap: AccessPoint }
+  | { id: 'connecting'; ap: AccessPoint }
+  | { id: 'success'; ap: AccessPoint | null }
+
+function NetworkPage({ st, set, next, prev, keys }: PageProps) {
+  const connected = useNet(isConnected)
+  const [stage, setStage] = useState<NetStage>(() =>
+    st.online && connected ? { id: 'success', ap: ACCESS_POINTS.find(a => a.ssid === getNet().ssid) ?? null } : { id: 'scan' },
+  )
+  const [focus, setFocus] = useState(0)     // list rows, then the Skip button
+  const [skipAsk, setSkipAsk] = useState(false)
+  const [onShow, setOnShow] = useState(false)
+  const [show, setShow] = useState(false)
+  const entry = useTextEntry('', 63)
+  useMoveSound(stage.id === 'list' ? focus : stage.id)
+  const aps = ACCESS_POINTS
+
   useEffect(() => {
-    const t = setTimeout(() => setOk(true), 2000)
-    return () => clearTimeout(t)
-  }, [])
-  keys(key => {
-    if (key === 'Enter' && ok) next()
-    else if (key === 'Back') {
-      playFeedback('back')
-      prev()
+    if (stage.id === 'scan') {
+      const t = setTimeout(() => setStage({ id: 'list' }), NET_SCAN_MS)
+      return () => clearTimeout(t)
     }
+    if (stage.id === 'connecting') {
+      const ap = stage.ap
+      const t = setTimeout(() => {
+        setNet(s => ({
+          type: 'wireless', wifiOn: true, ssid: ap.ssid,
+          saved: ap.secure && !s.saved.includes(ap.ssid) ? [...s.saved, ap.ssid] : s.saved,
+        }))
+        set({ online: true })
+        setStage({ id: 'success', ap })
+      }, NET_CONNECT_MS)
+      return () => clearTimeout(t)
+    }
+  }, [stage, set])
+
+  const choose = (ap: AccessPoint) => {
+    if (!ap.secure || getNet().saved.includes(ap.ssid)) setStage({ id: 'connecting', ap })
+    else {
+      entry.set('')
+      setOnShow(false)
+      setShow(false)
+      setStage({ id: 'password', ap })
+    }
+  }
+
+  keys(key => {
+    if (skipAsk) return true
+    if (stage.id === 'password') {
+      // the keyboard has the keys; this handles the Show Password row above it
+      if (key === 'Back') {
+        playFeedback('back')
+        setStage({ id: 'list' })
+      } else if (onShow && key === 'Enter') setShow(v => !v)
+      else if (onShow && key === 'Down') setOnShow(false)
+      return true
+    }
+    if (key === 'Back') {
+      playFeedback('back')
+      if (stage.id === 'connecting') setStage({ id: 'list' })
+      else prev()
+      return true
+    }
+    if (stage.id === 'list') {
+      if (key === 'Up') setFocus(f => Math.max(0, f - 1))
+      else if (key === 'Down') setFocus(f => Math.min(aps.length, f + 1))
+      else if (key === 'Enter') {
+        if (focus < aps.length) choose(aps[focus])
+        else setSkipAsk(true)
+      }
+    } else if (stage.id === 'success' && key === 'Enter') next()
     return true
   })
+
+  const title = S.TV_SID_OOBE_CAJUL_REMOTE_CONNECT_ENTERTAINMENT_UR_LOVE
+  if (stage.id === 'password') {
+    const ap = stage.ap
+    return (
+      <div className="wz-page">
+        <Titles title={S.TV_SID_OOBE_WIRELESS_CONNECTION} sub={S.COM_MIX_ENTER_THE_PASSWORD_FOR(ap.ssid)} />
+        <div className="wz-pw">
+          <div className="wz-pw__field">
+            <InputText entry={entry} editing={!onShow} password={!show} />
+          </div>
+          <div className="wz-pw__count">{`${entry.text.length}/63`}</div>
+          <div className={`wz-pw__show ${onShow ? 'is-focused' : ''}`}>
+            <span className={`wz-pw__box ${show ? 'is-on' : ''}`} />
+            {S.SID_SHOW_PASSWORD}
+          </div>
+        </div>
+        {!onShow && (
+          <Keyboard
+            entry={entry}
+            style={{ left: 584, top: 560 }}
+            doneEnabled={entry.text.length >= 8}
+            onDone={t => {
+              if (t.length >= 8) setStage({ id: 'connecting', ap })
+            }}
+            onCancel={() => setStage({ id: 'list' })}
+            onExitUp={() => setOnShow(true)}
+          />
+        )}
+      </div>
+    )
+  }
   return (
     <div className="wz-page">
       <Titles
-        title={S.TV_SID_OOBE_CAJUL_REMOTE_CONNECT_ENTERTAINMENT_UR_LOVE}
-        sub={ok ? S.PJT_SID_TV_CONNECTED_INTERNET : S.TV_SID_OOBE_WIRED_CONNECTION}
+        title={title}
+        sub={stage.id === 'success' ? S.PJT_SID_TV_CONNECTED_INTERNET : S.TV_SID_OOBE_CAJUL_REMOTE_SELECT_WIFI}
       />
-      <div className="wz-net">
-        {!ok && <Lottie className="wz-net__spinner" src={`${TV}/support/i_img_progresscircle_01_s.json`} playing loop />}
-        <div className="wz-net__state">{ok ? S.SID_SUCCESS_EXCLAMATION : S.TV_SID_OOBE_WIRED_CONNECTION}</div>
-        {ok && <div className="wz-net__detail">{S.TV_SID_OOBE_WIRED_CONNECTION}</div>}
-      </div>
-      <div className="wz-msg wz-msg--note">{S.TV_SID_NETWORK_BASIC_DEVICE_INFO_IP_ETC_NETWORK}</div>
-      <Buttons labels={[S.COM_BUTTON_NEXT]} focus={ok ? 0 : null} />
+      {(stage.id === 'scan' || stage.id === 'connecting') && (
+        <div className="wz-net">
+          <Lottie className="wz-net__spinner" src={`${TV}/support/i_img_progresscircle_01_s.json`} playing loop />
+          <div className="wz-net__state">
+            {stage.id === 'scan' ? S.TV_SID_NWSETTINGS_CANOV_SEACRCH_WIFI_NW_SIGNAL : S.TV_SID_VERIFYING_WIRELESS_NETWORK_CONNECTION}
+          </div>
+          {stage.id === 'connecting' && <div className="wz-net__detail">{stage.ap.ssid}</div>}
+        </div>
+      )}
+      {stage.id === 'list' && (
+        <>
+          <div className="wz-page__list wz-page__list--wifi">
+            <List
+              items={aps.map(ap => (
+                <span className="wz-wifi">
+                  <img className="wz-wifi__icon" src={wifiIcon(ap)} alt="" />
+                  {ap.ssid}
+                </span>
+              ))}
+              focus={focus < aps.length ? focus : null}
+              visible={5}
+            />
+          </div>
+          <div className="wz-msg wz-msg--wifi">{S.TV_SID_OOBE_CAJUL_REMOTE_OR_CONNECT_ETHERNET_CABLE}</div>
+          <Buttons labels={[S.SID_SKIP]} focus={focus === aps.length ? 0 : null} />
+        </>
+      )}
+      {stage.id === 'success' && (
+        <>
+          <div className="wz-net">
+            <div className="wz-net__state">{S.SID_SUCCESS_EXCLAMATION}</div>
+            <div className="wz-net__detail">{stage.ap ? stage.ap.ssid : S.TV_SID_OOBE_WIRELESS_CONNECTION}</div>
+          </div>
+          <div className="wz-msg wz-msg--note">{S.TV_SID_NETWORK_BASIC_DEVICE_INFO_IP_ETC_NETWORK}</div>
+          <Buttons labels={[S.COM_BUTTON_NEXT]} focus={0} />
+        </>
+      )}
+      {skipAsk && (
+        <MessageBox
+          message={S.PJT_SID_OOBE_SKIP_NETWORK_SETUP_MOVE_NEXT_TV_SMART}
+          buttons={[S.SID_YES, S.SID_NO]}
+          onClose={b => {
+            setSkipAsk(false)
+            if (b === 0) {
+              set({ online: false })
+              next()
+            }
+          }}
+        />
+      )}
     </div>
   )
 }
 
-// ---- wizard-terms (ug-wizard-terms): the Smart Hub agreement. The documents come from Samsung's server,
-// so opening one here shows the terms page's network error (SID_NETWORK_ERROR_MSG). Disagree asks
-// TV_SID_TNC_CDMAR_USE_SMART_HUB_AGREE_TNC_PN_SKIP first. Layout inferred from the FLUX template. ----
+// ---- wizard-terms (ug-wizard-terms): the Smart Hub agreement. Its texts, document list and buttons are
+// server data (termsclient's table_home_data_disclaimer_info: title, intro, details, button1..10); the
+// UG itself only shows "Loading" while it fetches them (COM_TV_SID_LOADING_NOTDOT / TV_SID_LOADING_PLEASE_
+// WAIT). The page keeps the titles of the first round (wizard-homesetting.mo) and opens a document as a
+// text page whose body is the stub (the real text comes from Samsung). Agree stores tnc and pp "TRUE" in
+// the disclaimer (config key 42); Disagree asks TV_SID_TNC_CDMAR_USE_SMART_HUB_AGREE_TNC_PN_SKIP first.
+// Layout inferred from the FLUX template. ----
+
+const TERMS_LOAD_MS = 1200   // (inferred) the disclaimer request
 
 function TermsPage({ set, next, prev, keys }: PageProps) {
   const docs = ['Terms and Conditions', 'Privacy Policy'] // COM_TV_SID_TERMS_CONDITIONS_PRIVACY_POLICY, split
   const [focus, setFocus] = useState(2) // 0..1 documents, 2 Agree, 3 Disagree
-  const [popup, setPopup] = useState<'skip' | 'error' | null>(null)
-  useMoveSound(focus)
+  const [popup, setPopup] = useState<'skip' | null>(null)
+  const [doc, setDoc] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+  useEffect(() => {
+    const t = setTimeout(() => setLoading(false), TERMS_LOAD_MS)
+    return () => clearTimeout(t)
+  }, [])
+  useMoveSound(focus, !loading && doc === null)
   keys(key => {
     if (popup) return true
+    if (doc !== null) {
+      if (key === 'Enter' || key === 'Back') {
+        if (key === 'Back') playFeedback('back')
+        setDoc(null)
+      }
+      return true
+    }
+    if (key === 'Back') {
+      playFeedback('back')
+      prev()
+      return true
+    }
+    if (loading) return true
     if (key === 'Up' && focus >= 2) setFocus(1)
     else if (key === 'Up' && focus === 1) setFocus(0)
     else if (key === 'Down' && focus < 2) setFocus(focus + 1)
     else if (key === 'Left' && focus === 3) setFocus(2)
     else if (key === 'Right' && focus === 2) setFocus(3)
     else if (key === 'Enter') {
-      if (focus < 2) setPopup('error')
+      if (focus < 2) setDoc(focus)
       else if (focus === 2) {
+        setDisclaimer(AGREED)
         set({ agreed: true })
         next()
       } else setPopup('skip')
-    } else if (key === 'Back') {
-      playFeedback('back')
-      prev()
     }
     return true
   })
+  if (doc !== null) {
+    return (
+      <div className="wz-page">
+        <Titles title={docs[doc]} />
+        <div className="wz-doc">{SERVER_TEXT_STUB}</div>
+        <Buttons labels={[S.COM_IDS_BTN_CLOSE]} focus={0} />
+      </div>
+    )
+  }
   return (
     <div className="wz-page">
       <Titles title={S.TV_SID_OOBE_SMART_HUB_AGREEMENT} sub={S.TV_SID_MIX_BEFORM_SET_UP_SMART_HUB_MUST_AGREE} />
-      <div className="wz-page__list wz-page__list--terms">
-        <List items={docs} focus={focus < 2 ? focus : null} visible={2} />
-      </div>
-      <div className="wz-msg">{S.TV_SID_SELECT_AGREE_BOTH_SELECT_DISAGREE}</div>
-      <Buttons labels={[S.COM_SID_AGREE, S.COM_SID_DISAGREE]} focus={focus >= 2 ? focus - 2 : null} />
-      {popup === 'error' && (
-        <MessageBox message={S.SID_NETWORK_ERROR_MSG} buttons={[S.SID_OK]} onClose={() => setPopup(null)} />
+      {loading ? (
+        <div className="wz-net">
+          <Lottie className="wz-net__spinner" src={`${TV}/support/i_img_progresscircle_01_s.json`} playing loop />
+          <div className="wz-net__state">{S.TV_SID_LOADING_PLEASE_WAIT}</div>
+        </div>
+      ) : (
+        <>
+          <div className="wz-page__list wz-page__list--terms">
+            <List items={docs} focus={focus < 2 ? focus : null} visible={2} />
+          </div>
+          <div className="wz-msg">{S.TV_SID_SELECT_AGREE_BOTH_SELECT_DISAGREE}</div>
+          <Buttons labels={[S.COM_SID_AGREE, S.COM_SID_DISAGREE]} focus={focus >= 2 ? focus - 2 : null} />
+        </>
       )}
       {popup === 'skip' && (
         <MessageBox
@@ -459,6 +703,7 @@ function TermsPage({ set, next, prev, keys }: PageProps) {
           onClose={b => {
             setPopup(null)
             if (b === 0) {
+              setDisclaimer(NOT_AGREED)
               set({ agreed: false })
               next()
             }

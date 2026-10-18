@@ -1,8 +1,10 @@
 import { useSyncExternalStore } from 'react'
 
-// Mocked network and Bluetooth hardware for the Connections apps (spec3/connections.md 5). The TV starts
-// on a working wired connection (the Quick Settings LAN tile says "Connected"); Network Settings can
-// switch it to one of the Wi-Fi networks below. Persisted per browser under its own key.
+// Mocked network and Bluetooth hardware for the Connections apps (spec3/connections.md 5). The museum's
+// TV starts online, on the Wi-Fi network "Harbour View" (ONLINE_DEFAULT; no LAN cable is plugged in), so
+// the Smart Hub has its server content at once. A factory-fresh TV (FACTORY: first-time setup, Reset
+// Network) has no saved network and is offline until setup or Network Settings connects it. Persisted
+// per browser under its own key.
 
 export type NetType = 'wired' | 'wireless'
 
@@ -45,23 +47,27 @@ export type NetState = {
 }
 
 const KEY = 'tizen-os-tv-web.network'
-const initial: NetState = {
-  type: 'wired',
+// Out of the box (db/menu/network/network_type wireless on a TV without a cable): nothing saved, offline.
+export const FACTORY: NetState = {
+  type: 'wireless',
   wifiOn: true,
   ssid: null,
   saved: [],
-  cable: true,
+  cable: false,
   bt: { paired: [], connected: null },
 }
+// The museum's default: connected to the home router's 2.4 GHz network, its password saved.
+export const HOME_SSID = 'Harbour View'
+export const ONLINE_DEFAULT: NetState = { ...FACTORY, ssid: HOME_SSID, saved: [HOME_SSID] }
 
 function load(): NetState {
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) return { ...initial, ...JSON.parse(raw) }
+    if (raw) return { ...ONLINE_DEFAULT, ...JSON.parse(raw) }
   } catch {
     /* storage unavailable */
   }
-  return initial
+  return ONLINE_DEFAULT
 }
 
 let state = load()
@@ -91,9 +97,10 @@ export function useNet<T>(select: (s: NetState) => T): T {
   )
 }
 
-// Reset Network: wired, Wi-Fi on, no saved networks (Bluetooth pairings are kept).
+// Reset Network: back to the factory network settings, Wi-Fi on, no saved networks, so the TV is
+// offline until it is connected again (Bluetooth pairings are kept).
 export function resetNetwork() {
-  setNet(s => ({ ...initial, bt: s.bt }))
+  setNet(s => ({ ...FACTORY, bt: s.bt }))
 }
 
 // ---- derived ----
