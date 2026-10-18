@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRemote } from '../../../../../input/remote'
 import { openApp, useForeground } from '../../../../shell'
 import { playUi, UI_SOUND } from '../../../../tv/sound'
@@ -8,6 +8,7 @@ import { MessageBox } from '../../../menu/widgets'
 import { fw, MEDIUM } from '../hubapps/assets'
 import type { RunParams } from '../hubapps/AppRunner'
 import { SAMSUNG_APPS } from '../hubapps/catalog'
+import { getSocialRequest, requestSocial, useSocialRequest } from './request'
 import { SocialSettings } from './SocialSettings'
 
 // The Social panel online (CHomeCommunicationPanel, panel id 0) on a TV without social accounts: the
@@ -38,25 +39,6 @@ const GAP = 24
 const TEXT_CONTENT = 'Enjoy socialising over your TV by installing social network apps from Samsung Apps.\n\n*Supported apps: Facebook, Twitter' // 0x2f
 const TEXT_CALLS = 'Install the Skype app from Samsung Apps to use Video Call. Select the Install button to install.' // 0x2e
 
-// Requests from the panel and its sub menu (which has the keys while its item runs): the Social Settings
-// window or the Video Call message. Both are separate windows over the whole Smart Hub (the settings are
-// their own application, 200), so they are drawn by an overlay above it (SocialPopups), with the launch
-// motion of whoever asked.
-type Kind = 'settings' | 'videocall'
-type Request = { kind: Kind; launch?: (run: () => void) => void } | null
-let request: Request = null
-const subs = new Set<() => void>()
-export function requestSocial(kind: Kind | null, launch?: (run: () => void) => void) {
-  request = kind ? { kind, launch } : null
-  subs.forEach(f => f())
-}
-function useRequest() {
-  return useSyncExternalStore(f => {
-    subs.add(f)
-    return () => subs.delete(f)
-  }, () => request)
-}
-
 function runSamsungApps(launch?: (run: () => void) => void) {
   const go = () => openApp('hubapp', { id: SAMSUNG_APPS, name: 'Samsung Apps', from: SOCIAL } satisfies RunParams)
   if (launch) launch(go)
@@ -65,7 +47,7 @@ function runSamsungApps(launch?: (run: () => void) => void) {
 
 export function SocialPanel({ active, exitUp, exitDown, launch }: OnlinePanelProps) {
   const [focus, setFocus] = useState<'main' | 'sub'>('main')
-  const req = useRequest()
+  const req = useSocialRequest()
   const ref = useRef(focus)
   ref.current = focus
 
@@ -108,11 +90,11 @@ export function SocialPanel({ active, exitUp, exitDown, launch }: OnlinePanelPro
 
 // The overlay drawing the requested window above the Smart Hub (registered in hubapps/index.ts).
 export function SocialPopups() {
-  const req = useRequest()
+  const req = useSocialRequest()
   const fg = useForeground()
   const onHub = fg?.id === 'smarthub'
   useEffect(() => {
-    if (!onHub && request) requestSocial(null)
+    if (!onHub && getSocialRequest()) requestSocial(null)
   }, [onHub])
   if (!req || !onHub) return null
   return (

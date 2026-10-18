@@ -14,6 +14,10 @@ import { getSetting, setSetting, useSetting } from '../../../../tv/store'
 //   hubapps.opened     JSON array of app ids, most recently opened first (More Apps, View: Recently Opened)
 //   hubapps.autoupdate 'on' | 'off' (More Apps > Options > Auto Update Apps)
 //   hubapps.games      JSON array of installed game ids
+//   hubapps.sort       More Apps' View: 0 Date Downloaded, 1 Recently Opened, 2 Title
+//   hubapps.played     Game Hub: comma-separated game ids, most recently played first (My Page sort)
+//   hubapps.gamesautoupdate 'on' | 'off' (Game Hub My Page > Options > Auto Update Games)
+// The lock PIN is the TV's (menu.pin, default 0000).
 // Downloads are simulated in memory (they are lost with a page reload, as an unfinished download is
 // with a power cut).
 
