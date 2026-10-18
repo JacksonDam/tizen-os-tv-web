@@ -1,4 +1,5 @@
 import { createElement as h } from 'react'
+import { openApp } from '../../shell'
 import { setSmartHub } from '../../tv/online'
 import { online } from '../net/data'
 import { TermsPage } from '../net/Terms'
@@ -34,8 +35,8 @@ export function resetSmartHub(it: MenuItem): Widget {
 //  - Samsung Account > Sign In / Create Account / Terms & Conditions, Privacy Policy: the Menu closes
 //    (event 0x1b40) and the Settings app runs the "_ACCOUNT_" widget ("SignIn", "TermsConditions" ...,
 //    CSettingAppBase::t_OnEvent @01c7b968 -> CInfoLink2Wrapper::RunWidget @0195fdf4 -> app 0x4d). That
-//    widget and the widget engine are not part of this firmware update, so nothing opens and the TV
-//    shows the picture again (the account UI the footage shows, EhQ9pDtWV4M 3:23, is the widget's).
+//    widget and the widget engine are not part of this firmware update: the 'samsungaccount' app
+//    (net/Account.tsx) stands for it as the plain screen the exhibit shows for apps it cannot run.
 export function smartHubOnline(it: MenuItem, close: () => void): Widget | null {
   if (!online()) return smartHubOffline(it)
   if (it.id === 0x704c) {
@@ -48,6 +49,7 @@ export function smartHubOnline(it: MenuItem, close: () => void): Widget | null {
     }
   }
   close()
+  openApp('samsungaccount', { from: 'menu', page: it.id === 0x1b5e ? 'TermsConditions' : it.id === 0x1b58 ? 'SignIn' : 'CreateAccount' })
   return null
 }
 

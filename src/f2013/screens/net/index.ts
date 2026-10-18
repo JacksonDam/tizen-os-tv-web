@@ -1,5 +1,6 @@
 // Network 2013 (online round): the mocked Wi-Fi, the on-screen keyboard, the connection test and the
 // Smart Hub terms pages are used by the Menu, Plug & Play and Smart Hub modules (spec/online-net2013.md).
+import './Account'
 import { getTv } from '../../tv/store'
 import { setNetwork, setSmartHub } from '../../tv/online'
 

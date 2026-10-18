@@ -407,3 +407,19 @@
   font-size: 40px;
   line-height: 56px;
 }
+
+/* an app the exhibit cannot run (Samsung Account widget): a plain screen with its name */
+.n13-app {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.n13-app__name {
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+  font-size: 48px;
+  color: #fff;
+}
