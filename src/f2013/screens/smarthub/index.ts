@@ -2,6 +2,7 @@
 import { getForeground, openApp, registerApp, registerHotkey } from '../../shell'
 import { SmartHub } from './SmartHub'
 import './OnTvPanel'
+import './MultimediaPanel'
 
 registerApp({ id: 'smarthub', component: SmartHub, z: 200 })
 

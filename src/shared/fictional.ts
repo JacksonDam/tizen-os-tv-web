@@ -99,6 +99,30 @@ export const STUB_USB = {
   ],
 }
 
+// Online clips a "most popular" feed would list (2013 Smart Hub Photos, Videos & Music panel: four
+// pages of 15 from the server). Videos play the stand-in loops; photos are generated artwork.
+const POPULAR_TITLES = [
+  'Harbour at Dawn', 'Kite Festival Highlights', 'Lantern Street by Night', 'Ferry Crossing Timelapse', 'Garden Steps in Spring',
+  'Market Day Sketches', 'Snow Over the Old Pier', 'Coastal Railways: Behind the Scenes', 'Orchard Harvest', 'Blue Door Gallery',
+  'Hill Road Cycle', 'Kitchen Duel: Best Bits', 'Night Window Rain', 'Robo Pals Sing-Along', 'Autumn Path Walk',
+  'Aurora One Weather Clouds', 'Lighthouse Keeper', 'Paper Boats', 'Vista Sport Goal of the Week', 'Northstar Studio Tour',
+  'Salt Flat Sunrise', 'Clockwork Toys', 'Rooftop Garden', 'Morning Swim', 'Harbour Lights Trailer',
+  'Board Game Night', 'Test Card Classics', 'Sand Sculptures', 'Old Tram Ride', 'Glass Orchard Trailer',
+  'Tide Pools', 'Kestrel Kids Drawing Club', 'Summer Fair Fireworks', 'Wind Farm Walk', 'Bakery at 4 a.m.',
+  'Harbour News Sky Watch', 'Puddle Jumping', 'Mountain Hut', 'Lumen Cinema Previews', 'Quiet Street Snowfall',
+  'River Otters at Play', 'Brass Band Rehearsal', 'Ice Rink Opening', 'Desert Crossing Trailer', 'Seaside Carousel',
+  'Model Railway', 'Foggy Bridge', 'The Small Hours Trailer', 'Picnic on the Hill', 'Market Flowers',
+  'Paper Planes Contest', 'Storm Over the Bay', 'Cliff Path', 'Night Ferry Trailer', 'Street Musicians',
+  'Pumpkin Patch', 'Cold Current Expedition', 'Rainbow Kites', 'City Lights from Above', 'Echo Valley Trailer',
+]
+const LOOP_FILES = ['loop-gradients.mp4', 'loop-clouds.mp4', 'loop-life.mp4', 'loop-bars.mp4']
+export type StubClip = { id: string; title: string; kind: 'video' | 'photo'; video?: string }
+export const STUB_POPULAR: StubClip[] = POPULAR_TITLES.map((title, i) =>
+  i % 3 === 1
+    ? { id: `pop-${i + 1}`, title, kind: 'photo' }
+    : { id: `pop-${i + 1}`, title, kind: 'video', video: LOOP_FILES[i % LOOP_FILES.length] },
+)
+
 // ---- generated placeholder artwork ----
 
 const PALETTES: [string, string, string][] = [

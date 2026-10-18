@@ -394,3 +394,74 @@
   white-space: nowrap;
   z-index: 3;
 }
+
+/* ---- Photos, Videos & Music (CHomeMultimediaPanel) ---- */
+.mmp {
+  position: absolute;
+  inset: 0;
+  color: #fff;
+}
+.mmp__refresh {
+  position: absolute;
+}
+.mmp__refresh img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mmp__spin {
+  animation: mmp-spin 1000ms linear 1;
+}
+@keyframes mmp-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.mmp__title {
+  position: absolute;
+  left: 248px;
+  top: 162px;
+  width: 454px;
+  height: 43px;
+  font-size: 30px;
+  line-height: 43px;
+  color: #df5ed6;
+  opacity: 0.65;
+  white-space: nowrap;
+}
+.mmp__cell {
+  position: absolute;
+}
+.mmp__plate {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+}
+.mmp__thumb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+}
+.mmp__type {
+  position: absolute;
+}
+.mmp__tbg {
+  position: absolute;
+  background: #000;
+}
+.mmp__text {
+  position: absolute;
+  font-weight: 300;
+  font-size: 28px;
+  line-height: 40px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mmp__text--scroll {
+  text-overflow: clip;
+}
