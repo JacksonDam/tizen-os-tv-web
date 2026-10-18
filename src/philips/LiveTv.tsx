@@ -2,6 +2,7 @@ import { VIDEO } from './assets'
 import { currentChannel, useTv } from './tv/store'
 import { getProp } from './ui/env'
 import { P } from './ui/props'
+import { formatTransform } from './ui/options'
 import { INPUTS } from './ui/sources'
 
 // The picture: the current channel's or input's stand-in loop. Radio services and inputs without a
@@ -28,5 +29,6 @@ export function LiveTv() {
   if (!video) return <div className="ph-live" />
   // the sliders around the factory values (100 / 50 / 50) map to CSS filters (inferred)
   const filter = `contrast(${0.5 + contrast / 200}) brightness(${0.6 + brightness / 125}) saturate(${colour / 50})`
-  return <video key={video} className="ph-live" style={{ filter }} src={`${VIDEO}${video}`} autoPlay muted loop playsInline />
+  const transform = formatTransform(getProp(P.pictureFormat))
+  return <video key={video} className="ph-live" style={{ filter, transform }} src={`${VIDEO}${video}`} autoPlay muted loop playsInline />
 }

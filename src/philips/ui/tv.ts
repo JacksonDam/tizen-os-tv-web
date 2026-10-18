@@ -7,8 +7,9 @@ import { openChannelList } from './chlist'
 import { openHome } from './home'
 import { openMenu } from './menu'
 import { registerInstallation } from './install'
+import { openQuickAccess } from './options'
 import { W } from '../fw/juice'
-import { repaint, show } from './screens'
+import { repaint, show, timer } from './screens'
 
 // The TV layer: keys no OSD screen took (watching TV).
 
@@ -80,6 +81,29 @@ export function tvKey(k: RemoteKey, j: Juice): boolean {
     case 'ChannelList':
       openChannelList()
       return true
+    case 'Tools':
+      openQuickAccess()
+      return true
+  }
+  if (k.startsWith('Digit')) {
+    digitKey(+k.slice(5))
+    return true
   }
   return false
+}
+
+// Digits: the channel number (up to 3 digits; tuned 2 s after the last one, or at once when no
+// longer number exists; timing inferred)
+let typed = ''
+function digitKey(d: number) {
+  typed = (typed + d).slice(-3)
+  const s = getTv()
+  const n = +typed
+  const go = () => {
+    const i = s.channels.findIndex(c => c.number === n)
+    typed = ''
+    if (i >= 0) tune(i)
+  }
+  if (!s.channels.some(c => String(c.number).startsWith(typed) && String(c.number) !== typed)) go()
+  else timer('digits', 2000, go)
 }
