@@ -116,3 +116,11 @@ export function useMoveSound(focus: unknown, enabled = true) {
     prev.current = focus
   }, [focus, enabled])
 }
+
+// The TV's volume (0-100) as a playback gain for media the UI plays (welcome movie, setup music). A
+// linear volume/100 makes the default 10 almost silent; TV volume steps are closer to decibels: 20 and
+// above plays at full level, each step below 0.5 dB quieter, 0 silent (inferred).
+export function tvGain(volume: number, muted: boolean) {
+  if (muted || volume <= 0) return 0
+  return Math.min(1, Math.pow(10, (volume - 20) / 40))
+}

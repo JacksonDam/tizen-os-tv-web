@@ -244,5 +244,5 @@ element bounding boxes. Reference screenshots come from the firmware running in 
 Unofficial and not affiliated with Samsung. The images, animations, sounds, music, welcome movie and
 fonts in `public/f13`, `public/tv` and `public/sounds` come from Samsung TV firmware, and the 2025
 end-of-setup movie
-(`public/video/oobe_ending.mp4`) from a capture of a Samsung TV; they remain the property of Samsung
+(`public/video/oobe_ending_2160p60.mp4`) from a capture of a Samsung TV; they remain the property of Samsung
 Electronics. App logos shown in them belong to their respective owners.

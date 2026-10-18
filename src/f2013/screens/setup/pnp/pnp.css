@@ -138,3 +138,5 @@
   width: 588px;
   height: 588px;
 }
+/* the Wireless network row's signal icon (ITEM_IMAGE_X 896, 72 wide; icon 48x40 at x1.5, inferred) */
+.wl__icon { position: absolute; left: 896px; top: 22px; width: 72px; height: 60px; }

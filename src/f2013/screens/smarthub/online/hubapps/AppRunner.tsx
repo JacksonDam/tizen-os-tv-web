@@ -16,8 +16,8 @@ import { fw } from './assets'
 // Hub (falls through to its hotkey).
 
 // `from`: the Smart Hub panel RETURN goes back to; `back`: an application to reopen instead (the Game
-// Hub reopens on the game's page).
-export type RunParams = { id: string; name: string; from: number; back?: { app: string; params?: unknown } }
+// Hub reopens on the game's page); neither: RETURN goes back to the TV picture (as EXIT).
+export type RunParams = { id: string; name: string; from?: number; back?: { app: string; params?: unknown } }
 
 const BLACK_MS = 1500   // (inferred from the footage)
 const LOADING_MS = 2000 // (inferred from the footage)
@@ -53,7 +53,8 @@ export function AppRunner({ params, close }: AppProps) {
     switch (key) {
       case 'Back':
         if (p.back) openApp(p.back.app, p.back.params)
-        else openApp('smarthub', { panel: p.from })
+        else if (p.from !== undefined) openApp('smarthub', { panel: p.from })
+        else close()
         return true
       case 'Exit':
         close()
