@@ -75,9 +75,12 @@ export const PANELS: Record<number, PanelDef> = {
     promoImage: 'img/not_network_ontv.PNG', promoButton: STR.setUp,
   },
   [MOVIES]: {
-    // m_GetMovieTvPanelName @02bc6214: "Films and TV Shows" (string 85) when g_pAppTV vfunc+0x27c is
-    // true; no list that holds this panel is a UK one, so the other name is used (inferred)
-    icon: 'movies', name: 'Movies & TV Shows', nameColor: '#7947c2',
+    // CHomeTopMenuWindow::m_GetMovieTvPanelName @02bc6214: g_pAppTV vfunc+0x27c is GetRegionKind
+    // (CChannelSearchManagerDVBAuto::m_GetNextStateBegin's debug text); region kinds 5, 10, 11, 17, 25
+    // and 30 ("..._KR_AU") take string 86 "Movies & TV Shows", every other region string 85. This EU
+    // firmware's region kind is 4 (CPlugPlayController::GetPlugPlayDefaultCountryByLanguage), so the
+    // panel is "Films and TV Shows" here.
+    icon: 'movies', name: 'Films and TV Shows', nameColor: '#7947c2',
     bg: [f(0.0705882, 0.0392157, 0.117647), f(0.172549, 0.101961, 0.298039)],
     promoTitle: STR.moviesTitle, promoText: STR.moviesText, promoColor: '#9c62f2',
     promoImage: 'img/not_network_movies.PNG', promoButton: STR.setUp,
@@ -215,3 +218,78 @@ export const ARROW_Y = 476                                  // GBHOME_ARROW_POS_
 export const ARROW_X = { left: [4, 14, 24], right: [1814, 1804, 1794] }           // GBHOME_ARROW_POS_X
 export const ARROW_INIT_X = { left: [84, 94, 104], right: [1734, 1724, 1714] }    // GBHOME_ANI_ARROW_INIT_POS_X
 export const ARROW_GONE_X = { left: -102, right: 1920 }     // GBHOME_DISAPPEARED_ARROW_POS_X
+
+// ---- online (server panel list, Smart Hub terms agreed) ----
+
+// HomePanel images are the 1280x720 OSD's artwork; the 1920x1080 OSD draws them 1.5x (the drawing
+// objects take SCImage::Width/Height of the loaded image). Evidence: GBHOME_TOP_ICON_GAP_X 116 = 1.5 x
+// the 77 px icons, GBHOME_DISAPPEARED_ARROW_POS_X -102 = -1.5 x the 69 px arrow, the 788x453 box of
+// the 525x302 default-panel image, and sub_boundary_line.png (6x48) measuring ~72 px tall in WpDoxOxX6s4.
+export const HP_SCALE = 1.5
+
+// With the terms agreed, CHomeInfo::GetHomePanelCompositionInfo @04688544 builds the list from the
+// positions the hub server stored (CHomeHubSiteGetDevicePanelListParser -> settings 0x481 On TV, 0x482
+// Apps, 0x483 Movies, 0x484 AllShare, 0x485 Social, 0x495 NewsON, 0x496 Games, 0x497 Multimedia; each
+// holds position + 1, 0 = absent). On TV is kept only when CHomeInfo::IsOnTVPanelAvailable @046878dc
+// (panel on, the On TV service provider chosen in Smart Hub setup, terms agreed). The server's UK list
+// is not in the firmware, so this is the fullest list a UK set supports and shows (inferred): the UK
+// footage (EhQ9pDtWV4M) shows Social, Apps, Films and TV Shows, Photos Videos & Music in that order;
+// On TV sits between Apps and Films as in the EU product lists and the CES footage (WpDoxOxX6s4); the
+// UK product list (TDaSystem::GetDefaultHomePanelList) adds Games, which every product list puts
+// directly before Apps. NewsON (Turkey) and the old AllShare panel are not UK panels.
+export const ONLINE_PANELS = [SOCIAL, GAMES, APPS, ONTV, MOVIES, MULTIMEDIA]
+
+// Start panel: the stored start panel (setting 0x486, none on this TV), else On TV, else Apps
+// (GetHomePanelCompositionInfo), i.e. defaultCentre().
+
+// ---- sub menu (CHomeSubMenuWindow) ----
+// GBHOME_SUBMENU_NUM @09448220 = 4 3 5 1 5 1 2 5 per panel id; titles from m_GetSubMenuTitle @02bcdbd4
+// (g_HomePanelWStringEng). Items the TV lacks are dropped (m_InitializeSubMenu @02bce51c): Recorded TV
+// (On TV 2, Photos 4) without PVR (CHomeInfo::IsAvailablePVR: factory option 75; the F6400 records to
+// USB, so it stays), Guide without an EPG (IsAvailableGuide), Purchased while the server has not enabled
+// it (setting 0x488; kept, inferred).
+export const SUBMENU: Record<number, string[]> = {
+  [SOCIAL]: ["Friends' Picks", "What's Hot", 'Friends', 'Video Call'],   // 32, 33, 38, 39
+  [ONTV]: ['Guide', 'Timeline View', 'Recorded TV'],                    // 77, 80, 81
+  [MOVIES]: ['Favourites', 'Featured', 'Movies', 'TV Shows', 'Purchased'], // 88, 87, 89, 90, 91
+  [APPS]: ['More Apps'],                                                // 56
+  [ALLSHARE]: ['All Content', 'Photos', 'Videos', 'Music', 'Recorded TV'], // 100, 97, 98, 99, 81
+  [NEWS]: ['More News'],                                                // 30
+  [GAMES]: ['My Page', 'All Games'],                                    // 204, 205
+  [MULTIMEDIA]: ['All Content', 'Photos', 'Videos', 'Music', 'Recorded TV'],
+}
+
+// Focus box image per panel (m_InitializeSubMenu: g_HomePanelImage 0x1c-0x20, 0xbb, 0xed), drawn as a
+// 9-part composite (GBHOME_SUBMENU_FOCUS_IMAGE_W1..H3 = 24 24 12 6 24 110 in 1.5x image px).
+export const SUBMENU_FOCUS_IMG: Record<number, string> = {
+  [SOCIAL]: 'sub category/social/so_sub.png',
+  [ONTV]: 'sub category/smart guide/sg_sub.png',
+  [MOVIES]: 'sub category/movies&TVShow/ct_sub.png',
+  [APPS]: 'sub category/apps/apps_sub.png',
+  [ALLSHARE]: 'sub category/music photo&clips/mc_sub.png',
+  [NEWS]: 'sub category/info/info_sub.png',
+  [GAMES]: 'sub category/games/game_sub.png',
+  [MULTIMEDIA]: 'sub category/music photo&clips/mc_sub.png',
+}
+
+// CHomeOSDInfo (t_InitFullHDResolution / t_InitCommonResolution): buttons GBHOME_SUBMENU_BUTTON_WIDTH[n]
+// x GBHOME_SUBMENU_BUTTON_HEIGHT at GBHOME_SUBMENU_BUTTON_POS_X[n*7+i], GBHOME_SUBMENU_BUTTON_POS_Y; the
+// boundary lines (sub_boundary_line.png) at GBHOME_SUBMENU_BOUNDARY_POS_X[n*7+i], ..._POS_Y.
+export const SUB_W: Record<number, number> = { 1: 548, 2: 548, 3: 528, 4: 428, 5: 368, 6: 304 }
+export const SUB_H = 120
+export const SUB_Y = 972
+export const SUB_X: Record<number, number[]> = {
+  1: [686], 2: [352, 1020], 3: [88, 696, 1304], 4: [53, 511, 969, 1427], 5: [8, 392, 776, 1160, 1544],
+  6: [13, 331, 649, 967, 1285, 1603],
+}
+export const SUB_LINE_X: Record<number, number[]> = {
+  2: [956], 3: [652, 1260], 4: [492, 950, 1408], 5: [380, 764, 1148, 1532], 6: [32, 638, 956, 1274, 1592],
+}
+export const SUB_LINE_Y = 996
+export const SUB_TEXT_GAP = 24            // GBHOME_SUBMENU_BUTTON_TEXT_SIDE_GAP
+export const SUB_FONT = 42                // GBHOME_SUBMENU_FONT_SIZE
+export const SUB_MOVE_Y = 108             // GBHOME_SUBMENU_Y_MOVE_DISTANCE (hidden = 108 px lower)
+export const SUB_SHOW_MS = 250            // GBHOME_ANI_SUBMENU_SHOW_DURATION
+export const SUB_STAGGER_MS = 34          // GBHOME_ANI_SUBMENU_PRECEDENCE_TIME
+export const SUB_MOVE_LEAD_MS = 417       // GBHOME_ANI_SUBMENU_MOVE_SHOW_LEADTIME
+export const GRID_MS = 250                // GBHOME_COMMON_GRID_ANIMATION_DURATION

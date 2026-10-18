@@ -117,6 +117,8 @@
   position: absolute;
   left: 0;
   top: 0;
+  width: 100%;
+  height: 100%;
 }
 .sh-top__name {
   position: absolute;
@@ -207,4 +209,58 @@
   font-size: 40px;
   line-height: 136px;
   text-align: center;
+}
+
+/* ---- sub menu (CHomeSubMenuWindow) ---- */
+.sh-sub {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.sh-sub__btn {
+  position: absolute;
+  color: #fff;
+}
+.sh-sub__btn span {
+  position: absolute;
+  top: 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sh-sub__line {
+  position: absolute;
+}
+.sh-sub__focus {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-width: 24px 24px 110px 24px;
+  border-image-slice: 16 16 73 16 fill;
+  border-image-repeat: stretch;
+  transform-origin: center top;
+}
+
+/* ---- colour tag ---- */
+.sh-ctag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 400px;
+  height: 375px;
+  overflow: hidden;
+  font-family: 'SamsungSVD', sans-serif;
+  font-weight: 500;
+}
+.sh-ctag__text {
+  position: absolute;
+  left: 30px;
+  top: 30px;
+  width: 370px;
+  height: 122px;
+  font-size: 55px;
+  line-height: 61px;
+  color: #fff;
+  white-space: pre-line;
+  overflow: hidden;
 }

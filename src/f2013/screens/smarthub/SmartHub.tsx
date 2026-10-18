@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { openApp, type AppProps } from '../../shell'
 import { Hub } from './Hub'
+import type { SmartHubParams } from './panels'
 import { Welcome } from './Welcome'
 import './smarthub.css'
 
@@ -9,8 +10,11 @@ import './smarthub.css'
 // application in Smart Hub setup mode (RunApp(0xbd, 0xbd, 0x523)), whose Welcome page is drawn here.
 // openApp('smarthub', { page: 'welcome' }) reopens the setup at its Welcome page, as the network
 // wizard's "previous" result (code 2) does (CHomeWizardWindowManager::PreparePNP @02c02f90).
+// openApp('smarthub', { panel }) opens the carousel with that panel centred (returning from an item a
+// panel ran).
 export function SmartHub({ close, params }: AppProps) {
-  const start = (params as { page?: string } | undefined)?.page === 'welcome' ? 'welcome' : 'hub'
+  const p = params as SmartHubParams | undefined
+  const start = p?.page === 'welcome' ? 'welcome' : 'hub'
   const [mode, setMode] = useState<'hub' | 'welcome'>(start)
   if (mode === 'welcome') {
     return (
@@ -26,5 +30,5 @@ export function SmartHub({ close, params }: AppProps) {
       />
     )
   }
-  return <Hub close={close} onSetup={() => setMode('welcome')} />
+  return <Hub close={close} onSetup={() => setMode('welcome')} startPanel={p?.panel} />
 }
