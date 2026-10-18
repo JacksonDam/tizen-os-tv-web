@@ -47,6 +47,8 @@ const DEFAULTS: Record<number, number> = {
   0x54a: 0x656e67, // Secondary Subtitle: English (inferred)
   0x57a: 0x656e67, // Primary Audio: English (inferred)
   0x5a8: 0x656e67, // Secondary Audio: English (inferred)
+  0x5d6: 0x656e67, // Primary Teletext: English (inferred)
+  0x603: 0x656e67, // Secondary Teletext: English (inferred)
   0x51: 0,         // Device Name: [TV] Samsung (inferred: the first name of the list)
 }
 

@@ -1398,6 +1398,14 @@ export const CATEGORIES: MenuItem[] = [
     "dis": "\"This function isn't available.\"",
     "k": [
      {
+      "id": 463,
+      "t": "Auto Tuning",
+      "r": 0,
+      "ok": "app",
+      "h": "Configure auto-tuning settings to scan and store channels.",
+      "dis": "\"This function isn't available.\""
+     },
+     {
       "id": 533,
       "t": "Standby Auto Tuning",
       "r": 2,
@@ -2396,6 +2404,304 @@ export const CATEGORIES: MenuItem[] = [
       1,
       "Enable"
      ]
+    ]
+   },
+   {
+    "id": 1669,
+    "t": "Teletext Language",
+    "r": 2,
+    "ok": "child",
+    "h": "Set teletext language.",
+    "en": false,
+    "dis": "\"This function isn't available.\"",
+    "o": [],
+    "k": [
+     {
+      "id": 1670,
+      "t": "Teletext Language",
+      "r": 2,
+      "ok": "dim1 widget",
+      "h": "Set teletext language.",
+      "en": false,
+      "dis": "\"This function isn't available.\"",
+      "o": []
+     },
+     {
+      "id": 1494,
+      "t": "Primary Teletext",
+      "r": 2,
+      "ok": "dim1 widget",
+      "h": "Sets the primary teletext language.",
+      "dis": "\"This function is only available when the channel you're watching has Teletext information.\"",
+      "o": [
+       [
+        6649203,
+        "Basque"
+       ],
+       [
+        6452588,
+        "Bulgarian"
+       ],
+       [
+        6513012,
+        "Catalan"
+       ],
+       [
+        6845046,
+        "Croatian"
+       ],
+       [
+        6519397,
+        "Czech"
+       ],
+       [
+        6578542,
+        "Danish"
+       ],
+       [
+        6583668,
+        "Dutch"
+       ],
+       [
+        6647399,
+        "English"
+       ],
+       [
+        6648692,
+        "Estonian"
+       ],
+       [
+        6711662,
+        "Finnish"
+       ],
+       [
+        6713957,
+        "French"
+       ],
+       [
+        6775912,
+        "Gaelic"
+       ],
+       [
+        6777959,
+        "Galician"
+       ],
+       [
+        6776178,
+        "German"
+       ],
+       [
+        6779493,
+        "Greek"
+       ],
+       [
+        6845806,
+        "Hungarian"
+       ],
+       [
+        6910569,
+        "Irish"
+       ],
+       [
+        6911073,
+        "Italian"
+       ],
+       [
+        7102838,
+        "Latvian"
+       ],
+       [
+        7104884,
+        "Lithuanian"
+       ],
+       [
+        7237490,
+        "Norwegian"
+       ],
+       [
+        7368556,
+        "Polish"
+       ],
+       [
+        7368562,
+        "Portuguese"
+       ],
+       [
+        7501165,
+        "Romanian"
+       ],
+       [
+        7501171,
+        "Russian"
+       ],
+       [
+        7565936,
+        "Serbian"
+       ],
+       [
+        7564395,
+        "Slovakian"
+       ],
+       [
+        7565409,
+        "Spanish"
+       ],
+       [
+        7567205,
+        "Swedish"
+       ],
+       [
+        7632242,
+        "Turkish"
+       ],
+       [
+        7758188,
+        "Valencian"
+       ],
+       [
+        6519149,
+        "Welsh"
+       ]
+      ]
+     },
+     {
+      "id": 1539,
+      "t": "Secondary Teletext",
+      "r": 2,
+      "ok": "dim1 widget",
+      "h": "Sets the secondary teletext language.",
+      "dis": "\"This function isn't available.\"",
+      "o": [
+       [
+        6649203,
+        "Basque"
+       ],
+       [
+        6452588,
+        "Bulgarian"
+       ],
+       [
+        6513012,
+        "Catalan"
+       ],
+       [
+        6845046,
+        "Croatian"
+       ],
+       [
+        6519397,
+        "Czech"
+       ],
+       [
+        6578542,
+        "Danish"
+       ],
+       [
+        6583668,
+        "Dutch"
+       ],
+       [
+        6647399,
+        "English"
+       ],
+       [
+        6648692,
+        "Estonian"
+       ],
+       [
+        6711662,
+        "Finnish"
+       ],
+       [
+        6713957,
+        "French"
+       ],
+       [
+        6775912,
+        "Gaelic"
+       ],
+       [
+        6777959,
+        "Galician"
+       ],
+       [
+        6776178,
+        "German"
+       ],
+       [
+        6779493,
+        "Greek"
+       ],
+       [
+        6845806,
+        "Hungarian"
+       ],
+       [
+        6910569,
+        "Irish"
+       ],
+       [
+        6911073,
+        "Italian"
+       ],
+       [
+        7102838,
+        "Latvian"
+       ],
+       [
+        7104884,
+        "Lithuanian"
+       ],
+       [
+        7237490,
+        "Norwegian"
+       ],
+       [
+        7368556,
+        "Polish"
+       ],
+       [
+        7368562,
+        "Portuguese"
+       ],
+       [
+        7501165,
+        "Romanian"
+       ],
+       [
+        7501171,
+        "Russian"
+       ],
+       [
+        7565936,
+        "Serbian"
+       ],
+       [
+        7564395,
+        "Slovakian"
+       ],
+       [
+        7565409,
+        "Spanish"
+       ],
+       [
+        7567205,
+        "Swedish"
+       ],
+       [
+        7632242,
+        "Turkish"
+       ],
+       [
+        7758188,
+        "Valencian"
+       ],
+       [
+        6519149,
+        "Welsh"
+       ]
+      ]
+     }
     ]
    },
    {
